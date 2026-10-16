@@ -1,6 +1,6 @@
 # Propostas independentes
 
-Foi recolhida [a proposta do Argon 4](gemini-argon-4.md). As restantes quatro propostas continuam por recolher. Este ficheiro é uma instrução e não conta como uma contribuição.
+Foram recolhidas [a proposta do Argon 4](gemini-argon-4.md) e [a proposta do Astra](chatgpt-6-astra.md). As restantes três propostas continuam por recolher. Este ficheiro é uma instrução e não conta como uma contribuição.
 
 Guarda cada resposta integral num destes ficheiros:
 
