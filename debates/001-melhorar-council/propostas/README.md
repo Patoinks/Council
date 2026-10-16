@@ -1,6 +1,6 @@
 # Propostas independentes
 
-Foram recolhidas [a proposta do Argon 4](gemini-argon-4.md), [a proposta do Astra](chatgpt-6-astra.md) e [a proposta do Opus 5.5](opus-5-5.md). As restantes duas propostas continuam por recolher. Este ficheiro é uma instrução e não conta como uma contribuição.
+Foram recolhidas [a proposta do Argon 4](gemini-argon-4.md), [a proposta do Astra](chatgpt-6-astra.md), [a proposta do Opus 5.5](opus-5-5.md) e [a contribuição do ChatGPT 6.1 Sol](chatgpt-6-1-sol.md). Falta a proposta do ChatGPT 6 Normal. A contribuição do Sol declara influência prévia das outras três; não é independente. Este ficheiro é uma instrução e não conta como uma contribuição.
 
 Guarda cada resposta integral num destes ficheiros:
 
