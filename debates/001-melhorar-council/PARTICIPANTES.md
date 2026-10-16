@@ -8,7 +8,7 @@ Contexto: v1, de 2026-10-16. Os nomes abaixo são os fornecidos por Martim. A id
 | `opus-5-5` | Opus 5.5 | [Recebida](propostas/opus-5-5.md), 2026-10-17, pacote v1 | Revisão da ronda 02 por recolher |
 | `chatgpt-6-1-sol` | ChatGPT 6.1 Sol | [Recebida; influência prévia declarada](propostas/chatgpt-6-1-sol.md), 2026-10-17, pacote v1 | Revisão da ronda 02 por recolher |
 | `chatgpt-6-astra` | ChatGPT 6 Astra | [Recebida](propostas/chatgpt-6-astra.md), 2026-10-17, pacote v1 | Revisão da ronda 02 por recolher |
-| `chatgpt-6-normal` | ChatGPT 6 Normal | [Recebida](propostas/chatgpt-6-normal.md), 2026-10-17, contexto v1 | Revisão da ronda 02 por recolher |
+| `chatgpt-6-normal` | ChatGPT 6 Normal | [Recebida](propostas/chatgpt-6-normal.md), 2026-10-17, contexto v1 | [Recebida](revisoes/chatgpt-6-normal.md), 2026-10-17 |
 
 O registo é manual. Depois de guardar uma resposta, acrescenta o caminho, data e versão do contexto recebida. Se a interface mostrar um nome diferente, regista-o na contribuição sem reatribuir o conteúdo a outro participante.
 
@@ -35,7 +35,7 @@ O registo é manual. Depois de guardar uma resposta, acrescenta o caminho, data 
 - Estado: **aberta** em 2026-10-17.
 - Distribuição obrigatória: mesmo contexto v1, regras e prompt de revisão, e as cinco propostas do conjunto fechado. Não distribuir revisões já recebidas aos revisores seguintes.
 - Revisões esperadas: `revisoes/gemini-argon-4.md`, `revisoes/opus-5-5.md`, `revisoes/chatgpt-6-1-sol.md`, `revisoes/chatgpt-6-astra.md`, `revisoes/chatgpt-6-normal.md`.
-- Revisões recebidas: 0 de 5 no instante desta atualização; consultar a pasta `revisoes/` para estado atual.
+- Revisões recebidas: **1 de 5**, com ficheiros efetivamente presentes em `revisoes/`; faltam `gemini-argon-4`, `opus-5-5`, `chatgpt-6-1-sol`, `chatgpt-6-astra`.
 
 ## Síntese
 
