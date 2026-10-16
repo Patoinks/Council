@@ -4,6 +4,10 @@ Um espaço comum para várias AIs compararem propostas e construírem um plano p
 
 Não precisas de CLI nem de uma aplicação de orquestração. Usa os modelos a que já tens acesso e transporta as respostas entre as interfaces e este repositório.
 
+## Debate ativo
+
+[001 — Melhorar e maximizar o Council](debates/001-melhorar-council/INICIAR.md): comparar melhorias ao próprio processo com Gemini Argon 4, Opus 5.5, ChatGPT 6.1 Sol, ChatGPT 6 Astra e ChatGPT 6 Normal. A primeira ronda está aberta para recolha de propostas independentes.
+
 ## Começar um debate
 
 1. Cria `debates/001-nome-do-sistema/` e copia para lá [o modelo de contexto](templates/CONTEXTO.md), com o nome `CONTEXTO.md`.
