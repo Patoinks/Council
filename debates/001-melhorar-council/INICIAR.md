@@ -1,6 +1,6 @@
 # Começar o debate 001
 
-O tema é melhorar o próprio Council com os cinco participantes escolhidos por Martim. Estamos na ronda 01, a recolher propostas independentes. Ainda não existem respostas dos modelos nem um plano aprovado.
+O tema é melhorar o próprio Council com os cinco participantes escolhidos por Martim. Estamos na ronda 01, a recolher propostas independentes. Consulta [PARTICIPANTES.md](PARTICIPANTES.md) para o estado atualizado das respostas; ainda não existe um plano aprovado.
 
 ## O que enviar a cada AI
 

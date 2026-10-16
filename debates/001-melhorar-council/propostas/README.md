@@ -1,6 +1,6 @@
 # Propostas independentes
 
-Ainda não existem propostas recolhidas. Este ficheiro é uma instrução e não conta como uma contribuição.
+Foi recolhida [a proposta do Argon 4](gemini-argon-4.md). As restantes quatro propostas continuam por recolher. Este ficheiro é uma instrução e não conta como uma contribuição.
 
 Guarda cada resposta integral num destes ficheiros:
 

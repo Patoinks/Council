@@ -4,13 +4,20 @@ Contexto: v1, de 2026-10-16. Os nomes abaixo são os fornecidos por Martim. A id
 
 | Identificador | Nome indicado | Proposta | Revisão |
 | --- | --- | --- | --- |
-| `gemini-argon-4` | Gemini Argon 4 | Por recolher | Aguarda fecho das propostas |
+| `gemini-argon-4` | Gemini Argon 4 | [Recebida](propostas/gemini-argon-4.md), 2026-10-17, pacote v1 | Aguarda fecho das propostas |
 | `opus-5-5` | Opus 5.5 | Por recolher | Aguarda fecho das propostas |
 | `chatgpt-6-1-sol` | ChatGPT 6.1 Sol | Por recolher | Aguarda fecho das propostas |
 | `chatgpt-6-astra` | ChatGPT 6 Astra | Por recolher | Aguarda fecho das propostas |
 | `chatgpt-6-normal` | ChatGPT 6 Normal | Por recolher | Aguarda fecho das propostas |
 
 O registo é manual. Depois de guardar uma resposta, acrescenta o caminho, data e versão do contexto recebida. Se a interface mostrar um nome diferente, regista-o na contribuição sem reatribuir o conteúdo a outro participante.
+
+## Receção das propostas
+
+- Recolhidas: 1 de 5. Faltam Opus 5.5, ChatGPT 6.1 Sol, ChatGPT 6 Astra e ChatGPT 6 Normal.
+- `gemini-argon-4`: texto integral fornecido por Martim em 2026-10-17 e guardado em `propostas/gemini-argon-4.md`. A resposta identifica o participante como `argon 4`, declara o modelo na interface como "Não visível", tem data de autoria 2026-10-16 e refere pacote v1, ronda 01 e commit base `c7f30f6c9c402fab3c68f90c3401a3737945a2ac`.
+- O original foi preservado sem reescrita; apenas os finais de linha do ficheiro foram normalizados. A declaração de independência e as afirmações sobre ferramentas pertencem à resposta recebida; não foram verificadas pelo registo.
+- O contexto e o pacote v1 permanecem como documentos fechados da preparação da ronda. O estado atual da recolha é o deste ficheiro.
 
 ## Fecho da recolha
 
