@@ -6,7 +6,9 @@ Não precisas de CLI nem de uma aplicação de orquestração. Usa os modelos a 
 
 ## Debate ativo
 
-[001 — Melhorar e maximizar o Council](debates/001-melhorar-council/INICIAR.md): comparar melhorias ao próprio processo com Gemini Argon 4, Opus 5.5, ChatGPT 6.1 Sol, ChatGPT 6 Astra e ChatGPT 6 Normal. A primeira ronda está aberta para recolha de propostas independentes.
+[002 — Improve the current Council](debates/002-aperfeicoar-council/INICIAR.md): English proposals and cross reviews from Sol, GPT-6 Normal, Argon 4, Sonnet 5.5 and Astra High. Final synthesis reserved for Martim with Opus. The frozen baseline is the v2 candidate, not an approved release.
+
+[001 — Melhorar e maximizar o Council](debates/001-melhorar-council/INICIAR.md): historical proposals, reviews and synthesis are preserved in their original form.
 
 ## Começar um debate
 
