@@ -2,7 +2,7 @@
 
 - **Debate:** 003-mobile-bridge.
 - **Phase and round:** independent proposals, round 01.
-- **Collection state:** open, preparing dispatch.
+- **Collection state:** open; dispatch completed, browser collection awaiting re-enabled access.
 - **Launch instruction:** Martim, "lança council", 2026-10-17 Europe/Lisbon.
 - **Context version:** v1, authorized for this launch.
 - **Packet file:** PACOTE-PROPOSTA.md v1.
@@ -70,3 +70,20 @@ CLI routing additionally states that this is a fresh advisory execution separate
 ## Closure and next phase
 
 Close only when every requested response is present, or when Martim explicitly decides how to handle an absence. Preserve full originals and publish the closed round in one commit with its record. Give every reviewer the same complete closed set in fresh conversations/executions, without peer reviews. The King's handoff includes all closed originals, the Laws and current rules. Do not decide by provider agreement or support count.
+
+## Actual proposal dispatch and continuation point
+
+The complete proposal packet was dispatched to every listed participant. GPT-6 Normal's selector showed GPT-6 checked with High; Gemini showed Argon Alto; Claude showed Sonnet 5.5 High. ChatGPT and Claude converted pasted payloads to text attachments; Claude received the declared routing message. Gemini received PACOTE-PROPOSTA.md through the file-upload control and the declared routing message. All three web channels were observed generating after submission; Sonnet's interface showed web-search activity. No claim is made that their final answers have been captured.
+
+Sol and Astra completed their fresh advisory CLI executions successfully. Their complete final responses are preserved in the external temporary staging folder, unpublished while the round remains open. Both first lines repeat END-OF-PACKET-003-PROPOSAL-v1 and declare no missing sections; both final non-empty lines are END-OF-CONTRIBUTION. CLI event records contain turn.completed. The requested configuration is not independent model identity attestation.
+
+| ID | Requested configuration | CLI session | Captured original SHA-256 | State |
+| --- | --- | --- | --- | --- |
+| sol | gpt-6.1-sol, reasoning effort xhigh | 01a1489e-ba93-7001-b04a-a9bb625b3078 | 5b2d4df7ef84dddd032417011e93a3a197658ec5edd316813af6108dd8a875e6 | Complete, staged outside checkout |
+| astra | gpt-6-astra, reasoning effort high | 01a1489e-bacc-7a31-9fdc-252829577634 | 95b8dccb83b740914eee361f374e8fafac3e243ced4068eef5712ba77d4fb3a2 | Complete, staged outside checkout |
+
+Both responses declare official-source web research, injected general memory without using it as Council evidence, and an attempted environment skill-file read whose command helper failed before execution. The event logs corroborate web-search calls and the failed command attempts; no repository file access was observed. Existing rmcp_client configuration warnings and a post-response notification-hook failure did not prevent final output capture. No unrelated settings were changed.
+
+During continuation on 2026-10-17, browser access returned `Local browser use is disabled in Work settings`. After Martim asked to test again, a second direct browser-access attempt returned the same setting restriction. The coordinator did not bypass the setting or replace web participants. The proposal packet's frozen inputs and external digest were verified again. No new proposal originals have been published, no proposal set is closed, and no review request has been dispatched.
+
+Resume by re-enabling Local browser use in Work settings, then recover the existing proposal conversations, capture all web originals with receipt and closing-marker checks, and follow the declared closure rule. Do not resend already submitted proposal requests as new independent attempts unless a specific transport recovery is required. The external staging directory and CLI execution helpers are retained locally; its path is recorded in the ignored .council-runs/003-stage-path.txt operator pointer.
