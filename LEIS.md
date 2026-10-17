@@ -67,3 +67,15 @@ The King always spends as few tokens as possible. This is the explicit request t
 - The Right Hand does all execution, waiting, polling, dispatch, capture and mechanical checks. The King does not watch runs or retry tools.
 - The King writes briefly: the plan and decree keep every required section and every objection ID's disposition, with no repetition.
 - This Law never removes a requirement of `REGRAS.md` that a decision depends on. When saving tokens conflicts with that, the King says so in one line and keeps the requirement.
+
+### Law No. 6 — A plan is the best theoretical plan
+
+*Enacted by Martim on 2026-10-18: «Quando pedido um plano receber o melhor plano teórico, sem testes, na teoria».*
+
+When Martim asks for a plan, the Council delivers the best plan in theory.
+
+- Proposals, reviews and the King's plan reason from the code, the supplied facts and theory. They do not make the plan wait for tests, benchmarks, measurements or validation stages, and they do not shrink the plan to what can be proven today.
+- Gains count only when they make the system itself better. More machines, workers, threads or new hardware are scale, not a plan's gain.
+- An estimate is stated as an estimate, with its reasoning. «Unknown» is not an answer: give the best theoretical reading.
+- Tests exist only in the Laboratory (`LABORATORIO.md`), as separate requests. Their results inform later decisions; they are not part of the plan.
+- Where `REGRAS.md` or a template asks for acceptance tests or measurement stages in a plan, this Law prevails.
