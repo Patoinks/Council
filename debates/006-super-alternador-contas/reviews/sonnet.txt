@@ -1,0 +1,229 @@
+END-OF-PACKET-006-REVIEW-v1 | Missing sections: none
+
+Review: proposals astra, normal, sol, sonnet (reviewer: sonnet)
+Participant: sonnet
+Visible model: Claude Sonnet 5.5
+Date: 2026-10-17
+Phase and round: Phase 4, Reviews, fresh cycle v4, round 1
+Context version: v4
+Reference commit: Not supplied.
+Files received and read: PACOTE-REVISAO-v1.md, all ordered sections read in full: LEIS, REGRAS, CONTEXTO, MANIFESTO, templates/CONTRIBUICAO, the four proposals (astra, normal, sol, sonnet) and prompts/02-REVER. The prompt names the file PACOTE-REVISAO.md; I received PACOTE-REVISAO-v1.md. No PACOTES.sha256 was supplied and I did not verify the hash.
+Tools used: None.
+Cross-conversation memory: None relied on.
+Prior exposure: None beyond this packet. I have no access to the conversation that produced the proposal labelled sonnet.
+New conversation: Yes.
+Access limits: No browsing and no live inspection of identities, browsers, sessions or quota. I tested no product behavior. Claims about Brave, the Codex in-app browser and providers are attributed, assumed or unknown.
+Own proposal: The proposal labelled sonnet matches my participant ID. I do not remember writing it, so I treat it as mine by label only and review it by the same standard as the others.
+Brief
+
+Recommendation. Keep the core all four proposals reached:
+
+Martim performs every sign-out, sign-in, credential and 2FA step.
+Identity is verified at the destination service after each switch.
+Brave and the Codex in-app browser get separate pilots.
+Intended identity, observed identity, quota observation, return forecast and next-account intention are kept as separate records.
+No automation or extension is required at the start.
+
+I found no Law breach and no blocking objection.
+
+Convergence is weaker evidence than it looks. Per the manifest, three of four proposals come from the OpenAI family. I am from the same family as the King. All four mark “a manual guided ledger is usable” as an assumption or unknown.
+
+Four material gaps, each filed as an objection below:
+
+No proposal says how the ledger behaves across Martim’s devices (Law 3). An empty ledger on one device must not read as “available”.
+Astra and Sol do not stop an agent from capturing sign-in or 2FA pages. Only Sonnet has a pause rule.
+Signing out in the in-app browser might touch Codex’s own session. This is unknown and needs a read-only before/after check.
+Astra and Sonnet need a rule for pilots when fewer than two authorized identities exist for a service. Creating accounts is forbidden by R3.
+
+Main alternative. Browser automation or extensions. Reject as a prerequisite. Keep Brave profiles only as a Brave-specific fallback.
+
+Failure conditions.
+
+A deliberate wrong-account drill passes undetected.
+The in-app browser cannot complete a user-controlled sign-out/sign-in cycle. That surface is then marked unsupported.
+Any procedure records “available” without observing the service’s own state.
+Analysis
+Convention for R# lists
+met: the design provides what the requirement asks it to specify, with remaining unknowns labelled.
+unverified: satisfaction depends on facts the packet does not establish.
+broken: the design contradicts the requirement.
+
+R7 concerns Council participants, so every proposal can only restate Law No. 4. No Law breach found: no proposal invents personal limits, authenticates for Martim, assumes cross-device sharing or recommends changing a Law.
+
+Proposal: astra
+
+Keep:
+
+Four independent fields (intended identity, observed identity, verification status, quota status).
+observed_at kept apart from actual exhaustion time.
+Context key (device-local surface instance + service + workspace) plus a per-operation ID.
+Capability states including requires retest.
+The wrong-account pilot as the decisive test.
+The honest note that a workflow “stop” cannot physically stop Martim.
+
+R#:
+
+R1: unverified. Both surfaces get separate pilots, but support is untested.
+R2: met, subject to sonnet-R02-01 and sonnet-R02-03.
+R3: met, subject to sonnet-R02-02.
+R4: met.
+R5: unverified. Recovery is tested only in the pilots.
+R6: met.
+R7: met.
+
+Objections: sonnet-R02-01, -02, -03, -04 (shared). No other material objection.
+
+Proposal: normal
+
+Keep:
+
+The per-surface support map (“launching Brave is not a Codex in-app switch”).
+The certainty enum and timezone preservation.
+Refutation tests A–D.
+The rule that one configured identity cannot demonstrate multi-account switching.
+The rule that partial usefulness is not R1 fulfilment.
+
+R#:
+
+R1: unverified.
+R2: met, subject to sonnet-R02-01 and -03.
+R3: met. The operator-observation limit is stated only in Stage 2, so see sonnet-R02-02.
+R4: met.
+R5: unverified.
+R6: met.
+R7: met.
+
+Objections: sonnet-R02-01, -02 (partial), -03 (shared). Minor, not tabled: the eleven-field quota record is a manual maintenance burden.
+
+Proposal: sol
+
+Keep:
+
+Disclosure of its role conflict and prior exposure. The King should weigh its operational convenience accordingly.
+The step that marks affected observations as requiring recheck before sign-out.
+Matching the exact identifier and workspace, not a display name.
+“Unperformed” for tests when the needed identities are absent.
+Backup restoration, and one authoritative ledger writer.
+
+R#:
+
+R1: unverified.
+R2: met, subject to sonnet-R02-01 and -03.
+R3: met, subject to sonnet-R02-02.
+R4: met.
+R5: unverified.
+R6: met.
+R7: met.
+
+Objections: sonnet-R02-01, -02, -03 (shared). Minor, not tabled: no deliberate wrong-account drill. The refutation test only attempts to establish identity.
+
+Proposal: sonnet (labelled mine)
+
+Keep:
+
+The pause rule during sign-in.
+The rollback-readiness check (Martim can complete sign-in and 2FA for both identities before starting).
+Clearing site data prohibited as a sign-out method.
+A recheck is a view, never a probe.
+The explicit list of unsupported paths.
+UTC offsets with the 2026-10-25 clock change.
+The S-U1 to S-U5 discovery questions.
+
+R#:
+
+R1: unverified.
+R2: met, subject to sonnet-R02-01 and -03.
+R3: met.
+R4: met.
+R5: met on paper, unverified in practice.
+R6: met.
+R7: met.
+
+Objections: sonnet-R02-01, -03, -04 (shared). My own corrections are in section 3.
+
+Objection table
+ID	Target: file, section, passage	Type	Severity	Failure condition	Consequence	Basis and phase	Correction or test	Effect on the decision
+sonnet-R02-01	astra «Identity and session model»; normal Component D; sol «A local companion with one authoritative ledger»; sonnet «Event ledger»	Design gap	material	Martim uses a service or surface on a second device where the ledger holds no entry for an observation made on the first.	An empty entry is read as unknown or available. The next-account plan then rests on false availability (criterion 4).	LEIS Law 3 («they differ across his devices»), supported. Quota being scoped to the provider account rather than the device is an assumption. Review phase.	Every entry carries a device label. The display separates “no local record” from “available_observed”. Martim may transcribe other-device observations as Martim-reported. No sync is assumed. Test: record exhaustion of A on device 1, open the ledger on device 2, and A must not show as available.	Adds a per-device ledger rule. Browser approach unchanged.
+sonnet-R02-02	astra «User flow» steps 4–5; sol «Switching flow» steps 6–7; normal «End-to-end switching flow» step 5 (partial)	Security gap	material	An agent with page-read or screenshot access, such as the Right Hand operating the in-app browser, is attached while Martim enters credentials or 2FA.	Secrets enter an AI transcript. The text of R3 is not literally broken (the AI “writes” nothing), but criterion 1 (secret handling) is.	CONTEXTO R3 and criterion 1, supported. The agent-can-read-the-pane premise is an assumption. sonnet step 5 has the only pause rule. Review phase.	Add a mandatory pause: no screenshots, DOM reads or page captures on sign-in and 2FA pages. Resume only on Martim’s signal. Test: check the pilot’s agent record for any capture of those pages.	Adds one mandatory step to every flow.
+sonnet-R02-03	all four, in-app browser pilot stage (astra Stage 3; normal Stage 3; sol Stage 4; sonnet Stage 3)	Boundary risk	material	The in-app browser shares a session store with Codex’s own authentication, so a service or Google sign-out there changes the Codex session.	The excluded desktop/CLI identity changes unintentionally (scope exclusion), interrupting work (R5).	CONTEXTO Scope exclusions, supported. The sharing is unknown. Normal states «remains outside the switching flow» but gives no check. Review phase.	Before and after the pilot, Martim reads the Codex-displayed account (observation only, no change). If it changed, stop and mark that path blocked or unsupported.	Adds a gating check to the in-app pilot.
+sonnet-R02-04	astra «Staged implementation» Stage 2; sonnet Stage 2	Acceptance gap	material	Fewer than two authorized identities exist for the chosen service.	The wrong-account and A→B→A drills cannot run. The plan then pressures creation of a test account (forbidden by R3) or an unearned “supported” claim.	CONTEXTO R3 and R1, supported. Normal and sol already state the rule. Review phase.	If the pair has fewer than two authorized identities, mark the drill unperformed and the pair unknown. Never create accounts.	Prevents unearned support claims.
+1. Comparison against requirements and criteria
+Requirement	astra	normal	sol	sonnet
+R1	Pilots per surface, capability states	Per-surface support map	Capability matrix	Support status plus unsupported list
+R2	Context key plus operation ID	Composite keys	Per-service registers, invalidation step	Per (surface, service) boundary map, tab reload
+R3	Manual authentication; observation not addressed	Manual authentication; observation partly addressed	Manual authentication; observation not addressed	Manual authentication plus pause rule
+R4	Four-field model	Detailed schema with certainty enum	Separate record types	Event ledger with source and certainty enums
+R5	Preservation gate, no cookie copying	Checkpoints, return-login test	Backup plus preservation gate	Rollback readiness, site-data ban
+R6, R7	Stated	Stated	Stated	Stated
+Criterion	astra	normal	sol	sonnet
+1. Correctness and security	Strong	Strong	Strong	Strong
+2. Coverage and reliability	Good	Good	Good	Good
+3. Usability	Seven stages	Heaviest schema	Companion UI, deferred	Plain text, lightest
+4. Quota visibility	Strong	Strong	Strong	Strong
+5. Reversibility	Good	Good	Good	Nothing installed
+
+The four proposals differ on usability and maintenance more than on correctness. They are not distinguishable on correctness from the packet alone.
+
+2. Current recommendation
+
+Adopt the manual-first guided protocol with a plain-text ledger. Build any companion UI only after pilot evidence. Combine:
+
+Astra’s four-field separation, context key and wrong-account decisive test.
+Normal’s per-surface support map.
+Sol’s invalidation step and unperformed rule.
+Sonnet’s pause rule, rollback-readiness check, recheck-as-view and site-data ban.
+Fixes for sonnet-R02-01 to -04.
+
+Decisive gaps raised by a single participant, examined by merit rather than count:
+
+The pause rule (sonnet only) matters most, because the Right Hand may drive the in-app browser.
+Rollback readiness (sonnet only) matters because a failed re-login strands work.
+Invalidation before sign-out (sol only) matters because logout scope is uncertain.
+Per-surface and per-device keys (astra only) matter because Law 3 forbids assuming carry-over.
+3. What I would change in my own proposal
+Add Astra’s four-field separation and context key.
+Add the multi-device rule (sonnet-R02-01), the in-app read-only boundary check (-03) and the fewer-than-two-identities rule (-04).
+Reword Stage 5. “Record one real exhaustion” must not be read as inducing exhaustion. Use synthetic entries in Stage 1 and the first natural occurrence thereafter.
+Narrow the “Opus as read-only reviewer of a ledger snapshot” idea. It moves personal identifiers into a conversation without need, and Opus’s role belongs to the Laws and Martim.
+Add to the evidence table as assumptions: “Opus cannot see either browser” and “Brave Sync may carry some state across devices, scope unknown”.
+4. Open disagreements and missing information
+
+Mild disagreements:
+
+Brave profiles as a fallback trigger (sonnet) versus an optional extra (normal) versus never a prerequisite (astra).
+Companion UI (sol, astra) versus plain ledger first (sonnet).
+Ledger field granularity (normal heavy, sonnet light).
+
+Missing information that could change the decision:
+
+Whether the in-app browser supports user-operated sign-out and keeps sessions (S-U1).
+Whether it shares storage with Brave or with Codex itself (S-U2, sonnet-R02-03).
+Which services follow the Google session live (S-U3).
+What quota-return evidence each service shows (S-U4).
+Provider terms on several accounts per service (S-U5, unknown; a Martim decision, not a Council one).
+The device inventory.
+
+CONTEXTO has no R# requiring destination verification directly. R2 only implies it. I leave that to Martim.
+
+Evidence and assumptions
+Decisive claim	State	Provenance and passage	Phase	Scope
+All four proposals converge on a manual guided protocol plus a ledger	supported	The four proposals, Briefs	Review r1	Describes the packet. Not independent corroboration.
+Three of four proposals are from the OpenAI family	attributed	MANIFESTO receipt table	Review r1	Same-provider agreement does not count as independent (REGRAS).
+“A manual guided ledger is usable” holds	assumption	astra E8, normal E11, sol E7, own proposal	Review r1	Pilot-dependent. Convergence does not raise its state.
+Martim’s devices carry differing accounts	supported	LEIS Law 3	Review r1	Basis for sonnet-R02-01.
+No proposal states where the ledger lives per device or how observations move between devices	supported	Read of all four; astra’s context key is the partial exception	Review r1	Limited to these texts.
+Quota is scoped to the provider account, not the device	assumption	Not tested	Review r1	Provider-dependent. Astra notes shared allocations.
+An agent in the in-app browser can read or screenshot sign-in pages	assumption	normal Stage 2 («operator observes…»)	Review r1	Basis for sonnet-R02-02.
+In-app sign-out affects Codex’s own session	unknown	None	Review r1	Settled only by the read-only before/after check.
+No Law breach in any proposal	supported	LEIS Laws 1–4 against the four texts	Review r1	My reading only.
+Provider terms permit several accounts per service	unknown	None	Review r1	S-U5.
+Risks and checks
+Wrong-account drill passes undetected. The checklist-only design is refuted. Fall back to per-identity Brave profiles or a stronger check.
+In-app browser cannot complete a sign-out/sign-in cycle. That surface is unsupported. Do not substitute Brave or the desktop/CLI account.
+Read-only before/after check shows a Codex account change. The in-app path is blocked.
+Ledger read as availability. Test sonnet-R02-01 (device 2 must not show A as available), and the quota rule that elapsed time yields only “recheck due”.
+Secrets in a transcript. Inspect the pilot record for any capture of sign-in or 2FA pages.
+Rollback fails because Martim cannot complete sign-in or 2FA for the leaving account. Prevented by the readiness check, and caught by the return-login test.
+Pilot without two identities. Marked unperformed, never filled by creating an account.
+
+END-OF-CONTRIBUTION
