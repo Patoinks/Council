@@ -37,7 +37,7 @@ All five originals were received before the operational deadline, reviewed for t
 
 | ID | Original | UTF-8 bytes | Whitespace-delimited words | SHA-256 |
 | --- | --- | ---: | ---: | --- |
-| sol | propostas/sol.md | 10104 | 1414 | dad1ef1e8bb385b6158761a123efdde5249fec14b8c288609bf21c85b5b98957 |
+| sol | propostas/sol.md | 10104 | 1413 | dad1ef1e8bb385b6158761a123efdde5249fec14b8c288609bf21c85b5b98957 |
 | normal | propostas/normal.md | 43601 | 4791 | e0052bb77b1bfa8a54de103b7ea36f4b94530cde023024cf7d2015ca9e9f45b0 |
 | argon | propostas/argon.md | 27703 | 3691 | e2054dee338924761f5548783e9c874567aea3d9de0fae577c77e26aad096e08 |
 | sonnet | propostas/sonnet.md | 17624 | 2868 | f8441df1b081d118350a091a3219a3bbc615905f8334b8609f29c77c2498f549 |
@@ -72,7 +72,7 @@ Collection staging was a Git-ignored local directory under the checkout, rather 
 
 | ID | Captured review | UTF-8 bytes | Whitespace-delimited words | Distinct reviewer-prefixed objection IDs | SHA-256 |
 | --- | --- | ---: | ---: | ---: | --- |
-| sol | revisoes/sol.md | 14591 | 2002 | 9 | d02e58a1fa45ada8c780ca9028c9b9b94db015dd4689ef66cff9a7169c0b3be9 |
+| sol | revisoes/sol.md | 14591 | 2001 | 9 | d02e58a1fa45ada8c780ca9028c9b9b94db015dd4689ef66cff9a7169c0b3be9 |
 | normal | revisoes/normal.md | 36941 | 3683 | 11 | 9644152008c76a28f00860ea67bb9f6d594da339a6c974070b844211f0bb5554 |
 | argon | revisoes/argon.md | 43183 | 5703 | 10 | db9c6a45b28222ebac7efa71eed654f6ad63fdafc58c63329fff6c7d4c22a30e |
 | sonnet | revisoes/sonnet.md | 15366 | 2433 | 6 | 1425d1721edfba22b591c074729e813925e7d3189e4b4a97526c9b16e54c1704 |

@@ -6,7 +6,7 @@ Não precisas de CLI nem de uma aplicação de orquestração. Usa os modelos a 
 
 ## Debate ativo
 
-[002 — Improve the current Council](debates/002-aperfeicoar-council/INICIAR.md): English proposals and cross reviews from Sol, GPT-6 Normal, Argon 4, Sonnet 5.5 and Astra High. Final synthesis reserved for Martim with Opus. The frozen baseline is the v2 candidate, not an approved release.
+[002 — Improve the current Council](debates/002-aperfeicoar-council/INICIAR.md): five English proposals and five cross reviews complete, from Sol, GPT-6 Normal, Argon 4, Sonnet 5.5 and Astra High. [Complete handoff for Martim and Opus](debates/002-aperfeicoar-council/HANDOFF.md). The frozen baseline remains the unvalidated v2 candidate.
 
 [001 — Melhorar e maximizar o Council](debates/001-melhorar-council/INICIAR.md): historical proposals, reviews and synthesis are preserved in their original form.
 
