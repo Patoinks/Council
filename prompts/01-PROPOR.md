@@ -1,24 +1,24 @@
-# Prompt 1 — Proposta independente
+# Prompt 1 — Independent proposal
 
-Copia o texto abaixo para a AI e fornece `CONTEXTO.md` e `REGRAS.md`. Não forneças as outras propostas nesta fase.
+**For the operator — the Right Hand (Codex 6.1 Sol xHigh).** Open a new conversation for each participant. Send the same `PACOTE-PROPOSTA.md` to everyone. It contains, in order: the section list, `LEIS.md`, `REGRAS.md`, `CONTEXTO.md`, the manifest, `templates/CONTRIBUICAO.md`, the text below, and the end marker on the last line. Do not include other participants' proposals. Before the packet, add only the line `Participant ID: <id>.` Record any other addition in the manifest. If the Right Hand also participates, the manifest says so. Keep the answers outside the repository until the round closes.
 
 ---
 
-Participas num Council para escolher um plano para o sistema descrito em CONTEXTO.md. Segue REGRAS.md.
+You are a participant in a Council that must produce a plan for the decision described in CONTEXTO.md. Follow LEIS.md first, then REGRAS.md. Martim alone makes the Laws and may overrule. The King (Opus) synthesizes and decrees. The Right Hand operates and implements. You propose and review; you do not decide. Do not debate Law No. 2. Do not implement anything.
 
-Começa por identificar os ficheiros e a versão do contexto que recebeste. Se não conseguires ler o contexto, pede o seu conteúdo antes de propor uma solução.
+On the first line, repeat the packet's end marker and list any missing sections, or write «Missing sections: none». If the marker is missing or wrong, ask for the packet again instead of proposing.
 
-Cria uma proposta independente. Não consultes propostas de outros participantes. Não implementes o sistema nesta fase.
+Use templates/CONTRIBUICAO.md. Declare your participant ID, the visible model (or «not visible»), the tools you actually used, cross-conversation memory, prior exposure to this debate, and whether this is a new conversation. Do not look for other participants' proposals.
 
-A resposta deve conter:
+Your answer must contain:
 
-1. Participante, modelo mostrado na interface e versão do contexto. Se desconheces um dado, diz isso.
-2. A tua interpretação do objetivo e as lacunas que podem mudar a decisão.
-3. Plano recomendado: componentes, responsabilidades, fluxo de funcionamento e etapas de execução.
-4. Pelo menos uma alternativa plausível e os motivos para preferires a recomendação.
-5. Comparação pelos critérios e restrições definidos no contexto. Se usares estimativas de esforço ou custo, indica os pressupostos.
-6. Riscos, modos de falha e dependências.
-7. Fontes ou evidências efetivamente consultadas, distinguindo factos de pressupostos.
-8. Verificações concretas que permitam aceitar ou rejeitar as decisões mais importantes.
+1. A brief of up to 300 words: recommendation, decisive reasons, the main alternative, the condition under which it fails, and how to check it.
+2. Your reading of the objective, the requirements (R#) and the open questions (U#) that could change the decision.
+3. The recommended plan: components, responsibilities, interfaces, flow and execution steps with observable acceptance checks.
+4. At least one plausible alternative, and why you prefer your recommendation.
+5. A comparison against the context's requirements and criteria.
+6. Risks, failure modes and dependencies. List every risk that could break a mandatory requirement.
+7. Evidence table for decisive claims: state (supported, attributed, assumption, contested, unknown), provenance and passage, scope, and the phase in which you consulted it.
+8. At least one refutation test: the observable result that would make you abandon or change the recommendation.
 
-Prioriza argumentos concretos. Não inventes funcionalidades, acesso a ferramentas ou resultados. Entrega a resposta em Markdown para ser guardada em propostas/<participante>.md.
+Do not discuss time, effort, cost or resources (Law No. 1). Do not invent tools, research or results. Write in English, in Markdown. End your answer with a line containing only `END-OF-CONTRIBUTION`.

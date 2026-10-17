@@ -1,68 +1,64 @@
-# Contexto — <nome do sistema>
+# Context — <debate name>
 
-- Identificador do debate: <001-nome-do-sistema>
-- Versão do contexto: <v1>
-- Estado: <Preparação | Propostas | Revisão | Síntese | Fechado>
-- Data de atualização: <AAAA-MM-DD>
-- Responsável pela decisão: <nome>
+- **Debate ID:** <NNN-name>
+- **Version:** <v1>
+- **Date:** <YYYY-MM-DD>
+- **Sovereign:** Martim
+- **King:** Opus
+- **Right Hand:** Codex 6.1 Sol xHigh
 
-## Pergunta a resolver
+## Decision to make
 
-<Que decisão concreta deve sair deste debate?>
+<The concrete decision this debate must produce.>
 
-## Objetivo e utilizadores
+## Objective
 
-<O que queremos alcançar, para quem e em que situação?>
+<What must be achieved, for whom and in which situation.>
 
-## Situação atual
+## Current situation
 
-<O que já existe? Inclui ficheiros, componentes ou documentação relevantes.>
+<What exists now. Cite relevant files, components and documentation.>
 
-## Dentro do âmbito
+## In scope
 
-- <...>
+- <Included work or behaviour.>
 
-## Fora do âmbito
+## Out of scope
 
-- <...>
+- <Excluded work or behaviour.>
 
-## Requisitos obrigatórios
+## Mandatory requirements
 
-- R1: <requisito verificável>
-- R2: <requisito verificável>
-
-## Restrições
-
-- Orçamento: <valor ou por definir>
-- Prazo: <data ou por definir>
-- Tecnologias e integrações: <obrigatórias, disponíveis ou proibidas>
-- Recursos disponíveis: <equipa, hardware, serviços, dados>
-- Outras restrições: <...>
-
-## Critérios de escolha, por prioridade
-
-| Prioridade | Critério | Como comparar ou medir |
+| R# | Requirement | How to verify |
 | --- | --- | --- |
-| 1 | <...> | <...> |
-| 2 | <...> | <...> |
-| 3 | <...> | <...> |
+| R1 | <Observable requirement.> | <Check and passing result.> |
 
-## Evidências disponíveis
+## Constraints stated by Martim
 
-<Fontes, ficheiros, medições e limites do que já sabemos.>
+<Only real constraints of the problem stated by Martim. Apply Law No. 1. Treat each stated constraint as a given; do not debate it. Write «None stated» if there are none.>
 
-## Pressupostos e perguntas em aberto
+## Criteria in priority order
 
-- <...>
+| Priority | Criterion | How to compare or measure |
+| --- | --- | --- |
+| 1 | <Criterion.> | <Observable comparison.> |
 
-## Participantes e ronda
+## Evidence available
 
-- Participantes: <identificadores; registar o modelo efetivo em cada contribuição>
-- Fase atual: <...>
-- Ficheiros fornecidos nesta fase: <lista>
-- Referência da versão: <versão do contexto e, quando existir, commit>
-- Condição de paragem: <o que basta para avançar para a síntese>
+<Sources, files, observations and the limits of what they establish.>
 
-## Resultado esperado
+## Open questions
 
-<Que documentos, decisões e critérios de validação devem ser entregues?>
+| U# | Question | Decision affected | How to answer |
+| --- | --- | --- | --- |
+| U1 | <Unresolved question.> | <Choice or condition that could change.> | <Source or check.> |
+
+## Participants
+
+| ID | Model | Channel |
+| --- | --- | --- |
+| <participant> | <Expected model; declare the visible model in each answer.> | <Interface or CLI.> |
+
+## Expected result
+
+<The reasoned plan, decree and observable acceptance checks required from this debate.>

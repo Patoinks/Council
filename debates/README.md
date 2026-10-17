@@ -1,10 +1,10 @@
 # Debates
 
-| Debate | Estado | Entrada |
+| Debate | Status | Entry |
 | --- | --- | --- |
-| 002 — Improve the current Council | Five English proposals and five reviews complete; ready for Martim/Opus synthesis | [Handoff](002-aperfeicoar-council/HANDOFF.md) |
-| 001 — Melhorar e maximizar o Council | Historical proposals, reviews and synthesis preserved | [Open](001-melhorar-council/INICIAR.md) |
+| 002 — Improve the current Council | Closed — decree | [Decree](002-aperfeicoar-council/DECISAO.md) |
+| 001 — Improve and maximize the Council | Closed — synthesis | [Synthesis](001-melhorar-council/PLANO-FINAL.md) |
 
-Para abrir outro debate, cria uma pasta numerada e preenche nela uma cópia de [CONTEXTO.md](../templates/CONTEXTO.md).
+To open a new debate, create a numbered folder and fill in a copy of [CONTEXTO.md](../templates/CONTEXTO.md) there.
 
-Guarda propostas e revisões em ficheiros separados, com identificadores estáveis para cada participante. Segue o processo no [README principal](../README.md).
+Keep proposals and reviews in separate files, with stable participant IDs. Follow the process in the [main README](../README.md).

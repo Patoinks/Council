@@ -1,24 +1,31 @@
-# Prompt 2 — Crítica e revisão
+# Prompt 2 — Cross review
 
-Fornece `CONTEXTO.md`, `REGRAS.md` e todas as propostas da mesma ronda, incluindo a deste participante se existir. Usa o mesmo conjunto para todos os revisores.
+**For the operator — the Right Hand (Codex 6.1 Sol xHigh).** Open a new conversation for each reviewer. Send the same `PACOTE-REVISAO.md` to everyone. It contains, in order: the section list, `LEIS.md`, `REGRAS.md`, `CONTEXTO.md`, the manifest, `templates/CONTRIBUICAO.md`, every proposal of the closed set in the order the manifest records, the text below, and the end marker on the last line. Include the reviewer's own proposal. Do not send any review while the round is open. Before the packet, add only the line `Participant ID: <id>.` Record any other addition in the manifest. If the Right Hand also participates, the manifest says so.
 
 ---
 
-Participas na revisão de um Council. Segue REGRAS.md e avalia as propostas segundo os critérios do CONTEXTO.md.
+You are reviewing the proposals of a Council. Follow LEIS.md first, then REGRAS.md. Martim alone makes the Laws and may overrule. The King (Opus) synthesizes and decrees. The Right Hand operates and implements. You propose and review; you do not decide. Do not debate Law No. 2. Judge the proposals against the requirements and criteria in CONTEXTO.md.
 
-Primeiro lista os ficheiros e a versão do contexto que recebeste. Se faltar uma proposta mencionada no conjunto da ronda, assinala a limitação.
+On the first line, repeat the packet's end marker and list any missing sections, or write «Missing sections: none». If material is missing, ask for it again. If the conversation cannot hold the whole set, say exactly what you did not read and declare the review partial.
 
-Para cada proposta:
+Use templates/CONTRIBUICAO.md. Declare your participant ID, the visible model (or «not visible»), tools, memory, prior exposure, and whether this is a new conversation. Say whether you recognize your own proposal; review it by the same standard as the others.
 
-- Identifica os pontos mais fortes e a sua utilidade para o objetivo.
-- Aponta objeções materiais. Para cada uma, indica o ficheiro e a secção, a decisão em causa, as condições em que falha, a consequência e uma correção ou teste possível.
-- Distingue violações de requisitos obrigatórios de preferências e compromissos aceitáveis.
+For each proposal:
 
-Depois apresenta:
+- Its strengths that the synthesis should keep.
+- A short list `R#: met / broken / unverified`, with a one-line reason.
+- Blocking and material objections, in the table below. If there are none, write «No material objection». Do not invent objections.
 
-1. Comparação das opções pelos critérios definidos no contexto.
-2. A tua recomendação atual e os argumentos que a sustentam.
-3. Se apresentaste uma proposta inicial, o que manterias ou alterarias nela e porquê. Podes recomendar outra proposta.
-4. Desacordos ainda por resolver, informação em falta e verificações que poderiam mudar a decisão.
+| ID | Target: file, section, passage | Type | Severity | Failure condition | Consequence | Basis and phase | Correction or test | Effect on the decision |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
-Não fabriques objeções para parecer crítico e não aceites uma decisão apenas porque vários participantes concordam. Não alteres contribuições originais. Entrega a resposta em Markdown para revisoes/<participante>.md.
+IDs use your own prefix, never the target's: `<your-id>-R02-01`, `<your-id>-R02-02`. Severity is blocking, material or minor. «Effect on the decision» says which choice or condition changes if the objection holds.
+
+Then give:
+
+1. A comparison of the proposals against the context's requirements and criteria.
+2. Your current recommendation and its reasons, including any decisive gap raised by only one proposal.
+3. What you would keep or change in your own proposal, and why.
+4. Open disagreements and missing information that could change the decision.
+
+Keep a state and provenance for decisive claims. Repetition does not make a claim supported. Agreement among models from the same provider is not independent corroboration. Do not discuss time, effort, cost or resources (Law No. 1). Do not synthesize a final plan. Write in English, in Markdown. End your answer with a line containing only `END-OF-CONTRIBUTION`.

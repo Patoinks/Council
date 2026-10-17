@@ -1,59 +1,37 @@
 # Council
 
-Um espaço comum para várias AIs compararem propostas e construírem um plano para um sistema. Cada participante usa a sua própria interface; o repositório guarda o contexto, as contribuições e as decisões.
+Several AIs propose and review independently. The King (Opus) synthesizes, decides the plan and issues the decree. Martim is the sovereign: he alone makes the Laws and may veto or amend any decree. The Right Hand (Codex 6.1 Sol xHigh) operates the Council and implements the decree; the King reviews its work. Each AI works in its own interface. This repository keeps the context, the originals and the decisions. Copy-paste or file attachments are enough; scripts are optional.
 
-Não precisas de CLI nem de uma aplicação de orquestração. Usa os modelos a que já tens acesso e transporta as respostas entre as interfaces e este repositório.
+**Read first:** the [Laws](LEIS.md). They are above everything else.
 
-## Debate ativo
+## How a debate runs
 
-[002 — Improve the current Council](debates/002-aperfeicoar-council/INICIAR.md): five English proposals and five cross reviews complete, from Sol, GPT-6 Normal, Argon 4, Sonnet 5.5 and Astra High. [Complete handoff for Martim and Opus](debates/002-aperfeicoar-council/HANDOFF.md). The frozen baseline remains the unvalidated v2 candidate.
+1. **Context.** Create `debates/NNN-name/` and fill in [`CONTEXTO.md`](templates/CONTEXTO.md): the decision, the mandatory requirements, the open questions and the criteria.
+2. **Proposals.** Send each AI, in a new conversation, the same packet: the Laws, the [rules](REGRAS.md), the context and the [proposal prompt](prompts/01-PROPOR.md). Keep the answers outside the repository until all are in. Then commit them together under `propostas/`.
+3. **Reviews.** Send each AI, in a new conversation, the same packet with all the proposals and the [review prompt](prompts/02-REVER.md). Commit the reviews together under `revisoes/`.
+4. **Synthesis.** The King writes the reasoned `PLANO-FINAL.md` with the [synthesis prompt](prompts/03-SINTETIZAR.md) and the [plan template](templates/PLANO-FINAL.md). Its status is `Decreed` or `Undecided`.
+5. **Decision.** The King writes `DECISAO.md` with the [decree template](templates/DECISAO.md): what is adopted, rejected or left undecided. Martim may veto or amend it and records any veto or amendment there. The Right Hand executes the decree.
 
-[001 — Melhorar e maximizar o Council](debates/001-melhorar-council/INICIAR.md): historical proposals, reviews and synthesis are preserved in their original form.
+The Right Hand is the operator and keeps the [manifest](templates/MANIFESTO.md) for each debate. If it also participates, the manifest says so. The [optional tools](ferramentas/README.md) copy a packet to the clipboard and save an answer with the marker checks.
 
-## Começar um debate
-
-1. Cria `debates/001-nome-do-sistema/` e copia para lá [o modelo de contexto](templates/CONTEXTO.md), com o nome `CONTEXTO.md`.
-2. Preenche o objetivo, as restrições e os critérios de escolha antes de pedir propostas.
-3. Entrega a cada AI o mesmo contexto, [as regras](REGRAS.md) e [o prompt de proposta](prompts/01-PROPOR.md). Nesta fase, não entregues propostas de outras AIs.
-4. Guarda cada resposta em `propostas/<participante>.md`, sem alterar o conteúdo original.
-5. Fecha a ronda inicial. Entrega a cada AI o contexto, todas as propostas dessa ronda e [o prompt de revisão](prompts/02-REVER.md). Guarda as respostas em `revisoes/<participante>.md`.
-6. Entrega esse conjunto completo a uma AI com [o prompt de síntese](prompts/03-SINTETIZAR.md). Guarda o resultado em `PLANO-FINAL.md`, usando [o modelo de plano](templates/PLANO-FINAL.md).
-7. Revê a decisão. Um plano escrito ainda precisa das verificações indicadas no próprio plano.
-
-O nome do ficheiro pode ser `gemini-web.md`, `gpt-web.md` ou outro identificador estável. Regista dentro dele o nome exato do modelo mostrado na interface; se não estiver visível, indica isso.
-
-## Como fornecer os ficheiros
-
-Usa a importação de repositório quando a interface a disponibilizar, anexa os ficheiros ou copia o conteúdo para a conversa. Um URL, por si só, não garante que a AI consiga ler o repo. Em cada ronda, confirma que recebeu os ficheiros necessários e a versão certa.
-
-Na proposta independente, fornece apenas o contexto e as regras dessa fase, mesmo que o repo já contenha respostas. Se a interface importar o repo inteiro, usa os ficheiros selecionados por anexo ou texto para manter a independência.
-
-Se a interface não escrever no GitHub, copia a resposta para o ficheiro correspondente. Se permitir edição, pede-lhe para alterar apenas o seu ficheiro. Assume que uma importação pode ser uma fotografia: volta a fornecer a versão atualizada quando mudar a ronda.
-
-## Estrutura de cada debate
+## Debate structure
 
 ```text
-debates/001-nome-do-sistema/
+debates/NNN-name/
   CONTEXTO.md
-  propostas/
-    participante-a.md
-    participante-b.md
-  revisoes/
-    participante-a.md
-    participante-b.md
+  MANIFESTO.md
+  PACOTE-PROPOSTA.md
+  PACOTE-REVISAO.md
+  PACOTE-SINTESE.md
+  PACOTES.sha256
+  propostas/<participant>.md
+  revisoes/<participant>.md
   PLANO-FINAL.md
+  DECISAO.md
 ```
 
-Começa com duas ou três propostas, uma ronda de revisão e uma síntese. Abre outra ronda apenas quando existir uma questão concreta que possa mudar a decisão. Guarda-a numa pasta nova, como `ronda-02/`, preservando as contribuições anteriores.
+## Debates
 
-Todo o material necessário para compreender o debate deve estar nos ficheiros. Issues e comentários podem servir de apoio, mas não devem ser a única cópia de um argumento ou decisão.
+See the [debate index](debates/README.md).
 
-## Ficheiros de apoio
-
-- [Regras de participação](REGRAS.md)
-- [Propor uma solução](prompts/01-PROPOR.md)
-- [Criticar e rever](prompts/02-REVER.md)
-- [Consolidar o plano](prompts/03-SINTETIZAR.md)
-- [Modelo de contexto](templates/CONTEXTO.md)
-- [Modelo de contribuição](templates/CONTRIBUICAO.md)
-- [Modelo de plano final](templates/PLANO-FINAL.md)
+The debates 001 and 002 were about the Council itself and are closed. Their documents refer to the Portuguese v1 (tag `council-v1`) and to the v2 candidate (branch `council-v2-candidato`). From now on, debates are about real problems. The rules change only when a real debate shows a concrete defect, or when Martim changes a Law.
