@@ -1,0 +1,85 @@
+END-COUNCIL-002-REVIEW-v1-FIVE-PROPOSALS | Missing sections: none | Context: v2 | Frozen proposal commit: 269e7b7d9b935c6e41c4996a48d7f15803365a24
+
+# Review — astra
+
+- **Participant:** astra.
+- **Visible model:** not visible. Requested configuration: `gpt-6-astra`, reasoning effort `high`; I cannot independently verify it.
+- **Date / phase:** 2026-10-17; review, Council 002, round 02.
+- **Baseline:** `d33ac74e5f359fd535a49b2715c71cd226478e02`, as supplied.
+- **Received and read:** all 21 expected sections: ACTIVE-REVIEW-PROMPT; CONTEXTO.md; CLOSED-PHASE-MANIFEST; reference README and REGRAS; prompts 01–04; templates CONTRIBUICAO, PLANO-FINAL and MANIFESTO; evaluation PROTOCOLO; tools README, colar.ps1 and copiar.ps1; proposals sol, normal, argon, sonnet and astra.
+- **Tools actually used:** none. No files inspected, edits, implementations or tests.
+- **Memory:** an automatically supplied general memory summary is visible outside the packet. Its files were not consulted; it supplies no evidence for this review. Memory isolation is not established.
+- **Prior exposure:** I recognize the contribution labelled astra as my assigned participant’s proposal in this packet; I have no independently available recollection of producing it. All five proposals were encountered here. No peer reviews were consulted.
+- **New conversation:** yes, insofar as the visible conversation establishes; this does not prove memory isolation.
+- **Access limitations:** packet only. Commits, hashes, historical attributions and operator declarations were not independently verified.
+
+This is a full review, with no unread sections or uncovered proposal pairs. Message-size limits can require attachments or multiple messages; total-conversation limits cannot be solved merely by splitting messages. Neither prevented reading this packet.
+
+## Assessment of all five proposals
+
+“**Satisfied**” below means the written recommendation meets the requirement at design level, not that its operation or effectiveness has been demonstrated. “**Unverified**” identifies an unresolved dependency.
+
+| Proposal | Strengths | R1–R6 checklist |
+| --- | --- | --- |
+| **Sol** | Clearest separation of mechanical checks from judgment. The explicit state machine, late-response treatment and avoidance of circular packet hashes make implementation reviewable. Protects the frozen evaluation baseline. | **R1 satisfied:** manual fallback. **R2 satisfied:** originals, provenance and objection destinations retained. **R3 satisfied:** immutable phase inventories and exposure exceptions. **R4 satisfied:** current run stops at human handoff. **R5 satisfied:** mechanisms, alternatives, assumptions and rejecting tests supplied. **R6 satisfied:** ordinary records and finite sequence; savings remain hypothetical. |
+| **Normal** | Most comprehensive risk inventory; distinguishes source integrity, receipt and semantic coverage. Conditional depth is explicitly experimental, and original evaluation arms remain intact. | **R1 satisfied:** optional tooling. **R2 satisfied:** source preservation and dissent explicit. **R3 satisfied:** closed inputs and actual exposure retained. **R4 satisfied:** Martim/Opus roles respected. **R5 satisfied:** change matrix and tests, with illustrative costs labelled. **R6 satisfied:** actionable stages and removal/defer lists. Its considerable repetition is an editorial cost, not a mandatory violation. |
+| **Argon** | Concrete packaging proposal, explicit effort assumptions, and attention to Git storage duplication. Correctly recognizes that a small pilot should precede expensive confirmation. | **R1 satisfied:** scripts described as optional. **R2 violated:** several decisive benefits are asserted beyond the evidence; see 03. **R3 unverified:** compact fallback lacks the candidate’s complete partial-review contract; see 04. **R4 unverified:** decision/audit ordering needs correction; see 01. **R5 violated:** shared-trunk results and invented thresholds support conclusions they cannot establish; see 02. **R6 satisfied:** executable repository sequence, although adoption conditions need revision. |
+| **Sonnet** | Response-tail completeness checks and the CLI exposure concern add useful defects not reducible to packet hashing. Sharing only proposals is a more defensible experimental possibility than sharing structured reviews. | **R1 satisfied:** manual alternatives. **R2 satisfied:** originals and dissent retained, subject to accurately qualifying isolation claims. **R3 unverified:** temporary-directory isolation is insufficiently specified; see 05. **R4 satisfied:** audit findings remain inputs to Martim. **R5 unverified:** evaluation changes and auditor-selection checks need stronger scope and falsifiers; see 06–07. **R6 satisfied:** bounded changes, stages and stopping rules. |
+| **Astra** | Identifies the capture overwrite escape hatch and the contradiction between private collection rules and repository-path examples. Carefully separates transport reliability from decision quality. | **R1 satisfied:** optional utilities. **R2 satisfied:** preservation, normalization disclosure and dissent. **R3 unverified:** common partial-input recovery overconstrains coverage; see 08. **R4 satisfied:** human handoff only. **R5 satisfied:** change-by-change assumptions, alternatives and falsifiers. **R6 satisfied:** manual rehearsal precedes automation. |
+
+**Sol and Normal: no material objection.** Their administrative consolidation is conditional on reconstructibility and does not itself remove participant declarations. Their proposed efficiency remains unverified, which they acknowledge.
+
+## Blocking and material objections
+
+Every objection below is based on material consulted **during this review**, not an executed test.
+
+| ID | Target file/section/passage | Type | Severity | Failure condition | Consequence | Basis and consultation phase | Correction or falsifying test | Decision effect |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **astra-R02-01** | `propostas/argon.md`, §2.1: “Synthesis & Decision” before “Conditional Audit & Results” | Approval sequencing | Material | A decision authorizes a plan before a required audit, or audit-driven changes inherit the earlier sign-off. | Approval scope becomes ambiguous; findings may not affect execution. | Supported ordering in the proposal; risk is conditional. Review phase. R4 and candidate separation rules. | A combined file is not inherently invalid, but distinguish model recommendation from Martim’s explicit decision. Complete required audit first, or make approval expressly conditional; material revisions require renewed human disposition. | Do not adopt the phase ordering unchanged. Separate files remain the simpler default. |
+| **astra-R02-02** | `propostas/argon.md`, C4, Gate 0, stopping criteria and Tests 1–2 | Experimental validity and thresholds | Blocking for the proposed adoption inference | Both Council arms receive B-style structured reviews, then their difference is treated as the effect of all B; P0 or arbitrary 10/15/90-minute rules determine general adoption. | Review-stage effects are excluded, pilot success is overgeneralized, and U1 is replaced by invented authority. | `PROTOCOLO.md` defines structured objections as part of B and P0 as logistical; context leaves U1 unspecified. Review phase. | Label shared-F3 comparison a **downstream synthesis/audit component experiment**. Retain separate reviews for the full B contrast. Treat thresholds as proposals requiring explicit assumptions and Martim’s choice; pilot outcomes can stop spending without establishing general inferiority. | Reject Gate 0 as a substitute for the registered effectiveness comparison. |
+| **astra-R02-03** | `propostas/argon.md`, executive brief, C2 and alternative A1 rejection | Unsupported causal claims | Material | “Eliminates” synthesizer bias, “outperforms” on effort, or “guarantees process fatigue” determines selection. | A plausible hypothesis becomes an apparent established advantage. | These passages exceed the proposal’s own assumption labels; supplied context contains no comparative results. Review phase. | Replace with conditional claims. External synthesis removes direct ownership of a submitted proposal, not all bias. Compare measured total effort and material errors before claiming superiority. | Retain external synthesis as an option; reject bias elimination as grounds for an audit exemption. |
+| **astra-R02-04** | `propostas/argon.md`, risks §1: automatic compact packet above approximately 60,000 characters | Recovery and coverage | Material | A character threshold triggers summaries-only review without establishing total-context exhaustion or identifying omitted originals and interactions. | Available evidence is unnecessarily discarded; different reviewers may appear comparable despite different inputs. | Candidate recovery distinguishes message from conversation capacity and requires explicit partial coverage. Review phase. | Try attachment/message recovery first. Any partial variant must identify unread material, uncovered pairs, shared source inventory and contract-integration limits. Treat character thresholds as interface-specific hypotheses. | Do not adopt automatic compact fallback as written. |
+| **astra-R02-05** | `propostas/sonnet.md`, C3 and canary falsifier | Independence assurance | Material | An empty working directory is treated as denying access elsewhere, or absence of a canary string is treated as proof of no read. | R3 exposure could remain possible while documentation implies enforcement. | C3 itself acknowledges parent-path access; its test observes references rather than necessarily all reads. Review phase. | Describe directory separation as risk reduction. To claim access isolation, specify enforced permissions and test attempted out-of-scope reads. If access logging is incomplete, preserve that limitation. | Retain the exposure concern; revise the mechanism and assurance claim. |
+| **astra-R02-06** | `propostas/sonnet.md`, E1–E3 and stage 4: “lean B variant as the B arm” | Evaluation comparability | Material | Lean B replaces frozen B without distinct identification; a one-element tie margin obscures critical failures; two ties justify general rejection across untested case types. | Results answer a different or underspecified question. | Protocol fixes ordered critical-failure criteria and distinguishes confirmation from pilot. Review phase. | Register lean B separately. Share proposals only after establishing equivalent instructions and conditions; keep arm-specific reviews. Apply coverage margins after critical failures, not across them. Early stopping limits conclusions to observed cases. | Accept these as separately registered experiments, not baseline-preserving edits. |
+| **astra-R02-07** | `propostas/sonnet.md`, C9: late auditor designation and timestamp test | Selection bias | Material | Auditor selection follows knowledge of the plan and is discretionary; timestamps are expected to reveal the intent to select a lenient auditor. | A favorable audit can be selected without detectable evidence of motive. | C9 names this failure but its test cannot establish motive from timing alone. Review phase. | Predeclare a selection rule or eligible ordering before the plan is seen; designate the available auditor later under that rule. Record deviations. | Permit flexible timing conditionally; do not remove the selection safeguard outright. |
+| **astra-R02-08** | `propostas/astra.md`, workflow: “common partial input set” | Coverage and usability | Material | One reviewer’s capacity limit forces every reviewer to omit originals that others could examine. | Decision-relevant coverage falls unnecessarily and partial recovery may become the default. | My proposal’s wording, compared with candidate partial-review recovery. Review phase. | Keep one canonical frozen source set. Explicitly define partial-review exceptions and actual reader coverage without presenting unequal reads as equivalent full reviews. Do not silently change assignments. | Withdraw a universally reduced common packet as my default recovery recommendation. |
+
+## Comparison and recommended direction
+
+Under **criterion 1**, Sol, Normal and Astra offer the strongest immediate direction because they preserve substantive safeguards while separating unknown effectiveness from documentary defects. Argon’s proposed savings do not override its evaluation and approval uncertainties. Sonnet’s isolation concern is decisive even though no other proposal develops that specific access route.
+
+Under **criterion 2**, Sol supplies the clearest operational structure; Astra supplies the narrowest preservation corrections; Normal supplies useful acceptance and recovery scenarios. Sonnet adds targeted checks, provided their assurance is limited to what they observe.
+
+Under **criterion 3**, no measured ranking is available. Normal’s repeated analysis increases transported text in this round, but that does not establish the cost of its proposed workflow. Argon’s fewer committed packet files reduce repository duplication, not necessarily bytes sent to models. Generated-packet storage should be chosen only after reproducibility is specified.
+
+Under **criterion 4**, I prefer a compact manual core with optional helpers over introducing several process modes immediately.
+
+My recommended direction—not a final synthesis—is:
+
+- Retain independent collection, identical canonical closed inputs, immutable originals, participant-specific exposure, decisive evidence states, material dissent and explicit human decisions.
+- Prioritize capture preservation, accurate staging examples and clear distinctions between prepared bytes, reported receipt and meaningful coverage.
+- Test optional deterministic assembly and response-completeness warnings against a manual control.
+- Defer conditional process depth, audit exemptions, reduced panels and evaluation redesign to separately identified experiments.
+- Stop additional tooling when maintenance and recovery erase handling savings; stop confirmation when resources are not authorized, leaving effectiveness undecided.
+
+## Interfaces and changes to my proposal
+
+The proposed combination is compatible only if capture preserves even malformed responses, while lint reports status without deleting evidence. Phase closure must use the predeclared membership/deadline rule; a helper cannot redefine quorum or discard dissent. Stable record references must resolve within exported packets, not require unavailable repository access.
+
+Generated packets also need a reproducible recipe: ordered immutable sources, exact framing, assembler version and encoding conventions. The packet digest must remain outside the bytes it describes. An objection-ID presence check can establish structural coverage, never faithful disposition.
+
+I retain Astra M1–M4, its normalization disclosure and replacement of majority-oriented narrative with material dissent. I change its partial-review recovery as described in 08 and would incorporate Sonnet’s output-tail check with explicit limits. I would also state that private staging outside the repository does not itself enforce CLI access isolation.
+
+## Decisive claims, dissent and remaining checks
+
+| Claim | Status | Provenance, scope and consultation phase |
+| --- | --- | --- |
+| Capture permits replacement and normalizes a missing trailing newline. | **Supported** | Embedded `colar.ps1`; static source reading during review, not runtime verification. |
+| The existing protocol already gates confirmation after a logistical pilot. | **Supported** | `PROTOCOLO.md`, pilot and confirmation sections; review. Argon’s Gate 0 is not wholly new. |
+| Shared structured reviews cannot estimate the incremental effect of introducing structured review. | **Supported** | Comparison of Argon C4 with the protocol’s definition of B; review-level design inference. |
+| Closed-set hashes, collection independence and operator history match the manifest. | **Attributed** | CLOSED-PHASE-MANIFEST and participant declarations; review. No independent verification. |
+| Consolidation and helpers reduce total active effort. | **Assumption** | Sol, Normal and Astra mechanisms; reviewed here. Depends on setup, navigation, maintenance and recovery. |
+| External synthesis eliminates bias or safely removes audit need. | **Contested** | Argon C2; objections 01 and 03. No efficacy evidence supplied. |
+| Five models, lean B, or S plus audit is preferable for Martim’s future decisions. | **Unknown** | U1–U4 and absence of comparative results; review. |
+
+The disagreement over audit depth remains open. Relevant checks are total active time, preservation of unique material objections, access-control behavior, and separately identified decision-quality comparisons. None has been executed here. These findings are inputs for Martim and Opus’s synthesis, not approval.

@@ -1,2 +1,4 @@
 # Preserve captured originals and transported packets byte-for-byte in Git.
 * -text
+# Preserve the visible-text export's source whitespace without lint rewriting.
+revisoes/argon.md whitespace=-blank-at-eol,-blank-at-eof
