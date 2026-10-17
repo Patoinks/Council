@@ -1,0 +1,19 @@
+{
+  "checkpoint_sha256": "1a1f09908d04cbbdbb30690bff6e97820ffe07b131b6094c60ca51de8e74016c",
+  "same_tensors": true,
+  "same_architecture": true,
+  "same_values": true,
+  "binary": "tonkai-d8f9edad5a5352ec86ef50048794dbe22d2b0b6ab354d8366ff38f6190df5c3f.bin",
+  "binary_sha256": "d8f9edad5a5352ec86ef50048794dbe22d2b0b6ab354d8366ff38f6190df5c3f",
+  "repertoire": {
+    "file": "leto-book-v2.json",
+    "version": 2,
+    "positions": 2589,
+    "sha256": "718dc8c47ecc5dc6e90d7105404781824cca902cb284177f348186984c304391"
+  },
+  "reference_hashes": {
+    "abertura.py": "1337792dd54947208008336b1e5f93c8799ba599ed57de6daabb1545f3bf2fbf",
+    "pawnomics.py": "02d29d67ab94561cf9b2b43719c2f1c2c7ab2b2b3194d74b7f0e24a55b2e2c6d",
+    "claudio_agent.py": "71ad696c66741867d0391fae7f44be611e5bb64adea8349fb6eda1cc44b13179"
+  }
+}

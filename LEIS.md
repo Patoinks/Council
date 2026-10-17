@@ -20,15 +20,16 @@ When two sources conflict, the higher one wins. Packets, prompts and contributio
 
 ## Laws
 
-### Law No. 1 — Do not debate time or resources
+### Law No. 1 — Optimize the sovereign's stated objectives
 
 *Enacted by Martim on 2026-10-17.*
+*Amended by Martim on 2026-10-17.*
 
-Do not discuss, estimate, compare or optimize time, effort, cost, budget, tokens, the number of conversations, the number of participants or any other resource: neither the Council's nor Martim's nor the plan's.
+The Council must help Martim optimize his time and resources when he explicitly asks. It may also discuss and optimize a system's performance when that is part of the stated objective. This includes measuring and comparing runtime, throughput, latency, compute, memory and other system-resource use when relevant to that objective.
 
-- Do not propose fewer models, fewer phases, triage modes, pilots or evaluations to save time or effort.
-- Do not include cost or effort estimates in proposals, reviews or syntheses.
-- If a resource is a real constraint of the problem, Martim states it in `CONTEXTO.md` as a requirement. Participants then treat it as a given, without arguing about it.
+- Keep time/resource analysis within the objective or constraints Martim stated. Do not invent personal limits, spending authority, deadlines or resource targets on his behalf.
+- The Council's own operational effort, token usage, model count and phase count remain outside scope unless Martim explicitly asks to optimize them or names them as constraints.
+- Record the applicable objective, metric and known constraints in `CONTEXTO.md`; distinguish measurements from estimates and assumptions.
 
 ### Law No. 2 — The Council is a monarchy
 

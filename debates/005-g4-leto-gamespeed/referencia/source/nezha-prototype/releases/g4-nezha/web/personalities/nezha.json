@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "id": "nezha",
+  "name": "Nezha",
+  "axes": {
+    "king_safety_bias": 0.85,
+    "eval_optimism": 0.4,
+    "prophylaxis_vs_initiative": 1,
+    "tension_preference": 0.65,
+    "pawn_style": 0.75,
+    "gru_momentum_trigger": 0.8,
+    "resilience_and_contempt": 0.55
+  },
+  "safety": {
+    "max_utility_loss": 0.02,
+    "max_bonus": 0.025,
+    "max_king_safety_drop": 0.05
+  }
+}

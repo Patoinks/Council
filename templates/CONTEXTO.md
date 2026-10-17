@@ -35,7 +35,7 @@
 
 ## Constraints stated by Martim
 
-<Only real constraints of the problem stated by Martim. Apply Law No. 1. Treat each stated constraint as a given; do not debate it. Write «None stated» if there are none.>
+<Only real constraints of the problem stated by Martim. Apply Law No. 1: keep resource analysis within the objectives and constraints he explicitly states; do not invent personal limits, spending authority, deadlines or resource targets. Treat each stated constraint as a given; do not debate it. Write «None stated» if there are none.>
 
 ## Criteria in priority order
 

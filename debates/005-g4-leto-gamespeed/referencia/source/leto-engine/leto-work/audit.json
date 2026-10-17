@@ -1,0 +1,24 @@
+{
+  "referenceFilesUnchanged": true,
+  "sourceGameFilesUnchanged": true,
+  "g4ManifestUnchanged": true,
+  "oldArtifactsValid": true,
+  "reusedBinary": "tonkai-d8f9edad5a5352ec86ef50048794dbe22d2b0b6ab354d8366ff38f6190df5c3f.bin",
+  "referenceHashes": {
+    "mais/g4t2-leto-v3.pt": "1a1f09908d04cbbdbb30690bff6e97820ffe07b131b6094c60ca51de8e74016c",
+    "mais/g4.pt": "eadb40ed3e7aa4ea24c0a4c5f72c969bb3b185fa1065e248679bd03770d4bb36",
+    "tree/claudio/abertura.py": "1337792dd54947208008336b1e5f93c8799ba599ed57de6daabb1545f3bf2fbf",
+    "tree/claudio/pawnomics.py": "02d29d67ab94561cf9b2b43719c2f1c2c7ab2b2b3194d74b7f0e24a55b2e2c6d",
+    "tree/claudio/claudio_agent.py": "71ad696c66741867d0391fae7f44be611e5bb64adea8349fb6eda1cc44b13179"
+  },
+  "protectedFiles": {
+    "g4.json": "aec66bc8548708562e9eda39f18a092fa37beace23121d258a6d3b44053421b2",
+    "tonkai-d8f9edad5a5352ec86ef50048794dbe22d2b0b6ab354d8366ff38f6190df5c3f.bin": "d8f9edad5a5352ec86ef50048794dbe22d2b0b6ab354d8366ff38f6190df5c3f",
+    "g4-rules.mjs": "4bc7f79bf15a365b4498c84330d2c121dc13fe378eda15e836280abe9f915a6b",
+    "g4-rules.wasm": "48b810e5187845d803041d2a7bcbc1c24b4c3adc117d88b5bfe3fb709b0ed6be",
+    "g16-v2.json": "d22975ed32f82ead13835d3481beb81a2efca66ca62939f30f89b691d2907686",
+    "tonkai-6af0464105a510e413f43b6eb5d2300a921b7e75890547134b17d816bd328985.bin": "6af0464105a510e413f43b6eb5d2300a921b7e75890547134b17d816bd328985",
+    "g16-rules.mjs": "a60e11c2dd168aefb4a47d2aea0b917eb5a6e6d8fd74d488b960270b6159c6f8",
+    "g16-rules.wasm": "520ea10c75a9affb08baf06322332ab07eae593e6060570307a26b16fd29938a"
+  }
+}

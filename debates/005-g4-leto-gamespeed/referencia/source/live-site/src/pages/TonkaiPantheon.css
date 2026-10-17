@@ -1,0 +1,230 @@
+body:has(.tk-pantheon) { background: #0d1014; }
+body:has(.tk-pantheon) .navbar { height: 68px; background: #0c1012dc; border-bottom: 1px solid #c9ad7f1a; backdrop-filter: blur(18px); }
+body:has(.tk-pantheon) .navbar-links a { color: #c7c5be; font-size: 12px; letter-spacing: .08em; }
+body:has(.tk-pantheon) .navbar-links a:hover { color: #efdcaf; }
+body:has(.tk-pantheon) footer { position: relative; background: #0c1014eb; }
+.tk-pantheon { position: relative; isolation: isolate; min-height: 100dvh; max-width: 1220px; padding-top: 94px; color: #eee9df; --tk-chat-width: 292px; --tk-board-limit: clamp(320px, calc(100dvh - 300px), 580px); }
+.tk-pantheon:has(.tk-replay-controls), .tk-pantheon:has(.tk-board-with-evals:not(.tk-board-without-evals)),
+.tk-pantheon:has(.tk-replay-controls):has(.tk-board-with-evals:not(.tk-board-without-evals)) { --tk-board-limit: clamp(320px, calc(100dvh - 300px), 580px); }
+.pt-atmosphere { position: fixed; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; background: #0d1014; }
+.pt-sanctuary { position: absolute; inset: 0; background: url('../assets/pantheon/sanctuary.png') center 35% / cover no-repeat; opacity: .66; filter: var(--pt-art-filter); transition: filter 1s ease; }
+.pt-sky { position: absolute; inset: 0; background: linear-gradient(180deg, #0b0e1260, #0b0e1229 35%, #0b0e1299 85%, #0b0e12dc), radial-gradient(ellipse at 85% 22%, color-mix(in srgb, var(--pt-accent) 14%, transparent), transparent 58%), radial-gradient(ellipse at 5% 62%, color-mix(in srgb, var(--pt-patron) 17%, transparent), transparent 50%); }
+.pt-mist { position: absolute; inset: 35% -20% -30%; background: radial-gradient(ellipse at 30% 50%, color-mix(in srgb, var(--pt-accent) 9%, transparent), transparent 55%), radial-gradient(ellipse at 80% 45%, color-mix(in srgb, var(--pt-patron) 11%, transparent), transparent 55%); animation: pt-mist-drift 28s ease-in-out infinite alternate; }
+.pt-celestial { position: absolute; top: 60px; right: -85px; width: clamp(280px, 38vw, 600px); aspect-ratio: 1; color: var(--pt-accent); opacity: .13; transform: rotate(-12deg); }
+.pt-celestial > svg { width: 100%; height: 100%; stroke-width: .5; }
+.pt-celestial::after { content: ''; position: absolute; inset: 8%; border: 1px solid currentColor; border-radius: 50%; box-shadow: 0 0 70px color-mix(in srgb, var(--pt-accent) 30%, transparent), inset 0 0 80px color-mix(in srgb, var(--pt-accent) 20%, transparent); }
+.pt-celestial-sun::after { background: radial-gradient(circle, color-mix(in srgb, var(--pt-accent) 16%, transparent), transparent 65%); }
+.pt-celestial-fire::after { border-radius: 45% 55% 48% 52%; }
+.pt-celestial-rune { transform: rotate(20deg); }
+.pt-celestial-moon::after { inset: 20%; box-shadow: 12px -8px 0 -5px var(--pt-accent), 0 0 70px color-mix(in srgb, var(--pt-accent) 15%, transparent); }
+.pt-patron-seal { position: absolute; left: -110px; top: 40%; width: 440px; color: var(--pt-patron); opacity: .09; }
+.pt-constellation { position: absolute; inset: 0; color: var(--pt-accent); opacity: .16; }
+.pt-constellation svg { width: 100%; height: 100%; stroke-width: .6; }
+.pt-particles { position: absolute; inset: 0; }
+.pt-particles i { position: absolute; display: block; width: 2px; height: 2px; border-radius: 50%; background: var(--pt-accent); box-shadow: 0 0 8px 2px color-mix(in srgb, var(--pt-accent) 30%, transparent); opacity: .5; animation: pt-ember-rise 22s ease-in-out infinite; }
+.pt-particles i:nth-child(3n) { width: 3px; height: 3px; background: var(--pt-patron); }
+.pt-sigil { display: block; flex: none; width: 48px; height: 48px; }
+.pt-avatar { object-fit: contain; border-radius: 12%; user-select: none; }
+.tk-pantheon .pt-deity .pt-avatar { width: 56px; height: 56px; opacity: 1; }
+.tk-pantheon button.pt-deity:has(.pt-avatar) { padding-top: 8px; padding-bottom: 10px; }
+.pt-realm-heading > .pt-avatar { width: 112px; height: 112px; filter: drop-shadow(0 0 18px color-mix(in srgb, var(--pt-accent) 18%, transparent)); }
+.pt-domain-card > img.pt-avatar { width: 172px; height: 172px; margin: 10px 0 14px; }
+.tk-pantheon .tk-avatar:has(.pt-avatar) { border-radius: 9px; }
+.tk-pantheon .tk-avatar img.pt-avatar { width: 100%; height: 100%; object-fit: contain; object-position: center; }
+.pt-intro { width: min(100%, 1000px); margin: 0 auto 24px; }
+.pt-intro-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pt-eyebrow { display: flex; align-items: center; gap: 10px; font: 600 10px/1.4 system-ui, sans-serif; letter-spacing: .23em; color: var(--pt-accent); }
+.pt-eyebrow > span { font-size: 18px; }
+.tk-pantheon button.pt-effects { min-height: 34px; border: 1px solid #e7dfcc20; border-radius: 20px; padding: 7px 12px; background: #11161c94; color: #c3c2bb; font-size: 10px; font-weight: 500; }
+.pt-effects > span { color: var(--pt-accent); font-size: 16px; }
+.pt-realm-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 24px 0 25px; }
+.pt-realm-kicker { margin: 0 0 9px; color: #c9c6bf; font: 500 10px/1.5 system-ui, sans-serif; letter-spacing: .13em; text-transform: uppercase; }
+.pt-realm-kicker > span { margin: 0 7px; color: var(--pt-accent); opacity: .7; }
+.pt-realm-heading h1 { margin: 0; font: 400 clamp(28px, 4vw, 46px)/1.12 Georgia, 'Times New Roman', serif; letter-spacing: -.035em; color: #f4ede0; text-shadow: 0 2px 25px #0008; }
+.pt-atmosphere-description { margin: 12px 0 0; color: #b7b7b3; font: 400 12px/1.6 system-ui, sans-serif; }
+.pt-realm-sigil { width: 88px; height: 88px; color: var(--pt-accent); filter: drop-shadow(0 0 22px color-mix(in srgb, var(--pt-accent) 25%, transparent)); }
+.pt-choice-heading { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 11px; font: 500 10px/1.4 system-ui, sans-serif; color: #d0cbc0; }
+.pt-choice-heading > :last-child { color: #a5a7a5; font-size: 9px; }
+.pt-roster { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 7px; }
+.tk-pantheon button.pt-deity { position: relative; display: flex; flex-direction: column; gap: 7px; min-width: 0; min-height: 95px; padding: 12px 3px 11px; border: 1px solid #e6dfcc1c; border-radius: 8px; background: linear-gradient(155deg, #20252b9c, #0d1117ba); color: #b5b7b4; font-size: 10px; font-weight: 500; transition: border-color .2s, color .2s, background .2s, transform .2s; }
+.pt-deity .pt-sigil { width: 40px; height: 40px; color: var(--pt-token); opacity: .75; }
+.tk-pantheon button.pt-deity[aria-pressed='true'] { color: #f2e9d8; border-color: color-mix(in srgb, var(--pt-token) 70%, transparent); background: linear-gradient(155deg, color-mix(in srgb, var(--pt-token) 17%, #171b20), #10151be0); box-shadow: 0 0 22px color-mix(in srgb, var(--pt-token) 7%, transparent), inset 0 1px 0 color-mix(in srgb, var(--pt-token) 18%, transparent); }
+.pt-deity[aria-pressed='true']::after { content: ''; position: absolute; bottom: -2px; left: calc(50% - 9px); width: 18px; height: 3px; border-radius: 2px; background: var(--pt-token); box-shadow: 0 0 10px var(--pt-token); }
+.tk-pantheon button.pt-deity:hover { border-color: var(--pt-token); color: #f2e9d8; transform: translateY(-2px); filter: none; }
+.tk-pantheon button.pt-deity:disabled { opacity: .55; cursor: default; transform: none; }
+.tk-pantheon button.pt-deity[aria-pressed='true']:disabled { opacity: 1; }
+.pt-duel-line { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 16px; padding: 12px 0 15px; border-bottom: 1px solid #e1d6bb21; }
+.pt-patron-choice { display: flex; align-items: center; gap: 8px; color: var(--pt-patron); }
+.pt-patron-choice .pt-sigil { width: 34px; height: 34px; }
+.pt-patron-choice label { color: #b6b5ad; font: 500 9px/1.4 system-ui, sans-serif; letter-spacing: .03em; }
+.tk-pantheon .pt-patron-choice select { display: block; min-height: 25px; max-width: 160px; padding: 2px 18px 2px 0; border: 0; border-radius: 0; background: transparent; color: #e4ded0; font: 500 12px/1.3 system-ui, sans-serif; cursor: pointer; }
+.pt-patron-choice option { background: #151a20; color: #eee9df; }
+.pt-versus { display: flex; align-items: center; gap: 16px; color: #c1c2bb; font: 400 14px/1.4 Georgia, serif; }
+.pt-versus b { color: var(--pt-accent); font-size: 18px; font-weight: 400; }
+.pt-versus strong { color: var(--pt-accent); font-weight: 400; }
+.pt-theme-note { font: 400 9px/1.4 system-ui, sans-serif; color: #a3a5a2; }
+.tk-pantheon .tk-header, .tk-pantheon .tk-layout { width: min(100%, 1000px); max-width: 1000px; }
+.tk-pantheon .tk-header { margin-bottom: 15px; }
+.pt-match-brand { color: #cfc6b4; font: 400 19px/1.2 Georgia, serif; letter-spacing: .015em; }
+.tk-pantheon .tk-header-actions { justify-content: flex-end; }
+.tk-pantheon .tk-tabs { background: #111820a6; border-color: #cbb88a28; border-radius: 6px; }
+.tk-pantheon .tk-tabs button { color: #bdc0bb; border-radius: 4px; }
+.tk-pantheon .tk-tabs button[aria-pressed='true'] { background: color-mix(in srgb, var(--pt-accent) 20%, #1a2025); color: #eee7d9; }
+.tk-pantheon .tk-versions-link { margin-left: 0; color: #b3b4ae; font-size: 10px; }
+.tk-pantheon .tk-layout { width: min(100%, calc(var(--tk-board-limit) + var(--tk-chat-width) + 56px)); grid-template-columns: minmax(0, 1fr) var(--tk-chat-width); gap: 26px; }
+.tk-pantheon .tk-board-panel { scroll-margin-top: 84px; padding: 15px; border: 1px solid #decda32d; border-radius: 10px; background: linear-gradient(155deg, #161c23e8, #0e141bec); box-shadow: 0 24px 90px #0004, inset 0 1px 0 #e5d4b20a; }
+.tk-pantheon .tk-toolbar { margin-bottom: 12px; }
+.tk-pantheon button, .tk-pantheon select { border-color: #b9b29c32; }
+.tk-pantheon .tk-start { color: #211b13; border-color: var(--pt-accent); background: var(--pt-accent); }
+.tk-pantheon .tk-toolbar select, .tk-pantheon .tk-training-toggle { background: #1b232b; color: #d4d5cc; }
+.tk-pantheon button.tk-evaluation-toggle { color: #bfc2b9; background: #151e26; }
+.tk-pantheon button.tk-evaluation-toggle[aria-pressed='true'] { color: #1c2021; background: var(--pt-accent); }
+.tk-pantheon .tk-board { border: 1px solid color-mix(in srgb, var(--pt-accent) 50%, #263039); border-radius: 3px; box-shadow: 0 0 0 4px #0a0e13, 0 0 0 5px color-mix(in srgb, var(--pt-accent) 24%, transparent), 0 12px 45px #0005; }
+.tk-pantheon .tk-player { padding: 5px 0 12px; }
+.tk-pantheon .tk-player:has(+ .tk-status), .tk-pantheon .tk-board-with-evals + .tk-player { padding-top: 13px; padding-bottom: 4px; }
+.tk-pantheon .tk-avatar { width: 37px; height: 37px; flex-basis: 37px; border-width: 1px; background: #242c32; border-color: #8d9b9e; }
+.tk-pantheon .tk-avatar-bot { border-color: var(--pt-accent); background: color-mix(in srgb, var(--pt-accent) 8%, #161c22); box-shadow: 0 0 18px color-mix(in srgb, var(--pt-accent) 10%, transparent); color: var(--pt-accent); }
+.tk-avatar .pt-sigil { width: 34px; height: 34px; }
+.tk-pantheon .tk-player-info strong { font-size: 13px; font-weight: 600; letter-spacing: .01em; }
+.tk-pantheon .tk-player-info > span { color: #a8b1b2; font-size: 10px; }
+.tk-pantheon .tk-player-info small { font-size: 8px; background: #e6cd9610; color: var(--pt-accent); border-color: #e6cd9629; }
+.tk-pantheon .tk-player-active .tk-avatar { border-color: var(--pt-accent); }
+.tk-pantheon .tk-player-turn, .tk-pantheon .tk-dot-active { background: var(--pt-accent); box-shadow: 0 0 10px color-mix(in srgb, var(--pt-accent) 35%, transparent); }
+.tk-pantheon .tk-live-status { margin-top: 13px; color: #c1c7c2; font: 500 11px/1.5 system-ui, sans-serif; }
+.tk-pantheon .tk-sidebar { padding-top: 0; gap: 16px; }
+.pt-domain-card { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 22px; border: 1px solid #c5b89529; border-radius: 8px; text-align: center; background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--pt-accent) 9%, transparent), transparent 65%), #111820e8; }
+.pt-domain-card > .pt-eyebrow { font-size: 8px; letter-spacing: .2em; }
+.pt-domain-card > .pt-sigil { margin: 19px 0 10px; width: 120px; height: 120px; color: var(--pt-accent); stroke-width: 1; filter: drop-shadow(0 0 20px color-mix(in srgb, var(--pt-accent) 20%, transparent)); }
+.pt-domain-card h2 { margin: 0 0 7px; color: #eee7d9; font: 400 29px/1.1 Georgia, serif; }
+.pt-domain-epithet { color: var(--pt-accent); font: 400 10px/1.5 system-ui, sans-serif; }
+.pt-domain-rule { display: flex; gap: 12px; align-items: center; width: 100%; margin: 21px 0 10px; color: var(--pt-accent); font-size: 10px; opacity: .6; }
+.pt-domain-rule span { height: 1px; flex: 1; background: linear-gradient(90deg, transparent, var(--pt-accent), transparent); }
+.pt-domain-card p { color: #b8beb9; font: 400 11px/1.8 system-ui, sans-serif; margin: 0 0 20px; }
+.pt-domain-footer { color: #d8d0bf; font: 400 11px/1.5 Georgia, serif; }
+.pt-domain-footer > span { margin: 0 9px; color: #a1aaa9; font: 400 9px/1.4 system-ui, sans-serif; }
+.tk-pantheon .tk-history, .tk-pantheon .tk-roast { border: 1px solid #c5b89529; background: #121920df; border-radius: 8px; backdrop-filter: blur(10px); }
+.tk-pantheon .tk-history-heading { border-color: #d4c6a51a; padding: 15px 17px; }
+.tk-pantheon .tk-history-heading h2 { color: #e1dacb; font: 400 17px/1.3 Georgia, serif; }
+.tk-pantheon .tk-history-heading > span, .tk-pantheon .tk-record-source { color: #aeb6b3; }
+.tk-pantheon .tk-history-content { padding: 16px; }
+.tk-pantheon .tk-history-open, .tk-pantheon .tk-featured-game { background: #202b32; color: #d7d4c8; }
+.tk-pantheon .tk-download { color: var(--pt-accent); }
+.tk-pantheon .tk-roast-message { background: #263037; }
+.tk-pantheon .tk-roast-player { background: #34404a; }
+.tk-pantheon .tk-roast-send { border-color: #d4c6a51a; }
+.tk-pantheon .tk-roast input { background: #0d151c; border-color: #c5b89529; color: #e5e5da; }
+.tk-pantheon .tk-roast-send button, .tk-pantheon .tk-moves button.tk-move-active { background: var(--pt-accent); color: #191d21; }
+.tk-pantheon .tk-board-dialog { background: #161e26; border-color: var(--pt-accent); color: #eee9df; }
+.tk-pantheon .tk-board-dialog p { color: #bcc5c3; }
+.tk-pantheon .tk-dialog-eyebrow { color: var(--pt-accent); }
+.tk-pantheon .tk-promotion-options button, .tk-pantheon .tk-result-actions button { background: var(--pt-accent); }
+.tk-pantheon .tk-replay-controls button, .tk-pantheon .tk-training-actions button { background: #26313a; color: #dedccd; }
+.tk-pantheon .tk-replay-controls button:disabled { opacity: .45; }
+.tk-pantheon .tk-last-review { color: #c6cbc2; }
+.tk-pantheon .tk-last-review p { color: #aab5b5; }
+.tk-pantheon .tk-square-last { background: #e8be3c55; }
+.tk-pantheon .tk-square-selected { background: #eac453a6; }
+.tk-pantheon .tk-legal-move { background: #172f4859; }
+.tk-pantheon .tk-legal-capture { border-color: #172f486e; background: transparent; }
+.tk-pantheon :focus-visible { outline: 2px solid var(--pt-accent); outline-offset: 4px; }
+.tk-pantheon[data-effects='paused'] .pt-atmosphere *, .tk-pantheon[data-effects='paused'] .pt-deity { animation: none !important; transition: none !important; }
+@keyframes pt-ember-rise { 0%, 100% { transform: translate3d(0, 20px, 0); opacity: .12; } 50% { transform: translate3d(15px, -40px, 0); opacity: .65; } }
+@keyframes pt-mist-drift { from { transform: translate3d(-3%, 0, 0); } to { transform: translate3d(3%, -3%, 0); } }
+@media (max-width: 1000px) {
+  .tk-pantheon { --tk-chat-width: 250px; }
+  .tk-pantheon .tk-layout { gap: 18px; }
+  .pt-roster { gap: 5px; }
+  .tk-pantheon button.pt-deity { font-size: 9px; min-height: 87px; }
+}
+@media (max-width: 780px) {
+  .tk-pantheon { padding: 88px 18px 28px; }
+  .pt-intro { margin-bottom: 20px; }
+  .pt-roster { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; }
+  .tk-pantheon button.pt-deity { min-height: 79px; padding: 9px 2px; }
+  .pt-deity .pt-sigil { width: 33px; height: 33px; }
+  .tk-pantheon .pt-deity .pt-avatar { width: 46px; height: 46px; }
+  .pt-realm-heading > .pt-avatar { width: 86px; height: 86px; }
+  .tk-pantheon .tk-layout { width: 100%; grid-template-columns: 1fr; }
+  .tk-pantheon .tk-sidebar { grid-template-columns: 1fr 1fr; align-items: start; }
+  .tk-pantheon .tk-board-panel { padding: 13px; }
+  .pt-realm-heading { padding: 20px 0; }
+  .pt-realm-sigil { width: 70px; height: 70px; }
+  .pt-sanctuary { background-position: 60% center; }
+  .pt-theme-note { display: none; }
+}
+@media (max-width: 540px) {
+  .tk-pantheon { padding: 86px 12px 24px; }
+  .pt-eyebrow { font-size: 8px; letter-spacing: .16em; gap: 6px; }
+  .tk-pantheon button.pt-effects { padding: 5px 8px; font-size: 9px; min-height: 30px; }
+  .pt-realm-heading { gap: 9px; padding: 20px 2px; }
+  .pt-realm-heading h1 { font-size: clamp(26px, 7.6vw, 36px); }
+  .pt-realm-sigil { width: 55px; height: 55px; }
+  .pt-realm-kicker { font-size: 8px; letter-spacing: .07em; }
+  .pt-atmosphere-description { font-size: 10px; margin-top: 10px; }
+  .pt-choice-heading { font-size: 9px; }
+  .pt-choice-heading > :last-child { font-size: 8px; }
+  .pt-roster { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .tk-pantheon button.pt-deity { flex-direction: row; gap: 3px; min-height: 49px; padding: 6px 3px; font-size: 8px; }
+  .pt-deity .pt-sigil { width: 25px; height: 25px; }
+  .tk-pantheon .pt-deity .pt-avatar { width: 28px; height: 28px; }
+  .pt-realm-heading > .pt-avatar { width: 68px; height: 68px; }
+  .tk-pantheon button.pt-deity:has(.pt-avatar) { padding: 6px 3px; }
+  .pt-duel-line { gap: 5px; padding-bottom: 12px; }
+  .pt-versus { gap: 8px; font-size: 12px; }
+  .pt-patron-choice { gap: 4px; }
+  .pt-patron-choice .pt-sigil { width: 29px; height: 29px; }
+  .tk-pantheon .pt-patron-choice select { max-width: 118px; font-size: 11px; }
+  .tk-pantheon .tk-header { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pt-match-brand { font-size: 17px; }
+  .tk-pantheon .tk-header-actions { flex: 1 1 210px; justify-content: space-between; gap: 8px; }
+  .tk-pantheon .tk-versions-link { font-size: 9px; }
+  .tk-pantheon .tk-board-panel { padding: 11px; }
+  .tk-pantheon .tk-toolbar { grid-template-columns: 1fr; gap: 9px; }
+  .tk-pantheon .tk-toolbar button, .tk-pantheon .tk-toolbar select { min-height: 36px; font-size: 11px; }
+  .tk-pantheon .tk-sidebar { grid-template-columns: 1fr; }
+  .pt-celestial { right: -120px; top: 100px; width: 350px; opacity: .09; }
+  .pt-constellation { opacity: .1; }
+}
+@media (max-width: 359px) {
+  .pt-roster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tk-pantheon button.pt-deity { font-size: 9px; }
+  .pt-choice-heading > :last-child { display: none; }
+  .pt-realm-sigil { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tk-pantheon .pt-atmosphere *, .tk-pantheon .pt-deity { animation: none !important; transition: none !important; }
+}
+
+.pt-campaign { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0 0 22px; padding: 17px 20px; border: 1px solid #d9c39430; border-radius: 9px; background: linear-gradient(110deg, color-mix(in srgb, var(--pt-accent) 9%, #10151c), #10151ccc); }
+.pt-campaign .pt-eyebrow { font-size: 8px; margin-bottom: 6px; }
+.pt-campaign strong { display: block; font: 400 21px/1.3 Georgia, serif; color: #efe6d6; }
+.pt-campaign p { margin: 5px 0 0; color: #b4b6b2; font: 400 11px/1.5 system-ui, sans-serif; }
+.pt-campaign-meter { min-width: 175px; display: grid; gap: 9px; color: #c8c7be; font: 400 10px/1.5 system-ui, sans-serif; }
+.pt-campaign progress { appearance: none; width: 100%; height: 5px; border: 0; border-radius: 4px; overflow: hidden; background: #ffffff12; accent-color: var(--pt-accent); }
+.pt-campaign progress::-webkit-progress-bar { background: #ffffff12; }
+.pt-campaign progress::-webkit-progress-value { background: var(--pt-accent); border-radius: 4px; }
+.pt-campaign progress::-moz-progress-bar { background: var(--pt-accent); }
+.pt-roster { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; }
+.tk-pantheon button.pt-deity { flex-direction: column; min-height: 140px; gap: 7px; padding: 12px 6px; }
+.tk-pantheon button.pt-deity:has(.pt-avatar) { padding: 12px 6px; }
+.pt-level-number { font: 500 9px/1.3 system-ui, sans-serif; letter-spacing: .1em; color: #b7b7b1; }
+.pt-deity-name { font: 400 15px/1.3 Georgia, serif; }
+.pt-level-state { font: 400 9px/1.4 system-ui, sans-serif; color: var(--pt-token); }
+.tk-pantheon button.pt-deity[data-level-state='locked'] { opacity: .65; border-style: dashed; }
+.pt-deity[data-level-state='locked'] .pt-avatar { filter: grayscale(.85) brightness(.65); }
+.pt-deity[data-level-state='locked'] .pt-level-state { color: #92999c; }
+.tk-pantheon button.pt-deity[data-level-state='conquered'] { border-color: color-mix(in srgb, var(--pt-token) 35%, transparent); }
+.tk-pantheon .pt-unlock-message { color: var(--pt-accent); font-weight: 500; }
+@media (max-width: 540px) {
+  .pt-campaign { align-items: stretch; flex-direction: column; gap: 13px; padding: 14px; margin-bottom: 18px; }
+  .pt-campaign strong { font-size: 19px; }
+  .pt-campaign-meter { gap: 6px; }
+  .pt-roster { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+  .tk-pantheon button.pt-deity, .tk-pantheon button.pt-deity:has(.pt-avatar) { min-height: 115px; padding: 9px 4px; gap: 5px; }
+  .tk-pantheon .pt-deity .pt-avatar { width: 40px; height: 40px; }
+  .pt-deity-name { font-size: 12px; }
+  .pt-level-number, .pt-level-state { font-size: 8px; }
+}
+@media (max-width: 359px) {
+  .pt-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

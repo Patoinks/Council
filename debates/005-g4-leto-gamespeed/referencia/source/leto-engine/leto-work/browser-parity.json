@@ -1,0 +1,492 @@
+{
+  "decisions": 60,
+  "equal": 60,
+  "different": 0,
+  "errors": [],
+  "meanSeconds": 0.19861333333390452,
+  "medianSeconds": 0.17729999999701976,
+  "p95Seconds": 0.3553999999985099,
+  "maximumSeconds": 0.7264000000059605,
+  "results": [
+    {
+      "game": 0,
+      "ply": 0,
+      "expected": "e2e4",
+      "chosen": "e2e4",
+      "same": true,
+      "seconds": 0.005200000002980232
+    },
+    {
+      "game": 0,
+      "ply": 2,
+      "expected": "d2d4",
+      "chosen": "d2d4",
+      "same": true,
+      "seconds": 0.0035
+    },
+    {
+      "game": 0,
+      "ply": 4,
+      "expected": "g1f3",
+      "chosen": "g1f3",
+      "same": true,
+      "seconds": 0.16030000000447034
+    },
+    {
+      "game": 0,
+      "ply": 6,
+      "expected": "c1f4",
+      "chosen": "c1f4",
+      "same": true,
+      "seconds": 0.15630000000447034
+    },
+    {
+      "game": 0,
+      "ply": 8,
+      "expected": "f1c4",
+      "chosen": "f1c4",
+      "same": true,
+      "seconds": 0.14860000000149012
+    },
+    {
+      "game": 0,
+      "ply": 10,
+      "expected": "e3f4",
+      "chosen": "e3f4",
+      "same": true,
+      "seconds": 0.19039999999850987
+    },
+    {
+      "game": 0,
+      "ply": 12,
+      "expected": "f1c4",
+      "chosen": "f1c4",
+      "same": true,
+      "seconds": 0.2493999999985099
+    },
+    {
+      "game": 0,
+      "ply": 14,
+      "expected": "f4h6",
+      "chosen": "f4h6",
+      "same": true,
+      "seconds": 0.20510000000149012
+    },
+    {
+      "game": 0,
+      "ply": 16,
+      "expected": "e1g1",
+      "chosen": "e1g1",
+      "same": true,
+      "seconds": 0.1561000000014901
+    },
+    {
+      "game": 0,
+      "ply": 18,
+      "expected": "d1d2",
+      "chosen": "d1d2",
+      "same": true,
+      "seconds": 0.15079999999701976
+    },
+    {
+      "game": 0,
+      "ply": 20,
+      "expected": "d1d2",
+      "chosen": "d1d2",
+      "same": true,
+      "seconds": 0.15939999999850987
+    },
+    {
+      "game": 0,
+      "ply": 22,
+      "expected": "d1d2",
+      "chosen": "d1d2",
+      "same": true,
+      "seconds": 0.15829999999701977
+    },
+    {
+      "game": 0,
+      "ply": 24,
+      "expected": "d1d2",
+      "chosen": "d1d2",
+      "same": true,
+      "seconds": 0.189
+    },
+    {
+      "game": 0,
+      "ply": 26,
+      "expected": "d1e2",
+      "chosen": "d1e2",
+      "same": true,
+      "seconds": 0.18820000000298023
+    },
+    {
+      "game": 0,
+      "ply": 28,
+      "expected": "f3e5",
+      "chosen": "f3e5",
+      "same": true,
+      "seconds": 0.14040000000596045
+    },
+    {
+      "game": 0,
+      "ply": 30,
+      "expected": "g1h1",
+      "chosen": "g1h1",
+      "same": true,
+      "seconds": 0.20729999999701976
+    },
+    {
+      "game": 0,
+      "ply": 32,
+      "expected": "c3e2",
+      "chosen": "c3e2",
+      "same": true,
+      "seconds": 0.16529999999701978
+    },
+    {
+      "game": 0,
+      "ply": 34,
+      "expected": "c2c3",
+      "chosen": "c2c3",
+      "same": true,
+      "seconds": 0.1473999999985099
+    },
+    {
+      "game": 0,
+      "ply": 36,
+      "expected": "d1d2",
+      "chosen": "d1d2",
+      "same": true,
+      "seconds": 0.15569999999552966
+    },
+    {
+      "game": 0,
+      "ply": 38,
+      "expected": "a3a4",
+      "chosen": "a3a4",
+      "same": true,
+      "seconds": 0.18020000000298023
+    },
+    {
+      "game": 1,
+      "ply": 1,
+      "expected": "e7e5",
+      "chosen": "e7e5",
+      "same": true,
+      "seconds": 0.0039000000059604646
+    },
+    {
+      "game": 1,
+      "ply": 3,
+      "expected": "g8f6",
+      "chosen": "g8f6",
+      "same": true,
+      "seconds": 0.13320000000298024
+    },
+    {
+      "game": 1,
+      "ply": 5,
+      "expected": "g8f6",
+      "chosen": "g8f6",
+      "same": true,
+      "seconds": 0.12130000000447035
+    },
+    {
+      "game": 1,
+      "ply": 7,
+      "expected": "f8c5",
+      "chosen": "f8c5",
+      "same": true,
+      "seconds": 0.138
+    },
+    {
+      "game": 1,
+      "ply": 9,
+      "expected": "f8c5",
+      "chosen": "f8c5",
+      "same": true,
+      "seconds": 0.21620000000298023
+    },
+    {
+      "game": 1,
+      "ply": 11,
+      "expected": "f8c5",
+      "chosen": "f8c5",
+      "same": true,
+      "seconds": 0.22629999999701977
+    },
+    {
+      "game": 1,
+      "ply": 13,
+      "expected": "f5h3",
+      "chosen": "f5h3",
+      "same": true,
+      "seconds": 0.184
+    },
+    {
+      "game": 1,
+      "ply": 15,
+      "expected": "e8g8",
+      "chosen": "e8g8",
+      "same": true,
+      "seconds": 0.1543999999985099
+    },
+    {
+      "game": 1,
+      "ply": 17,
+      "expected": "d8d7",
+      "chosen": "d8d7",
+      "same": true,
+      "seconds": 0.15160000000149013
+    },
+    {
+      "game": 1,
+      "ply": 19,
+      "expected": "d8d7",
+      "chosen": "d8d7",
+      "same": true,
+      "seconds": 0.17039999999850988
+    },
+    {
+      "game": 1,
+      "ply": 21,
+      "expected": "d8d7",
+      "chosen": "d8d7",
+      "same": true,
+      "seconds": 0.16220000000298024
+    },
+    {
+      "game": 1,
+      "ply": 23,
+      "expected": "d8d7",
+      "chosen": "d8d7",
+      "same": true,
+      "seconds": 0.19979999999701978
+    },
+    {
+      "game": 1,
+      "ply": 25,
+      "expected": "d8e7",
+      "chosen": "d8e7",
+      "same": true,
+      "seconds": 0.19829999999701978
+    },
+    {
+      "game": 1,
+      "ply": 27,
+      "expected": "f6e4",
+      "chosen": "f6e4",
+      "same": true,
+      "seconds": 0.15929999999701977
+    },
+    {
+      "game": 1,
+      "ply": 29,
+      "expected": "f8e7",
+      "chosen": "f8e7",
+      "same": true,
+      "seconds": 0.16129999999701977
+    },
+    {
+      "game": 1,
+      "ply": 31,
+      "expected": "c6e7",
+      "chosen": "c6e7",
+      "same": true,
+      "seconds": 0.1605
+    },
+    {
+      "game": 1,
+      "ply": 33,
+      "expected": "c7c6",
+      "chosen": "c7c6",
+      "same": true,
+      "seconds": 0.15090000000596046
+    },
+    {
+      "game": 1,
+      "ply": 35,
+      "expected": "d8d7",
+      "chosen": "d8d7",
+      "same": true,
+      "seconds": 0.16289999999850988
+    },
+    {
+      "game": 1,
+      "ply": 37,
+      "expected": "a6a5",
+      "chosen": "a6a5",
+      "same": true,
+      "seconds": 0.17729999999701976
+    },
+    {
+      "game": 1,
+      "ply": 39,
+      "expected": "a5a4",
+      "chosen": "a5a4",
+      "same": true,
+      "seconds": 0.185
+    },
+    {
+      "game": 2,
+      "ply": 8,
+      "expected": "e1g1",
+      "chosen": "e1g1",
+      "same": true,
+      "seconds": 0.008300000004470348
+    },
+    {
+      "game": 2,
+      "ply": 10,
+      "expected": "a4b3",
+      "chosen": "a4b3",
+      "same": true,
+      "seconds": 0.0029000000059604646
+    },
+    {
+      "game": 2,
+      "ply": 12,
+      "expected": "b1c3",
+      "chosen": "b1c3",
+      "same": true,
+      "seconds": 0.195
+    },
+    {
+      "game": 2,
+      "ply": 14,
+      "expected": "c2b3",
+      "chosen": "c2b3",
+      "same": true,
+      "seconds": 0.15620000000298023
+    },
+    {
+      "game": 2,
+      "ply": 16,
+      "expected": "d2d4",
+      "chosen": "d2d4",
+      "same": true,
+      "seconds": 0.164
+    },
+    {
+      "game": 2,
+      "ply": 18,
+      "expected": "c1e3",
+      "chosen": "c1e3",
+      "same": true,
+      "seconds": 0.275
+    },
+    {
+      "game": 2,
+      "ply": 20,
+      "expected": "d1d2",
+      "chosen": "d1d2",
+      "same": true,
+      "seconds": 0.3553999999985099
+    },
+    {
+      "game": 2,
+      "ply": 22,
+      "expected": "d1d2",
+      "chosen": "d1d2",
+      "same": true,
+      "seconds": 0.336
+    },
+    {
+      "game": 2,
+      "ply": 24,
+      "expected": "d3d4",
+      "chosen": "d3d4",
+      "same": true,
+      "seconds": 0.2603999999985099
+    },
+    {
+      "game": 2,
+      "ply": 26,
+      "expected": "a1c1",
+      "chosen": "a1c1",
+      "same": true,
+      "seconds": 0.7264000000059605
+    },
+    {
+      "game": 2,
+      "ply": 28,
+      "expected": "d3d4",
+      "chosen": "d3d4",
+      "same": true,
+      "seconds": 0.27580000000447036
+    },
+    {
+      "game": 2,
+      "ply": 30,
+      "expected": "c3e2",
+      "chosen": "c3e2",
+      "same": true,
+      "seconds": 0.35319999999552965
+    },
+    {
+      "game": 2,
+      "ply": 32,
+      "expected": "b1c1",
+      "chosen": "b1c1",
+      "same": true,
+      "seconds": 0.398
+    },
+    {
+      "game": 2,
+      "ply": 34,
+      "expected": "c1c4",
+      "chosen": "c1c4",
+      "same": true,
+      "seconds": 0.34890000000596044
+    },
+    {
+      "game": 2,
+      "ply": 36,
+      "expected": "e3b6",
+      "chosen": "e3b6",
+      "same": true,
+      "seconds": 0.2598999999985099
+    },
+    {
+      "game": 2,
+      "ply": 38,
+      "expected": "d3d4",
+      "chosen": "d3d4",
+      "same": true,
+      "seconds": 0.46370000000298023
+    },
+    {
+      "game": 2,
+      "ply": 40,
+      "expected": "e1d1",
+      "chosen": "e1d1",
+      "same": true,
+      "seconds": 0.2950999999940395
+    },
+    {
+      "game": 2,
+      "ply": 42,
+      "expected": "b6a5",
+      "chosen": "b6a5",
+      "same": true,
+      "seconds": 0.2475
+    },
+    {
+      "game": 2,
+      "ply": 44,
+      "expected": "a5b4",
+      "chosen": "a5b4",
+      "same": true,
+      "seconds": 0.25360000000149013
+    },
+    {
+      "game": 2,
+      "ply": 46,
+      "expected": "d4e5",
+      "chosen": "d4e5",
+      "same": true,
+      "seconds": 0.20780000000447035
+    }
+  ]
+}

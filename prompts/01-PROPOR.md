@@ -21,4 +21,4 @@ Your answer must contain:
 7. Evidence table for decisive claims: state (supported, attributed, assumption, contested, unknown), provenance and passage, scope, and the phase in which you consulted it.
 8. At least one refutation test: the observable result that would make you abandon or change the recommendation.
 
-Do not discuss time, effort, cost or resources (Law No. 1). Do not invent tools, research or results. Write in English, in Markdown. End your answer with a line containing only `END-OF-CONTRIBUTION`.
+Apply Law No. 1: analyze time or resource metrics only when they belong to Martim's explicitly stated objective or constraints; do not invent personal limits, spending authority, deadlines or resource targets. Do not invent tools, research or results. Write in English, in Markdown. End your answer with a line containing only `END-OF-CONTRIBUTION`.

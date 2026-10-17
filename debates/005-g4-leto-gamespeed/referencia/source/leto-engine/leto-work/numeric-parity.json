@@ -1,0 +1,47 @@
+{
+  "summary": {
+    "pawnomics": {
+      "compared": 92076,
+      "numericCompared": 47383,
+      "booleanCompared": 44693,
+      "different": 0,
+      "maximum": 0
+    },
+    "principles": {
+      "compared": 130438,
+      "numericCompared": 130438,
+      "booleanCompared": 0,
+      "different": 0,
+      "maximum": 0
+    },
+    "book": {
+      "compared": 2690,
+      "numericCompared": 0,
+      "booleanCompared": 0,
+      "different": 0,
+      "maximum": 0
+    },
+    "fade": {
+      "compared": 4035,
+      "numericCompared": 4035,
+      "booleanCompared": 0,
+      "different": 0,
+      "maximum": 0
+    },
+    "pawnomics-v2": {
+      "compared": 10,
+      "numericCompared": 10,
+      "booleanCompared": 0,
+      "different": 0,
+      "maximum": 0
+    },
+    "see": {
+      "compared": 71,
+      "numericCompared": 71,
+      "booleanCompared": 0,
+      "different": 0,
+      "maximum": 0
+    }
+  },
+  "differences": []
+}

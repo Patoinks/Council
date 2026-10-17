@@ -4,7 +4,7 @@ Several AIs propose and review independently. The King (Opus) synthesizes, decid
 
 **Read first:** the [Laws](LEIS.md). They are above everything else.
 
-For the actual PC coordinator, its distribution/capture workflow and the integration boundaries still missing, read [Current operating model](OPERATING-MODEL.md). [Debate 003](debates/003-mobile-bridge/INICIAR.md) concerns the phone-to-PC bridge, and [debate 004](debates/004-low-iq-debate/INICIAR.md) concerns TonkAI training throughput. Both have closed proposal and review rounds and await Opus synthesis and decree under the current Laws.
+For the actual PC coordinator, its distribution/capture workflow and the integration boundaries still missing, read [Current operating model](OPERATING-MODEL.md). [Debate 003](debates/003-mobile-bridge/INICIAR.md) concerns the phone-to-PC bridge, [debate 004](debates/004-low-iq-debate/INICIAR.md) records the Flash-model throughput test, and [debate 005](debates/005-g4-leto-gamespeed/INICIAR.md) is the normal Council on G4 Leto games per second and the Pantheon personality system.
 
 ## How a debate runs
 

@@ -2,6 +2,7 @@
 
 | Debate | Status | Entry |
 | --- | --- | --- |
+| 005 — G4 Leto games per second and Pantheon personalities | Active — preparing standard Council proposals | [Open](005-g4-leto-gamespeed/INICIAR.md) |
 | 004 — low iq debate: maximize TonkAI training throughput | Proposals and reviews closed — awaiting Opus synthesis and decree | [Open](004-low-iq-debate/INICIAR.md) |
 | 003 — Connect the phone apps to the PC operator | Proposals and reviews closed — awaiting Opus synthesis and decree | [Open](003-mobile-bridge/INICIAR.md) |
 | 002 — Improve the current Council | Closed — decree | [Decree](002-aperfeicoar-council/DECISAO.md) |

@@ -1,0 +1,352 @@
+{
+  "model": "G4 Nezha",
+  "weightsSha256": "d8f9edad5a5352ec86ef50048794dbe22d2b0b6ab354d8366ff38f6190df5c3f",
+  "positions": 20,
+  "changed": 0,
+  "legal": true,
+  "historyPreserved": true,
+  "maxUtilityLoss": 0,
+  "note": "Decision sample, not a strength or Elo measurement.",
+  "rows": [
+    {
+      "fen": "rnbqkbnr/1p2pp1p/p7/1Ppp2N1/8/8/P1PPPPPP/RNBQKB1R w KQkq - 0 5",
+      "baseMs": 230.77029999999996,
+      "elapsedMs": 160.54340000000002,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "c1b2",
+        "selected": "c1b2",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 1.0407721249987538,
+        "selectedUtility": 1.0407721249987538,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "r1bqk1nr/1p1nppbp/8/pPpp2N1/P2PP3/8/2P2PPP/RNBQKB1R w KQkq - 0 8",
+      "baseMs": 250.09750000000008,
+      "elapsedMs": 186.587,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "d1h5",
+        "selected": "d1h5",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 1.5833871223181353,
+        "selectedUtility": 1.5833871223181353,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "1rbqk2r/1p1nppbp/7n/pPp3N1/P2Pp3/3BB3/2P2PPP/RN1Q1K1R w k - 4 11",
+      "baseMs": 228.3777,
+      "elapsedMs": 182.81839999999988,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "d3e4",
+        "selected": "d3e4",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.7692530787126138,
+        "selectedUtility": 0.7692530787126138,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "1rb1kr2/1p1npp1B/1q5n/pPp3N1/P2b4/N3B3/2P2PPP/R2Q1K1R w - - 1 14",
+      "baseMs": 232.02589999999987,
+      "elapsedMs": 208.51159999999982,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "e3d4",
+        "selected": "e3d4",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.8227235113924966,
+        "selectedUtility": 0.8227235113924966,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "1rb1kr2/1p2pp1B/5q1n/pPp1n1NQ/P4P2/N3B3/2P2KPP/b6R w - - 0 17",
+      "baseMs": 272.7972999999997,
+      "elapsedMs": 262.3795,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "f2e1",
+        "selected": "f2e1",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.634493113900535,
+        "selectedUtility": 0.634493113900535,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rnbqkbn1/1ppppp1r/7p/p5p1/6P1/P1N2N2/1PPPPP1P/R1BQKB1R w KQq - 1 5",
+      "baseMs": 147.92369999999983,
+      "elapsedMs": 131.26549999999997,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "f1h3",
+        "selected": "f1h3",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 1.1111270757413731,
+        "selectedUtility": 1.1111270757413731,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rnbqkbn1/1pp1pp2/6rp/p2p2p1/3NP1P1/P7/1PPP1P1P/RNBQKB1R w KQq - 0 8",
+      "baseMs": 199.93820000000005,
+      "elapsedMs": 162.5866000000001,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "e4e5",
+        "selected": "e4e5",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.7890090761582718,
+        "selectedUtility": 0.7890090761582718,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "r2qkbn1/1pp1pp2/2n3rp/3p2p1/p2PP1b1/PNN5/1PP2P1P/R1BQKB1R w KQq - 0 11",
+      "baseMs": 256.75530000000026,
+      "elapsedMs": 210.85629999999992,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "d1g4",
+        "selected": "d1g4",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 1.2000437073252068,
+        "selectedUtility": 1.2000437073252068,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "2rqkbn1/2p1p3/1pn3rp/3pPpp1/p2P2b1/PN6/NPPB1P1P/R2QKB1R w KQ - 0 14",
+      "baseMs": 205.65829999999914,
+      "elapsedMs": 192.25570000000062,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "f2f3",
+        "selected": "f2f3",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.07870722418439358,
+        "selectedUtility": 0.07870722418439358,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "2rqkbn1/2p1p3/2nr3p/1p1pPppb/p2P4/P1B5/NPPQ1P1P/R1N1KB1R w KQ - 0 17",
+      "baseMs": 180.8753000000006,
+      "elapsedMs": 182.58730000000014,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "e5d6",
+        "selected": "e5d6",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 2.2408665233279113,
+        "selectedUtility": 2.2408665233279113,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rnbqkbn1/2pppppr/1p6/p6p/8/2NPP3/PPP1NPPP/R1BQKB1R w KQq - 0 5",
+      "baseMs": 152.35559999999987,
+      "elapsedMs": 130.28269999999975,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "c1d2",
+        "selected": "c1d2",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 1.0017993529053593,
+        "selectedUtility": 1.0017993529053593,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rnbqkb2/4ppQr/1pp2n2/p2p3p/5N2/2NPP3/PPP2PPP/R1B1KB1R w KQq - 1 8",
+      "baseMs": 253.91129999999976,
+      "elapsedMs": 239.6212999999998,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "g7g5",
+        "selected": "g7g5",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.7410912954205241,
+        "selectedUtility": 0.7410912954205241,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rnbqk2b/3npp1r/1pp5/p2p3p/8/1PNPP2N/P1PB1PPP/R3KB1R w KQq - 4 11",
+      "baseMs": 201.10859999999957,
+      "elapsedMs": 168.01400000000012,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "e1c1",
+        "selected": "e1c1",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 1.0279411146494544,
+        "selectedUtility": 1.0279411146494544,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rnbqk1nb/4pp1r/1pp5/p2p4/1P4Pp/2NPP2N/P1PBBP1P/R3K2R w KQq - 3 14",
+      "baseMs": 236.54889999999978,
+      "elapsedMs": 206.35909999999967,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "b4a5",
+        "selected": "b4a5",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.609518686031553,
+        "selectedUtility": 0.609518686031553,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rnb1k3/2q1pp1r/1pp4n/p2p4/1P1b2Pp/2NPP2N/P1PB1P1P/2R1KBR1 w q - 9 17",
+      "baseMs": 282.7493999999997,
+      "elapsedMs": 253.33560000000034,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "e3d4",
+        "selected": "e3d4",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 1.5273366421219015,
+        "selectedUtility": 1.5273366421219015,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rnbqkbnr/3ppppp/1p6/2p5/1p6/5N2/P1PPPPPP/RNBQKB1R w KQkq - 0 5",
+      "baseMs": 170.79359999999997,
+      "elapsedMs": 133.77180000000044,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "c1b2",
+        "selected": "c1b2",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.9797254945832725,
+        "selectedUtility": 0.9797254945832725,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rn1qkb1r/3bpppp/1p3n2/2pp4/Pp6/N1P2N2/3PPPPP/R1BQKB1R w KQkq - 3 8",
+      "baseMs": 183.45969999999943,
+      "elapsedMs": 173.19800000000032,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "a3b1",
+        "selected": "a3b1",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.5473048031933874,
+        "selectedUtility": 0.5473048031933874,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "rn1qkb1r/4pppp/1pb2n2/2pp4/PP5N/N7/R2PPPPP/2BQKB1R w Kk - 5 11",
+      "baseMs": 189.5723999999991,
+      "elapsedMs": 177.89760000000024,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "b4b5",
+        "selected": "b4b5",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 0.7807009485592341,
+        "selectedUtility": 0.7807009485592341,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "r2qkb1r/3npppp/bp3n2/2pp4/PP5N/N5PB/1R1PPP1P/2BQK2R w Kk - 3 14",
+      "baseMs": 222.3718000000008,
+      "elapsedMs": 197.619200000001,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "e1g1",
+        "selected": "e1g1",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 1.0242115264636567,
+        "selectedUtility": 1.0242115264636567,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    },
+    {
+      "fen": "r2qkbr1/3npppp/1p3n2/2Pp4/P6N/NR1b1PPB/3PP2P/2BQK2R w K - 1 17",
+      "baseMs": 237.5022000000008,
+      "elapsedMs": 190.85289999999986,
+      "trace": {
+        "profile": "nezha",
+        "baseline": "h3d7",
+        "selected": "h3d7",
+        "changed": false,
+        "reason": "no-safe-alternative",
+        "baselineUtility": 1.6961543959867496,
+        "selectedUtility": 1.6961543959867496,
+        "utilityLoss": 0,
+        "bonus": 0,
+        "eligible": 0
+      }
+    }
+  ]
+}
