@@ -1,14 +1,14 @@
 # Manifest — Council 003 mobile bridge
 
 - **Debate:** 003-mobile-bridge.
-- **Phase and round:** cross review, round 02; independent proposals closed.
-- **Collection state:** all five cross-reviews captured and closed together; preparing the King's complete handoff.
+- **Phase and round:** synthesis handoff; proposals round 01 and cross-review round 02 closed.
+- **Collection state:** all five proposals and all five reviews closed; complete packet prepared for Martim's handoff to Opus.
 - **Launch instruction:** Martim, "lança council", 2026-10-17 Europe/Lisbon.
 - **Context version:** v1, authorized for this launch.
-- **Packet file:** PACOTE-REVISAO.md v1 for round 02; PACOTE-PROPOSTA.md v1 remains unchanged.
+- **Packet file:** PACOTE-SINTESE.md v1 for the King; proposal and review packets remain unchanged.
 - **Source baseline:** 95d853ba7480260d5a9c4b8541b4b1b32a6d90f3; v2.1 governance was enacted in 389a4367de088361adcaeec271fb438c6fb0b492.
 - **Commit of closed proposal set:** 730f578ee8a32aa22a5d1310524cc990db26f683, published to origin/main.
-- **Commit of closed review set:** the commit introducing the complete revisoes/ directory; its exact ID will be recorded before synthesis-packet preparation.
+- **Commit of closed review set:** 2a72f280f0da55f60727e6f7f92ec9d7d2e82ace, published to origin/main.
 - **Deadline set by Martim:** none.
 
 ## Inventory and packet order
@@ -150,3 +150,13 @@ The three web reviews were exported directly from their completed response conta
 Several reviews question citation traceability or abrupt passages in the supplied proposal captures. Those findings remain in the originals, without an operator disposition. The synthesis packet also carries every preserved rendered HTML capture, including the initial Sonnet version, plus the link exports, so the King can inspect capture fidelity directly. These are existing source artifacts, not new participant arguments or independently validated product evidence. Nothing is reconstructed to fill a perceived gap.
 
 All accepted reviews were staged outside the checkout until the entire set was ready, then copied unchanged together and hash-checked. The King's handoff will contain the complete closed source set, not an operator summary or preferred bridge. Synthesis, decree, implementation and execution review have not occurred.
+
+## King's complete packet and handoff boundary
+
+PACOTE-SINTESE.md v1 includes, in order: complete frozen Laws and rules, unchanged context v1, complete frozen operating model, this manifest, all five proposals in order sol/normal/argon/sonnet/astra, the initial Sonnet capture and proposal source-link inventories, all five reviews in the same participant order, review source-link inventories, every preserved rendered HTML capture sorted by filename, the plan and decree templates and the unchanged fixed synthesis prompt. Its final line is END-OF-PACKET-003-SYNTHESIS-v1. The exact packet digest is recorded only in PACOTES.sha256. Full-source containment and external hashes are checked after construction.
+
+The preserved HTML is transport provenance supplied for the King's inspection of rendered-table and citation questions; no response is rewritten or reconstructed. The King receives every review and objection as issued. The Right Hand has not decided their dispositions, chosen the bridge, written a royal synthesis or issued a decree.
+
+Martim takes this packet to a new Opus conversation in his Claude phone app, as the authorized context requires. The routing message is: `Participant ID: opus. Follow the fixed synthesis prompt in the attached PACOTE-SINTESE.md. Work in English.` This is the only addition to the unchanged fixed prompt. HANDOFF-OPUS.md explains the transfer and return without adding an architectural recommendation. Phone-side receipt, synthesis and decree remain pending until actually observed or supplied back by Martim; no cross-app delivery is claimed.
+
+The decree must bind the exact committed plan. If the plan's commit does not yet exist when the King writes the documents, that reference remains pending: the Right Hand records the plan and returns the real commit for the King's completed decree. The operator never invents that reference or treats a placeholder as completed authority. Martim may veto or amend. Bridge implementation and the King's review of execution follow the attributable decree and any sovereign amendment; this deliberation run ends at the prepared handoff.
