@@ -2,7 +2,7 @@
 
 - Identificador do debate: <001-nome-do-sistema>
 - Versão do contexto: <v1>
-- Estado: <Preparação | Propostas | Revisão | Síntese | Fechado>
+- Estado: <Preparação | Propostas | Revisão | Síntese | Auditoria | Decisão | Fechado>
 - Data de atualização: <AAAA-MM-DD>
 - Responsável pela decisão: <nome>
 
@@ -28,13 +28,17 @@
 
 ## Requisitos obrigatórios
 
-- R1: <requisito verificável>
-- R2: <requisito verificável>
+Mantém os IDs estáveis entre versões.
 
-## Restrições
+| ID | Requisito | Como verificar |
+| --- | --- | --- |
+| R1 | <...> | <...> |
+| R2 | <...> | <...> |
 
-- Orçamento: <valor ou por definir>
-- Prazo: <data ou por definir>
+## Restrições e recursos
+
+- Orçamento de execução do sistema: <valor ou por definir>
+- Prazo do sistema: <data ou por definir>
 - Tecnologias e integrações: <obrigatórias, disponíveis ou proibidas>
 - Recursos disponíveis: <equipa, hardware, serviços, dados>
 - Outras restrições: <...>
@@ -47,22 +51,47 @@
 | 2 | <...> | <...> |
 | 3 | <...> | <...> |
 
-## Evidências disponíveis
+## Evidências e pressupostos disponíveis
 
-<Fontes, ficheiros, medições e limites do que já sabemos.>
+<Fontes, ficheiros, passagens, medições e limites. Nas afirmações decisivas, indica estado, âmbito, proveniência e fase da consulta. Distingue inferências e estimativas.>
 
-## Pressupostos e perguntas em aberto
+## Incertezas e perguntas em aberto
 
-- <...>
+| ID | Incerteza ou pergunta | Decisão afetada | Como obter resposta |
+| --- | --- | --- | --- |
+| U1 | <...> | <...> | <...> |
+| U2 | <...> | <...> | <...> |
 
-## Participantes e ronda
+## Orçamento do debate
 
-- Participantes: <identificadores; registar o modelo efetivo em cada contribuição>
-- Fase atual: <...>
-- Ficheiros fornecidos nesta fase: <lista>
-- Referência da versão: <versão do contexto e, quando existir, commit>
-- Condição de paragem: <o que basta para avançar para a síntese>
+- Interações/respostas previstas e limite: <...>
+- Minutos de trabalho ativo do operador previstos e limite: <...>
+- Tempo de calendário disponível: <...>
+- Se exceder o orçamento: <ponto de decisão e responsável>
+
+## Participantes e papéis
+
+Preencher antes de pedir propostas.
+
+- Participantes e fornecedores: <IDs; modelo visível registado em cada contribuição>
+- Sintetizador: <ID>
+- Auditor: <ID diferente do sintetizador; de preferência outro fornecedor>
+- Rotação publicada: <referência no manifesto>
+- Operador: <nome/ID; participa também? em que papel?>
+
+## Ronda, prazo e fecho
+
+- Fase e ronda atuais: <...>
+- Ficheiros fornecidos: <lista; inventário no manifesto>
+- Referência: <versão do contexto e commit, se conhecido>
+- Prazo da recolha, com fuso horário: <...>
+- Regra de fecho: <respostas esperadas, prazo e condição para avançar>
+- Quórum escolhido por Martim: <opção por omissão proposta: 3 respostas de pelo menos 2 fornecedores após o prazo; ou outra regra explícita>
+- Derrogação ou ausência de quórum: <decisão de Martim e registo no manifesto>
+- Condição de paragem: <...>
+
+A opção de quórum é configurável. Regista a escolha antes da recolha. Propostas e revisões originais só entram no repositório no fecho da respetiva ronda.
 
 ## Resultado esperado
 
-<Que documentos, decisões e critérios de validação devem ser entregues?>
+<Documentos, decisões e critérios de validação a entregar. Proposta, auditoria e decisão são ficheiros separados. Resultados só quando houver execução ou teste.>

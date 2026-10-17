@@ -1,24 +1,24 @@
 # Prompt 1 — Proposta independente
 
-Copia o texto abaixo para a AI e fornece `CONTEXTO.md` e `REGRAS.md`. Não forneças as outras propostas nesta fase.
+Abre uma conversa nova. Fornece o mesmo `PACOTE-PROPOSTA.md` a cada participante: contexto completo, regras, manifesto e `templates/CONTRIBUICAO.md`. Lista as secções no topo e põe a marca de fim no final do pacote. Não forneças propostas alheias. Usa o texto abaixo como enquadramento fixo e regista qualquer acréscimo no manifesto. Guarda as respostas fora do repositório até ao fecho da ronda.
 
 ---
 
-Participas num Council para escolher um plano para o sistema descrito em CONTEXTO.md. Segue REGRAS.md.
+Participas num Council para escolher um plano para o sistema descrito em CONTEXTO.md. Segue REGRAS.md. Não implementes o sistema nesta fase.
 
-Começa por identificar os ficheiros e a versão do contexto que recebeste. Se não conseguires ler o contexto, pede o seu conteúdo antes de propor uma solução.
+Na primeira linha, transcreve a marca de fim recebida e lista as secções em falta, ou indica «nenhuma». Identifica ficheiros, versão do contexto e commit, se fornecido. Se a marca estiver ausente ou errada, ou faltarem secções, pede o reenvio antes de propor. Segue a recuperação definida nas regras.
 
-Cria uma proposta independente. Não consultes propostas de outros participantes. Não implementes o sistema nesta fase.
+Usa templates/CONTRIBUICAO.md. Declara participante, modelo visível ou «não visível», ferramentas efetivamente usadas, memória entre conversas, exposição prévia, conversa nova sim/não e limites de acesso. Não consultes propostas de outros participantes.
 
 A resposta deve conter:
 
-1. Participante, modelo mostrado na interface e versão do contexto. Se desconheces um dado, diz isso.
-2. A tua interpretação do objetivo e as lacunas que podem mudar a decisão.
-3. Plano recomendado: componentes, responsabilidades, fluxo de funcionamento e etapas de execução.
+1. Ficha de até 300 palavras: recomendação, razões decisivas, alternativa, condição de falha e verificação.
+2. Interpretação do objetivo, requisitos R# e lacunas U# que podem mudar a decisão.
+3. Plano recomendado: componentes, responsabilidades, interfaces, fluxo e etapas de execução.
 4. Pelo menos uma alternativa plausível e os motivos para preferires a recomendação.
-5. Comparação pelos critérios e restrições definidos no contexto. Se usares estimativas de esforço ou custo, indica os pressupostos.
-6. Riscos, modos de falha e dependências.
-7. Fontes ou evidências efetivamente consultadas, distinguindo factos de pressupostos.
-8. Verificações concretas que permitam aceitar ou rejeitar as decisões mais importantes.
+5. Comparação pelos critérios e restrições do contexto. Se estimas esforço ou custo, declara os pressupostos.
+6. Riscos, modos de falha e dependências. Lista todos os riscos que possam invalidar um requisito obrigatório.
+7. Evidências efetivamente consultadas. Nas afirmações decisivas, indica estado, proveniência, passagem, âmbito e fase da consulta. Distingue sustentada, atribuída, pressuposto, contestada e desconhecida.
+8. Pelo menos um teste de refutação: o resultado observável que te faria abandonar ou alterar a recomendação. Inclui verificações das decisões mais importantes.
 
-Prioriza argumentos concretos. Não inventes funcionalidades, acesso a ferramentas ou resultados. Entrega a resposta em Markdown para ser guardada em propostas/<participante>.md.
+O corpo não tem limite rígido. Prioriza argumentos concretos. Não inventes funcionalidades, acesso a ferramentas, pesquisas ou resultados. Entrega Markdown para propostas/<participante>.md.

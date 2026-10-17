@@ -1,22 +1,27 @@
 # Prompt 3 — Síntese e plano final
 
-Fornece `CONTEXTO.md`, `REGRAS.md`, todas as propostas e revisões da ronda e `templates/PLANO-FINAL.md`.
+Abre uma conversa nova com o sintetizador designado antes das propostas. Fornece `CONTEXTO.md`, `REGRAS.md`, manifesto com inventário completo, todas as propostas e revisões fechadas e `templates/PLANO-FINAL.md`. Lista as secções no topo do pacote e põe a marca de fim no final. Usa o texto abaixo como enquadramento fixo; regista acréscimos no manifesto.
 
 ---
 
-És responsável por consolidar o resultado deste Council. Usa o modelo PLANO-FINAL.md e segue REGRAS.md.
+És responsável por consolidar o resultado deste Council. Usa templates/PLANO-FINAL.md e segue REGRAS.md. Não implementes o sistema.
 
-Começa por identificar os ficheiros analisados e a versão do contexto. Avalia as opções pelos critérios definidos no CONTEXTO.md. Não escolhas por maioria, prestígio do modelo ou confiança declarada.
+Começa por confirmar a marca de fim, as secções, os ficheiros lidos e a versão do contexto. Indica o que falta ou não leste e pede recuperação antes de sintetizar um pacote incompleto. Declara participante, modelo visível, ferramentas, memória, exposição prévia e se é conversa nova.
 
-Produz um plano que:
+Avalia pelos critérios do CONTEXTO.md. Não escolhas por maioria, prestígio do modelo ou confiança declarada. Produz um plano que:
 
-- Recomende uma opção e explique a ligação entre evidências, critérios e decisão.
-- Compare as alternativas e justifique as rejeições. Se combinares propostas, explica como os componentes se integram.
-- Referencie os ficheiros e secções que sustentam as principais decisões.
-- Preserve objeções relevantes, pressupostos e desacordos, incluindo os de uma minoria.
+- Recomende uma opção e ligue evidências, critérios e decisão.
+- Compare alternativas e justifique rejeições. Se combinares propostas, verifica interfaces, contratos e dependências.
+- Inclua tabela de decisões com D#, R# relacionados, alternativas rejeitadas e motivo, IDs que sustentam e condição de reversão.
+- Inclua no ledger todas as objeções bloqueantes e materiais de todas as revisões. Preserva IDs, gravidade e resumo fiel. Podes agrupar temas sem apagar diferenças relevantes.
+- Atribua a cada objeção um estado: RESOLVIDA, CONDICIONAL, EM ABERTO, REFUTADA ou NÃO MATERIAL, com fundamento e destino. A refutação responde à condição de falha.
+- Preserve riscos e desacordos capazes de alterar a decisão, mesmo quando só um participante os aponta.
+- Mantenha nas afirmações decisivas os estados sustentada, atribuída, pressuposto, contestada ou desconhecida, com proveniência, âmbito e fase da consulta. Repetição não muda estado.
+- Preencha «Onde contrario a maioria» e justifique essas decisões pelos critérios e evidências.
+- Marque premissas novas como pendentes, com decisão dependente e forma de verificar.
+- Preencha «Origem própria»: componentes da tua proposta, apoio e fundamento de cada um, o que alteras ou rejeitas e conflitos de papel. Se não propuseste, diz isso.
 - Divida a execução em etapas com dependências, entregáveis e critérios de aceitação observáveis.
-- Separe o que já está verificado do que precisa de pesquisa, protótipo ou teste.
 
-Se não houver base suficiente para decidir, marca o estado como "Por decidir" e indica exatamente o que falta, como obter essa informação e que decisão depende dela. Caso contrário, marca "Proposto para revisão". Não declares o plano aprovado pelo utilizador nem validado na prática sem evidência.
+Se faltar base para decidir, usa «Por decidir» e indica o que falta, como o obter e a decisão dependente. Caso contrário, usa «Proposto para revisão». Nunca marques o plano como aprovado.
 
-Entrega o documento completo em Markdown para PLANO-FINAL.md. Não implementes o sistema nem alteres as contribuições originais.
+Entrega o documento completo em Markdown para PLANO-FINAL.md. Auditoria, decisão de Martim e resultados ficam em ficheiros separados. Não declares validação sem resultados. Não alteres contribuições originais. Depois da auditoria há, no máximo, uma correção num ficheiro novo, preservando este plano.
