@@ -1,0 +1,2434 @@
+END-OF-PACKET-007-REVIEW-v1 | Missing sections: none
+
+Independent review — normal
+
+Council 007 — Local Leto mutation-tournament throughput and personalities
+
+Participant: normal.
+
+Visible model: GPT-6. Exact internal reasoning-effort setting not independently visible.
+
+Date: 2026-10-17.
+
+Phase and round: Independent cross-review, Council 007, fresh v3 proposal/review cycle.
+
+Context version: v3.
+
+Reference commit: f5405a9848c68f1a7d9804c80ffeabd8470bc47a, as attributed by the supplied inventory. The source package includes dirty working-tree bytes that cannot be identified by the commit hash alone.
+
+Files received and read:
+
+PACOTE-REVISAO-v1(2).md: complete, including all ordered sections, Laws No. 1–4, rules, context, manifest, source inventory, contribution template, four closed proposals, review prompt and final receipt marker.
+
+PACOTE-PROPOSTA-v3(1).zip: complete ZIP inventory and relevant permitted Python/C++ source. All 178 source-inventory entries were checked against their listed byte sizes and SHA-256 digests; no mismatches were found.
+
+Detailed source examination covered the current Claudio agent, arena, groups, site-mutation, loading and import-resolution paths; the C++ search implementation; frozen neural-network inference; adjacent CognitiveAgent orchestration; and relevant reference-release material. Peripheral files were inventoried or selectively examined, not exhaustively audited line by line.
+
+Tools used: Local container filesystem access, Python standard-library ZIP/hash inspection, read-only source examination, and packet/file reading. No web search, engine execution, benchmark, tournament, training, checkpoint loading or repository modification.
+
+Cross-conversation memory: Recent-conversation context indicates earlier Council 007 participation and the separate archive-only interaction. This information was used for exposure disclosure, not as engineering evidence. The present review's technical conclusions derive from the attached closed packet and source ZIP.
+
+Prior exposure: I authored the Normal proposal in the fresh Council 007 proposal round. Additionally, after that proposal round closed, a separate GPT-6 archive-only conversation received the complete Sonnet proposal solely to produce a verbatim downloadable file. No review was requested in that conversation. I disclose that prior Sonnet exposure explicitly. I did not consult its archive output or any other review answer when preparing this review. The Sonnet proposal assessed here is the copy in the closed review packet.
+
+New conversation: Yes, this is a new review conversation.
+
+Own proposal recognized: Yes. The closed normal contribution is recognizable as my earlier independent proposal. I review it using the same evidentiary standard as the other three.
+
+Access limits: No verified active command, live process information, checkpoint contents, trained weights, compiled extension identity, benchmark results, tournament output or hardware measurements. The original claudio/ESTADO.md and release README are described by the context but are not independently present as those original files in the ZIP. Protected scripts/group_stage.py, Gepeto/ and other excluded material were not examined.
+
+Changes made: None.
+
+Review completeness: Complete review of the four closed proposals. Source examination was focused on relevant implementation paths, rather than a line-by-line audit of every included module.
+
+Brief — up to 300 words
+
+The four proposals converge on an engineering direction that is supported at the architectural level but remains unverified experimentally: identify the actual local G4 Leto tournament, preserve its comparison protocol, improve measurable CPU and orchestration costs, and add ten bounded personality policies behind tactical and strength checks.
+
+The strongest shared finding is that the supplied repository contains distinct Claudio and CognitiveAgent paths. Source inspection establishes their behavior but does not identify Martim's active tournament command or checkpoint. Optimizing claudio/arena.py before resolving that identity is conditional, not a confirmed choice.
+
+Astra and Sol provide particularly useful implementation-specific opportunities: logically fresh reuse of native search allocations, immutable neural-head tensor preparation, narrow batched native operations and controlled worker lifetime. Normal contributes a detailed end-to-end architecture and distinctness protocol. Sonnet contributes valuable startup, caching and version-skew observations, but its proposed decision cache and personality insertion require stronger correctness conditions.
+
+The estimated absolute throughput figures cannot be ranked against one another because their assumed game lengths, time shares and overheads differ. None measures the Ryzen 5 7500F or RTX 5060 Ti.
+
+The central objection is that cached decisions cannot substitute for stateful CognitiveAgent calls unless recurrent state, observations, configuration and randomness are reproduced correctly. A second important concern is that a small neural-score window does not certify tactical equivalence in Claudio's lazy search.
+
+I recommend retaining a conditional, reversible CPU-first approach, preserving the established comparison objective, and requiring independent evidence for both decision equivalence and personality strength.
+
+Do not accept any throughput projection as a measured ceiling, or any deity profile as validated, before authorized tests establish those results.
+
+Analysis
+1. Review basis and source-established facts
+
+The context defines two objectives: maximum valid completed mutation-tournament games per second on the Ryzen 5 7500F and RTX 5060 Ti, and ten observably distinct Pantheon personalities on the same local engine without using personality as hidden difficulty.
+
+The controlling constraints remain at most six workers, low process priority and no implementation or execution during the Council phase. Law No. 4 governs unavailable participants. No Law is being evaluated or proposed for amendment.
+
+The review distinguishes proposal coverage from demonstrated implementation results. An R#: met entry below means that the proposal adequately addresses the requirement on paper. It does not mean the proposed optimization or personality has been tested successfully.
+
+1.1 Source-path verification
+
+Supplied path
+
+	
+
+Verified source behavior
+
+	
+
+Decision implication
+
+
+
+
+working-tree/claudio/arena.py, _init, play, main
+
+	
+
+Loads a Claudio player and a CognitiveAgent-based Timdgei rival; defaults to six spawned workers; pairs openings by game // 2; imports below-normal priority setup.
+
+	
+
+A plausible Claudio tournament path, not proof of the current Leto invocation.
+
+
+
+
+working-tree/claudio/paths.py:21–26
+
+	
+
+Alters Python import precedence toward claudio/base and related directories.
+
+	
+
+Optimizing root-level tonkai/ may miss the modules actually imported by Claudio.
+
+
+
+
+working-tree/claudio/claudio_load.py:32–72
+
+	
+
+Loads a claudio-v1 checkpoint onto CPU, reconstructs its network and configuration, and supports colour-specialized checkpoint pairs.
+
+	
+
+Checkpoint format and effective configuration must be resolved before implementation.
+
+
+
+
+working-tree/claudio/groups.py
+
+	
+
+Uses arena initialization and compares a named checkpoint set.
+
+	
+
+Checkpoint comparison, not automatically the active mutation optimizer.
+
+
+
+
+working-tree/claudio/duel.py
+
+	
+
+Operates a separate UCI duel path.
+
+	
+
+Do not treat it as an arena-process-pool dependency.
+
+
+
+
+working-tree/claudio/site_mutation.py:41–106
+
+	
+
+Compares a CognitiveAgent settings mutation with a site-configured CognitiveAgent baseline.
+
+	
+
+Explicit mutation comparison, but not a Claudio/G4 Leto identity certificate.
+
+
+
+
+working-tree/scripts/evolve_tonkinho.py
+
+	
+
+Uses CognitiveAgent settings, spawned processes and knockout selection.
+
+	
+
+Adjacent mutation tournament; not interchangeable with Claudio without evidence.
+
+
+
+
+working-tree/scripts/match_engine.py
+
+	
+
+Compares a checkpoint-based CognitiveAgent against another engine.
+
+	
+
+Adjacent strength validation, not established as the G4 Leto tournament.
+
+
+
+
+release-python/claudio/
+
+	
+
+Contains a richer frozen Claudio reference implementation.
+
+	
+
+Release-associated reference, not proof of the currently executing implementation.
+
+These are supported source observations from this review phase.
+
+The active G4 Leto command, checkpoint, loaded extension and actual tournament workload remain unknown.
+
+1.2 Two additional source details relevant to objections
+
+Stateful opponent behavior. In claudio/base/tonkai/opponents.py:53–84, CognitiveOpponent maintains its own agent, recurrent observations, random generator, ensemble head and temperature. choose() advances observations along the move history before calling the agent. Similarly, site_mutation.py:68–86 maintains a SitePlayer agent and its observed board.
+
+Consequently, reusing a prior move is not automatically equivalent to executing the corresponding stateful call.
+
+Lazy tactical evaluation. In the current claudio_agent.py:301–340, not every move receives the same full tactical search. The engine can check one intended move, change scores after a calculation and reconsider alternatives. The native root_search implementation distinguishes exact scores, proven exclusions and node-aborted results.
+
+Consequently, a small difference between preliminary scores entries is not proof that two candidates have equivalent verified chess value.
+
+2. Review of astra
+2.1 Strengths to preserve
+
+Astra gives one of the strongest definitions of the throughput objective. Its distinction between rules-complete games and games completed only under a frozen tournament protocol is valuable: a move-cap draw may be a legitimate protocol result without being a naturally concluded chess game.
+
+Its path mapping correctly separates arena, groups, UCI duel, site mutation, evolution and frozen-release code. The explanation of claudio/paths.py is especially important because apparently identical module names can resolve to different source trees.
+
+Its throughput ranking identifies concrete existing computations instead of recommending features already implemented. The distinction between reusing allocation capacity and reusing transposition knowledge is important: the former may preserve decisions, while the latter can alter move ordering and fixed-node-budget results.
+
+Astra also identifies the frozen SurvivalNet.survival tensor packing as a possible immutable-model optimization and correctly treats GPU batching as conditional.
+
+The two-track validation approach is strong: exact differential checks for purportedly equivalent changes, separate strength and comparison tests for decision-changing changes. Its mutation-validation protocol addresses opening dependence, candidate-selection bias and multiple comparisons.
+
+The personality proposal explicitly avoids treating unresolved root-search bounds or exhausted node budgets as near-equal scores. It also distinguishes all ten deities from neutral and from one another.
+
+2.2 Requirement assessment
+
+R#
+
+	
+
+Status
+
+	
+
+Reason
+
+
+
+
+R1
+
+	
+
+met
+
+	
+
+Gives ranked source-specific levers, full-batch accounting and conditional combined arithmetic.
+
+
+
+
+R2
+
+	
+
+met
+
+	
+
+Provides equivalence and decision-changing validation tracks, paired baselines, selection controls and uncertainty.
+
+
+
+
+R3
+
+	
+
+unverified
+
+	
+
+Maps source paths correctly but cannot establish the actual active tournament command.
+
+
+
+
+R4
+
+	
+
+unverified
+
+	
+
+Defines ten computable personalities and tests; empirical distinctness has not been demonstrated.
+
+
+
+
+R5
+
+	
+
+met
+
+	
+
+Separates a bounded style layer from explicit weaker difficulty.
+
+
+
+
+R6
+
+	
+
+met
+
+	
+
+Retains six-worker and low-priority constraints and audits hidden computation.
+
+
+
+
+R7
+
+	
+
+met
+
+	
+
+Proposes future checks without executing or changing the target during this phase.
+
+
+
+
+R8
+
+	
+
+met
+
+	
+
+States the skip-and-record rule consistent with Law No. 4.
+
+2.3 Blocking and material objections
+
+No material objection.
+
+The absolute throughput illustration—approximately 6.14 complete-batch games/s—is not a measurement and should not be treated as a target achievable on the supplied machine merely because its arithmetic is correct. Astra explicitly labels the workload fractions, acceleration assumptions and occupancy assumptions, so this uncertainty is not an objection to the proposal as written.
+
+Likewise, its zero-loss statistical gate may be very difficult to satisfy in finite testing, but the proposal acknowledges the need for an explicitly accepted loss policy rather than silently authorizing strength reduction.
+
+2.4 Review judgment
+
+Astra's proposed separation of source identity, equivalent implementation changes, decision-changing experiments and style safety should be retained.
+
+Its numerical scenario is suitable for illustrating the method, not for setting an unconditional performance expectation.
+
+3. Review of normal — own proposal
+3.1 Strengths to preserve
+
+The Normal proposal correctly identifies a major dependency: the current mutation-tournament path cannot be inferred from source filenames alone.
+
+It separates Claudio, the frozen release and the CognitiveAgent runners, and proposes an identity record containing the command, checkpoint, engine class, configuration and loaded modules.
+
+It defines a tournament controller, worker adapters, deterministic game specifications and results collection. The proposal's insistence on paired valid-game throughput is useful because incomplete colour pairs can undermine mutation comparisons despite apparently high total game throughput.
+
+Its combined estimate is explicit and arithmetically consistent with its assumed parameters:
+
+160 plies/game.
+
+Baseline worker cost of 5.00 seconds/game.
+
+Hypothetical optimized cost of 3.56 seconds/game.
+
+Effective capacity of 4.8 workers.
+
+Approximately 1.35 games/s optimized under those assumptions.
+
+This is more informative than an unqualified performance claim, provided the scenario is not confused with evidence about the actual hardware.
+
+The personality matrix contains ten concrete feature-weight combinations with a common bounded score perturbation. The proposal also identifies the current engine's lazy evaluation as a central obstacle and requires verification before alternative moves are allowed to override neutral Leto.
+
+The held-out behavioral testing, pairwise comparisons and independent difficulty axis should be preserved.
+
+3.2 Requirement assessment
+
+R#
+
+	
+
+Status
+
+	
+
+Reason
+
+
+
+
+R1
+
+	
+
+met
+
+	
+
+Defines throughput, ranks code-specific levers and presents an explicit conditional combined estimate.
+
+
+
+
+R2
+
+	
+
+met
+
+	
+
+Addresses equivalence, pairing, uncertainty, strength validation and selection bias, subject to the objection below.
+
+
+
+
+R3
+
+	
+
+unverified
+
+	
+
+Correctly distinguishes the supplied paths but lacks evidence identifying the live Leto command.
+
+
+
+
+R4
+
+	
+
+unverified
+
+	
+
+Specifies ten feature-based styles; recognizability remains untested.
+
+
+
+
+R5
+
+	
+
+met
+
+	
+
+Defines independent personality and difficulty parameters.
+
+
+
+
+R6
+
+	
+
+met
+
+	
+
+Keeps at most six low-priority workers and identifies risks in adjacent runners.
+
+
+
+
+R7
+
+	
+
+met
+
+	
+
+No runtime or repository changes were performed.
+
+
+
+
+R8
+
+	
+
+met
+
+	
+
+Applies the existing operator skip procedure.
+
+3.3 Blocking and material objections
+
+ID
+
+	
+
+Target: file, section, passage
+
+	
+
+Type
+
+	
+
+Severity
+
+	
+
+Failure condition
+
+	
+
+Consequence
+
+	
+
+Basis and phase
+
+	
+
+Correction or test
+
+	
+
+Effect on the decision
+
+
+
+
+normal-R02-01
+
+	
+
+normal, §6.1, recommendation to use Claudio-versus-Claudio for a Claudio-setting mutation
+
+	
+
+Comparison-protocol substitution
+
+	
+
+material
+
+	
+
+Direct candidate-versus-baseline matches replace, rather than supplement, the actual tournament's established fixed-opponent objective.
+
+	
+
+Mutation rankings may change because direct head-to-head results and performance against a fixed CognitiveAgent rival are not equivalent selection objectives.
+
+	
+
+supported: working-tree/claudio/arena.py:71–110 uses Claudio against Timdgei. unknown: whether that is the sovereign's active mutation protocol. Consulted in review.
+
+	
+
+Preserve the verified tournament's opponent and objective as its primary comparison. Evaluate candidate and unchanged baseline against the same fixed opponent using matched opening/seed blocks. Add direct Claudio-versus-Claudio as a separately labeled confirmation or diagnostic.
+
+	
+
+Makes preservation of the established comparison protocol an explicit prerequisite; rejects silent replacement of its opponent.
+
+The objection is conditional because the active tournament is not established. It concerns the wording and potential implementation of the proposed comparison protocol, not a claim that direct head-to-head validation is intrinsically wrong.
+
+3.4 Review judgment
+
+I would retain the identity gate, controller/worker separation, paired-game accounting, source-specific optimization priorities and personality validation.
+
+I would revise §6.1 to make clear that a new head-to-head test must not silently replace the current tournament's existing performance objective.
+
+I would also make personality runtime cost an independent acceptance criterion rather than merely recording it. Additional tactical certification can consume the throughput saved by earlier optimizations.
+
+4. Review of sol
+4.1 Strengths to preserve
+
+Sol's proposal is technically concrete and correctly limited by source identity.
+
+It independently identifies the frozen import routing, separate Claudio and CognitiveAgent execution paths, and the lack of proof that the active tournament is the arena path.
+
+Its ranked levers give particularly useful implementation detail:
+
+Reusing DeepSearch allocation without carrying search knowledge across formerly separate calls.
+
+Preparing immutable survival-head weights and biases once.
+
+Batching equivalent terminal/bookkeeping operations using the frozen release as a reference.
+
+Amortizing initialization without disturbing per-game state or knockout ordering.
+
+Deferring GPU inference until whole-game measurements justify it.
+
+The combined illustrative calculation is coherent:
+
+0.50
+/
+1.5
++
+0.25
+/
+2
++
+0.15
+/
+3
++
+0.10
+/
+4
+≈
+0.5333
+,
+0.50/1.5+0.25/2+0.15/3+0.10/4≈0.5333,
+
+yielding approximately 1.875× warm throughput in that assumed cost model.
+
+Sol correctly does not multiply overlapping isolated speedups.
+
+The proposal's warning about profile_selfplay.py is especially useful. A script with a profiling-oriented name cannot be assumed side-effect-free when its source contains writes or learner updates. This is a concrete R7 protection.
+
+Its personality design uses a small common shortlist, explicit score window, separate difficulty configuration, neutral fallback and all-pair observability tests.
+
+The recommendation to compare current and optimized implementations at the state/decision level before evaluating strength is appropriate.
+
+4.2 Requirement assessment
+
+R#
+
+	
+
+Status
+
+	
+
+Reason
+
+
+
+
+R1
+
+	
+
+met
+
+	
+
+Provides specific native, neural and orchestration levers with combined scenario arithmetic.
+
+
+
+
+R2
+
+	
+
+met
+
+	
+
+Distinguishes exact equivalence from decision-changing changes and uses paired validation.
+
+
+
+
+R3
+
+	
+
+unverified
+
+	
+
+Accurately maps supplied paths; live identity remains unknown.
+
+
+
+
+R4
+
+	
+
+unverified
+
+	
+
+Supplies ten implementable feature profiles but no empirical distinctness results.
+
+
+
+
+R5
+
+	
+
+met
+
+	
+
+Keeps difficulty as a separate explicit setting.
+
+
+
+
+R6
+
+	
+
+met
+
+	
+
+Retains the six-worker and low-priority operating constraints.
+
+
+
+
+R7
+
+	
+
+met
+
+	
+
+Source-only review; specifically flags a potentially side-effecting profiling helper.
+
+
+
+
+R8
+
+	
+
+met
+
+	
+
+Describes the required operator availability procedure.
+
+4.3 Blocking and material objections
+
+No material objection.
+
+The ranking relies on hypothetical workload fractions, but Sol consistently labels those fractions and the resulting games/s as assumptions.
+
+There are unresolved implementation questions about maintaining exactly the same native search state after allocation reuse and about the overhead of certifying multiple personality candidates. Sol requires differential checks and neutral fallback rather than claiming those properties are already verified.
+
+Those are implementation gates, not demonstrated contradictions.
+
+4.4 Review judgment
+
+Sol's source-specific native and neural optimizations deserve retention as independently reversible experiments.
+
+Its stage separation and side-effect awareness are useful for the eventual operator. The reported 9.27 games/s scenario must remain illustrative rather than a hardware capability claim.
+
+Sol's dual operator/adviser role is disclosed; this review does not assign additional authority to that proposal because of its role.
+
+5. Review of sonnet
+5.1 Strengths to preserve
+
+Sonnet contributes several important, distinctive observations.
+
+Its analysis of repeated process initialization, large checkpoint loading and the potential value of persistent evaluation workers is relevant to the stated games/s objective.
+
+It correctly identifies the difference between a full campaign checkpoint and an inference-oriented snapshot, while noting that equality of effective model state must be established.
+
+Its observation that ProcessPoolExecutor.map does not automatically provide recoverable, durable per-game results is also useful. A process exception can prevent the current all-at-once collection pattern from producing its intended final report. Streamed result collection and restartable game identifiers are plausible improvements.
+
+The proposal identifies a concrete native cost: constructing the large DeepSearch transposition table repeatedly. Generation-stamped invalidation is a plausible optimization if logical initialization and node-budget behavior are preserved exactly.
+
+It also describes useful narrow optimizations around terminal checks and frozen survival-head tensor preparation.
+
+Sonnet identifies release/current version skew and correctly warns that release-only configuration keys can be incompatible with the lean current ClaudioConfig.
+
+Its estimate ranges acknowledge unmeasured startup costs, and its proposed source-specific counters for node limits could help distinguish wasted compute from necessary tactical work.
+
+For personalities, it gives ten explicit signal definitions, proposes a separate difficulty configuration and includes an activation-rate measure. Activation rate is particularly valuable: a style can look distinctive on a curated eligible-position corpus while almost never activating in ordinary games.
+
+These contributions are worth retaining separately from the objections below.
+
+5.2 Requirement assessment
+
+R#
+
+	
+
+Status
+
+	
+
+Reason
+
+
+
+
+R1
+
+	
+
+unverified
+
+	
+
+Gives ranked levers and relative speedups, but does not state a conditional absolute completed-games/s target despite supplying enough scenario assumptions to construct one.
+
+
+
+
+R2
+
+	
+
+unverified
+
+	
+
+Provides pairing and strength tests, but the cache and comparison-oracle proposals contain material unresolved correctness conditions.
+
+
+
+
+R3
+
+	
+
+unverified
+
+	
+
+Identifies source paths and release skew, but the active Claudio/Leto target remains unestablished.
+
+
+
+
+R4
+
+	
+
+unverified
+
+	
+
+Specifies ten styles and observability tests, but the proposed insertion does not yet establish comparable tactical certification or strength.
+
+
+
+
+R5
+
+	
+
+met
+
+	
+
+Separates style and difficulty profiles conceptually.
+
+
+
+
+R6
+
+	
+
+met
+
+	
+
+Six workers remain the default; twelve workers are explicitly presented as requiring Martim's decision.
+
+
+
+
+R7
+
+	
+
+met
+
+	
+
+No implementation or benchmark was performed; future stages require authorization.
+
+
+
+
+R8
+
+	
+
+unverified
+
+	
+
+The proposal labels R8 not applicable rather than affirmatively specifying the Law No. 4 procedure, although it does not recommend violating that Law.
+
+5.3 Blocking and material objections
+
+ID
+
+	
+
+Target: file, section, passage
+
+	
+
+Type
+
+	
+
+Severity
+
+	
+
+Failure condition
+
+	
+
+Consequence
+
+	
+
+Basis and phase
+
+	
+
+Correction or test
+
+	
+
+Effect on the decision
+
+
+
+
+normal-R02-02
+
+	
+
+sonnet, §4 lever 2, common-seed decision cache keyed by (seed, game, move-stack) or (root, move-stack)
+
+	
+
+Stateful-cache correctness
+
+	
+
+blocking
+
+	
+
+A cached move is returned without reproducing or restoring the stateful agent's observation, recurrent/planning state and RNG trajectory; or cache entries are reused across incompatible model/configuration identities.
+
+	
+
+Later moves can differ from uncached evaluation, invalidating claimed exactness and potentially contaminating mutation comparisons.
+
+	
+
+supported: claudio/base/tonkai/opponents.py:53–84 and site_mutation.py:68–86 maintain stateful CognitiveAgent objects. supported: the proposed keys omit explicit model/configuration identity. unknown: whether a future cache would restore complete state. Review phase.
+
+	
+
+Require immutable model/config/knowledge identities and full history in cache identity. On a hit, prove that the owning agent's future state is identical through replay or verified state restoration. Compare full move, RNG and recurrent-state traces across cached and uncached runs.
+
+	
+
+Do not adopt decision caching as an exact optimization until these conditions pass; use persistent workers and other safer levers independently.
+
+
+
+
+normal-R02-03
+
+	
+
+sonnet, §6, “Use before-lazy as the differential oracle”
+
+	
+
+Baseline provenance
+
+	
+
+material
+
+	
+
+The earlier claudio_fast.before-lazy.cpp is treated as the authoritative baseline despite no evidence that it is the current deployed or sovereign-approved behavior.
+
+	
+
+A valid change relative to the current target could be rejected, or an incorrect historical behavior could be reintroduced to satisfy an inappropriate oracle.
+
+	
+
+supported: the ZIP contains different current and before-lazy source files. unknown: which compiled binary actually runs. Source comparison and review phase.
+
+	
+
+Establish the verified active binary/source as the baseline. Compare against before-lazy as a diagnostic regression reference only, and use independent chess-rule fixtures where versions disagree.
+
+	
+
+Changes which implementation defines required equivalence; forbids promoting historical source merely because it has a backup-like filename.
+
+
+
+
+normal-R02-04
+
+	
+
+sonnet, §7, style insertion before the lazy calculation loop and subsequent reliance on the existing mate/tactic loop
+
+	
+
+Personality strength and score comparability
+
+	
+
+material
+
+	
+
+Style preference changes candidate ordering using preliminary scores, while the neutral choice and style alternative have not received comparable completed tactical evaluation.
+
+	
+
+A nominal ε-near-tie may become a significant tactical loss; passing the selected move through the original lazy loop is not proof that its final verified score is near neutral's verified score.
+
+	
+
+supported: working-tree/claudio/claudio_agent.py:301–340; native root_search returns distinct statuses for exact, excluded and aborted candidates. attributed: Sonnet's proposed insertion and guards. Review phase.
+
+	
+
+Establish a common verified shortlist with comparable search settings and completion statuses. Include the neutral selected move. Exclude unresolved or aborted alternatives; fall back to neutral if comparison is incomplete.
+
+	
+
+Requires a stronger shared certification layer before adopting the specific Sonnet selector.
+
+
+
+
+normal-R02-05
+
+	
+
+sonnet, §7, ε derived from value_spread_ref=0.0215 and the claim that material-losing moves fall outside automatically
+
+	
+
+Unsupported safety inference
+
+	
+
+material
+
+	
+
+Effective checkpoint score scale differs from the reference, or a tactically losing move remains close in preliminary aggregate score.
+
+	
+
+The stated ε does not establish a reliable material-loss bound or practical strength preservation.
+
+	
+
+supported: claudio_agent.py:37–62 defines configurable defaults; :245–283 combines learned values, exchange terms and optional modifiers; :301–340 adds lazy tactical corrections. unknown: effective checkpoint calibration. Review phase.
+
+	
+
+Treat ε only as an initial experiment. Measure actual score distributions, tactical outcomes and eligible alternatives; require explicit tactical certification and strength tests.
+
+	
+
+Removes any interpretation of ε as a sufficient safety guarantee; keeps the profile conditional on calibration.
+
+
+
+
+normal-R02-06
+
+	
+
+sonnet, §4 and §9, categorical GPU rejection based on default network dimensions and estimated launch/transfer cost
+
+	
+
+Performance inference
+
+	
+
+material
+
+	
+
+The active checkpoint has materially different dimensions or cross-game batching changes the CPU/GPU cost balance.
+
+	
+
+A potentially useful RTX 5060 Ti optimization is rejected without a measurement of the real workload.
+
+	
+
+supported: the examined loader uses CPU; frozen broker uses CPU. assumption: Sonnet's FLOP, transfer-cost and network-size estimates. unknown: effective model and device performance. Review phase.
+
+	
+
+Retain GPU batching as a conditional alternative, not a default. Measure full-batch completed games/s with correct model identities, queuing, transfers and strength checks before accepting or rejecting it.
+
+	
+
+Do not categorically exclude the GPU; rank it behind measured CPU opportunities until evidence justifies promotion.
+
+
+
+
+normal-R02-07
+
+	
+
+sonnet, §5, combined target expressed primarily as relative multipliers
+
+	
+
+Requirement coverage
+
+	
+
+material
+
+	
+
+The King's synthesis needs a comparable, explicitly conditional completed-games/s scenario for R1.
+
+	
+
+Relative speedups do not alone answer the requested number of completed games per second.
+
+	
+
+supported: CONTEXTO.md, proposal contents R1; attributed: Sonnet's §5 supplies t_g, worker count, batch sizes and startup assumptions but declines an absolute games/s figure. Review phase.
+
+	
+
+Calculate games/s under each stated assumed scenario, including startup, tail and persistence, alongside the ratios. Preserve the explicit unknown status of actual PC performance.
+
+	
+
+Sonnet's numerical scenarios need completion before being treated as satisfying all of R1.
+
+5.4 Review judgment
+
+I would preserve Sonnet's startup analysis, snapshot-parity idea, streamed result accounting, allocation optimization, version-skew warning and activation-rate measure.
+
+I would not accept the decision cache as an exact acceleration in its presently specified form. That is the review's strongest conditional blocking objection.
+
+The personality proposal needs a verifier that compares the neutral and alternative moves at comparable completed search quality. Merely assigning ε from a reference spread and retaining the lazy final guard is insufficient.
+
+The GPU should remain an evidence-dependent option. The current CPU architecture makes GPU-first implementation unattractive without profiling, but that does not justify a categorical claim of zero benefit.
+
+6. Comparison across proposals
+6.1 Requirements comparison
+
+Requirement
+
+	
+
+Astra
+
+	
+
+Normal
+
+	
+
+Sol
+
+	
+
+Sonnet
+
+
+
+
+R1 — Games/s
+
+	
+
+Detailed whole-batch scenario
+
+	
+
+Detailed per-component scenario
+
+	
+
+Detailed disjoint-fraction scenario
+
+	
+
+Useful speedup ranges; incomplete absolute scenario
+
+
+
+
+R2 — Strength/validity
+
+	
+
+Strong equivalence and paired uncertainty
+
+	
+
+Strong paired design; protocol-substitution objection
+
+	
+
+Strong equivalence and holdout design
+
+	
+
+Material cache and score-comparability risks
+
+
+
+
+R3 — Local path
+
+	
+
+Correct mapping; active identity unknown
+
+	
+
+Correct mapping; active identity unknown
+
+	
+
+Correct mapping; active identity unknown
+
+	
+
+Correct broad mapping; active identity unknown
+
+
+
+
+R4 — Ten personalities
+
+	
+
+Ten profiles; safety/status emphasis
+
+	
+
+Ten profiles; explicit observability
+
+	
+
+Ten profiles; controlled shortlist
+
+	
+
+Ten profiles; insertion/certification gap
+
+
+
+
+R5 — Difficulty separate
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+
+
+
+R6 — Six workers/priority
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+	
+
+Six-worker default; cap change explicitly reserved
+
+
+
+
+R7 — No execution
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+
+
+
+R8 — Availability
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+	
+
+Addressed
+
+	
+
+Incomplete explicit coverage
+
+No proposal demonstrates measured throughput, preserved strength after optimization or ten validated styles.
+
+6.2 Priority criteria
+
+Criterion 1 — Valid completed games per second.
+
+Astra provides the strongest distinction between protocol completion and natural rules completion. Normal adds an explicit completed-pair metric. Sol emphasizes durable result recording and warns that per-player thinking-time ratios are not tournament throughput. Sonnet contributes startup amortization and failure-resistant collection.
+
+These are complementary, not interchangeable.
+
+The reported numerical scenarios should not be compared as if they represented identical experiments:
+
+Proposal
+
+	
+
+Conditional reported result
+
+	
+
+Principal assumed workload
+
+
+
+
+Astra
+
+	
+
+Approximately 6.14 games/s, 1.71× complete-batch improvement
+
+	
+
+120 plies, 1.32 s baseline worker cost, assumed occupancy and 12 s setup/finalization
+
+
+
+
+Normal
+
+	
+
+Approximately 1.35 games/s, 1.40× improvement
+
+	
+
+160 plies, 5.00 s baseline worker cost, effective capacity 4.8
+
+
+
+
+Sol
+
+	
+
+Approximately 9.27 games/s, 1.875× warm service improvement
+
+	
+
+100 plies, 1.00 s baseline worker cost, assumed efficiency and 2 s setup/finalization
+
+
+
+
+Sonnet
+
+	
+
+Approximately 1.1–2.1× for a 200-game scenario
+
+	
+
+Assumed 3 s game cost, startup time and cache/pinning gains
+
+All four results are assumption-based arithmetic, not independent estimates of the same measured workload.
+
+None establishes the theoretical physical maximum of the identified PC.
+
+Criterion 2 — Strength and comparison validity.
+
+Astra and Sol are particularly explicit about preserving RNG and search-state semantics. Normal's paired comparison design is strong once its treatment of the actual existing opponent is clarified.
+
+Sonnet's stateful cache introduces the largest material correctness risk. It should not be promoted solely because differential tests are proposed; its state reconstruction contract must first be complete enough to test.
+
+A source-preserving code change should not inherit an equivalence label merely because it keeps the same high-level chess algorithm. Search order, node exhaustion, floating-point reassociation and recurrent-state handling can all change decisions.
+
+Criterion 3 — Ten distinct, recognizable styles.
+
+All four proposals satisfy the design-level requirement to describe ten personalities.
+
+None supports actual distinctness or practical strength retention yet.
+
+The approaches are compatible in their central principle: common full-strength engine, bounded style preferences, tactical guards, separate difficulty.
+
+The main difference is the strength of the candidate-verification contract. Astra and Sol more clearly require completed comparable verification and neutral fallback; Normal recognizes the same problem but should make the implementation contract more precise; Sonnet's stated insertion needs revision.
+
+Pairwise testing must include the ten neutral-versus-deity comparisons and all 45 deity-versus-deity comparisons. Stage-specific activation and ordinary game-level recognizability matter in addition to eligible-position classification.
+
+Criterion 4 — Worker and priority safety.
+
+All proposals preserve the default six-worker restriction. Sonnet's twelve-worker alternative is explicitly deferred to Martim; it is not an unauthorized setting change.
+
+The selected implementation must nevertheless account for subprocesses, external UCI engines, inference services and library thread pools. Six game-worker processes do not necessarily mean only six runnable computation contexts.
+
+Low priority must be verified for whichever runner is eventually identified, rather than inferred from arena's initializer.
+
+Criterion 5 — Reversibility and evidence.
+
+Astra and Sol provide the clearest distinction between structural equivalence and decision-changing optimizations.
+
+Normal provides a useful controller/adapter separation and identity manifest.
+
+Sonnet's generation-stamped table is a plausible reversible micro-optimization, while its decision cache requires more complex correctness and rollback evidence.
+
+All implementation acceptance checks remain future work requiring authorization.
+
+7. Current recommendation
+
+My recommendation to the King is advisory rather than a final plan or decree.
+
+The most defensible common direction is to preserve the actual verified tournament target and comparison objective, then evaluate narrowly scoped, independently reversible optimizations.
+
+The source supports considering native search allocation reuse, immutable network-head preparation, terminal-operation batching and worker-lifetime improvements. Their priority must be recalculated from the identified runner's complete two-player workload.
+
+I favor retaining the verified CPU execution path as the reference implementation while measuring whether GPU batching improves total valid completed-game throughput. A CPU-first testing order is justified; a permanent GPU rejection is not.
+
+For personalities, I favor a shared selector that only changes decisions among comparably verified alternatives. All ten profiles should inherit the same checkpoint, search budgets, rules and tactical safeguards. Neutral selection must remain an exact fallback.
+
+The most consequential distinctive findings to preserve are:
+
+Astra's separation of protocol-complete and naturally complete games.
+
+Sol's explicit treatment of native search initialization, inference tensor packing and profiling side effects.
+
+Normal's paired-game/result-ledger design, corrected to preserve the existing opponent/comparison objective.
+
+Sonnet's startup-amortization analysis and activation-rate metric, without prematurely adopting its stateful decision cache.
+
+The proposals do not justify changing Martim's worker limit, priority rule, tournament results, checkpoints or runtime during this phase.
+
+Decision-sensitive objection summary
+
+normal-R02-02 is blocking if the decision cache is implemented without complete state equivalence.
+
+normal-R02-01, normal-R02-03, normal-R02-04, normal-R02-05, normal-R02-06 and normal-R02-07 are material conditions for synthesis.
+
+The King should dispose of each ID against its actual failure condition. Repeating the same general concern under different wording would not independently corroborate it.
+
+8. What I would retain or change in my own proposal
+
+I recognize the Normal proposal as my prior contribution and would make the following changes.
+
+Retain the target-identity gate. It is correct that neither arena nor site mutation should automatically be called the current G4 Leto tournament. The current runner, checkpoint and effective source imports are decisive prerequisites.
+
+Correct the comparison wording. My recommendation to run Claudio mutations head-to-head must not be interpreted as a silent replacement for a fixed-opponent mutation tournament. I would preserve the existing verified comparison objective, add matched candidate/baseline runs under that objective, and use head-to-head as supplementary evidence where appropriate.
+
+Tighten style certification. The proposal's concept of a verified near-equal candidate set needs an explicit implementation contract: common search settings, comparable completed scores, search-status handling, node-exhaustion behavior and neutral fallback. Every profile must receive the same contract.
+
+Make personality throughput explicit. I would distinguish neutral-engine throughput from personality-enabled throughput. The cost of feature computation and alternative verification cannot be ignored merely because styles are outside the mutation-selection workload.
+
+Keep the strength-loss parameter unresolved. The example of a possible non-inferiority margin such as 10 Elo must remain an illustration only. No such loss tolerance was adopted by Martim. A future acceptance rule should clearly identify whether it requires evidence of no degradation or permits an explicitly approved bounded loss.
+
+Retain the statistical safeguards. Opening-pair bootstrap, separate selection/confirmation data and treatment of capped or incomplete games are necessary. I would additionally check effective sample size when deterministic seeds cause highly repeated games.
+
+Keep the numerical scenario conditional. My approximately 1.35 games/s figure is no more established than the other participants' differently assumed figures. It should not be used to rank the proposals or set a hardware ceiling.
+
+These changes improve specificity without replacing the original proposal or altering any Law.
+
+9. Open disagreements and missing information
+
+The following unknowns could materially change the recommendation.
+
+Unknown
+
+	
+
+Current state
+
+	
+
+Evidence needed later
+
+	
+
+Decision affected
+
+
+
+
+Exact active tournament command
+
+	
+
+unknown
+
+	
+
+Authorized command/cwd/arguments and runner identity
+
+	
+
+Which code receives optimization
+
+
+
+
+Actual checkpoint and effective configuration
+
+	
+
+unknown
+
+	
+
+Authorized identity metadata, format and resolved configuration
+
+	
+
+Claudio versus CognitiveAgent target, model compatibility and inference work
+
+
+
+
+Actual imported modules and native binary
+
+	
+
+unknown
+
+	
+
+Module paths and build/source identities
+
+	
+
+Whether proposed changes affect the real workload
+
+
+
+
+CPU search versus neural versus orchestration share
+
+	
+
+unknown
+
+	
+
+End-to-end component profiling under the fixed comparison workload
+
+	
+
+Optimization order and achievable speedup
+
+
+
+
+Startup and persistence cost
+
+	
+
+unknown
+
+	
+
+Whole-batch timings including process initialization and final durable output
+
+	
+
+Value of persistent workers and streaming
+
+
+
+
+Cache hit rate and full agent-state reconstructability
+
+	
+
+unknown
+
+	
+
+Identity-safe replay and state-level equivalence tests
+
+	
+
+Whether decision caching can be admitted
+
+
+
+
+RTX 5060 Ti utilization and batching efficiency
+
+	
+
+unknown
+
+	
+
+CPU/GPU experiment using the real immutable checkpoint and completed-game metric
+
+	
+
+Whether GPU optimization should advance
+
+
+
+
+Availability of safely interchangeable moves
+
+	
+
+unknown
+
+	
+
+Verified neutral-root candidate distributions over complete histories
+
+	
+
+Whether ten bounded styles are feasible
+
+
+
+
+Strength-loss tolerance
+
+	
+
+not numerically settled
+
+	
+
+Explicit accepted evaluation criterion consistent with the sovereign's objectives
+
+	
+
+Non-inferiority acceptance and style release
+
+
+
+
+Deity interpretation
+
+	
+
+partly design-derived
+
+	
+
+Confirmation against the sovereign's original intended personalities where needed
+
+	
+
+Which behavioral signatures are authoritative
+
+
+
+
+Current tournament termination policy
+
+	
+
+not established for the live invocation
+
+	
+
+Authorized run specification and completion records
+
+	
+
+Valid-game numerator and comparison validity
+
+The absence of measurements is not evidence of poor performance, and the presence of a code path is not evidence that the path is active.
+
+A further unresolved issue is the interaction between mutation optimization and personalities. If mutations are evaluated under neutral Leto but later deployed with personality overlays, their rankings may not transfer perfectly. Conversely, adding ten personality conditions to every mutation tournament may make comparison substantially more expensive and introduce new selection objectives. The Council should keep those evaluation contexts separately identified rather than silently mixing them.
+
+There is also a statistical tradeoff between demanding provable zero strength loss and obtaining finite-sample acceptance. The source does not resolve that policy question, and no participant's proposed numerical thresholds should be treated as sovereign requirements.
+
+Evidence and assumptions
+
+All consultations in this table occurred during the review phase unless the entry explicitly identifies a proposal statement as an attribution. Source paths are relative to the supplied source/ ZIP tree.
+
+Decisive claim
+
+	
+
+State
+
+	
+
+Provenance and passage
+
+	
+
+Phase
+
+	
+
+Scope
+
+
+
+
+The target hardware and operating limit are Ryzen 5 7500F, RTX 5060 Ti, at most six workers and low priority.
+
+	
+
+attributed
+
+	
+
+CONTEXTO.md, sovereign decisions and R1/R6.
+
+	
+
+Review
+
+	
+
+Binding supplied context; hardware/runtime not independently inspected.
+
+
+
+
+All four closed proposals and the review marker were received.
+
+	
+
+supported
+
+	
+
+Complete review packet, ordered sections, and END-OF-PACKET-007-REVIEW-v1.
+
+	
+
+Review
+
+	
+
+Packet completeness, not proof of correctness of every contribution.
+
+
+
+
+All 178 inventoried source entries match listed hashes and sizes.
+
+	
+
+supported
+
+	
+
+SOURCE-INVENTORY-v2.md versus ZIP entry bytes; read-only SHA-256 verification.
+
+	
+
+Review
+
+	
+
+Attachment integrity against the supplied inventory.
+
+
+
+
+Argon was skipped after a subscription-related availability failure.
+
+	
+
+attributed
+
+	
+
+MANIFESTO.md, proposal receipts.
+
+	
+
+Review
+
+	
+
+Manifest report; no independent account inspection.
+
+
+
+
+A separate archive-only GPT-6 conversation received Sonnet after proposal closure.
+
+	
+
+attributed
+
+	
+
+User's explicit prior-exposure disclosure and MANIFESTO.md, independence section.
+
+	
+
+Review
+
+	
+
+Disclosure only; archive not used as review evidence.
+
+
+
+
+Arena compares Claudio with a CognitiveAgent rival.
+
+	
+
+supported
+
+	
+
+working-tree/claudio/arena.py:33–54,71–110.
+
+	
+
+Review
+
+	
+
+Supplied source path, not proof of live execution.
+
+
+
+
+Claudio imports frozen-base dependencies through path manipulation.
+
+	
+
+supported
+
+	
+
+working-tree/claudio/paths.py:21–26.
+
+	
+
+Review
+
+	
+
+Static import behavior; actual runtime resolution unknown.
+
+
+
+
+Site mutation uses CognitiveAgent on both sides.
+
+	
+
+supported
+
+	
+
+working-tree/claudio/site_mutation.py:41–106.
+
+	
+
+Review
+
+	
+
+Separate mutation workload.
+
+
+
+
+The active G4 Leto command and checkpoint have been identified.
+
+	
+
+unknown
+
+	
+
+No command, checkpoint contents or runtime record in the packet.
+
+	
+
+Review
+
+	
+
+Requires later authorized identity evidence.
+
+
+
+
+Current Claudio search is lazy and does not certify all candidate scores equally.
+
+	
+
+supported
+
+	
+
+working-tree/claudio/claudio_agent.py:301–340, C++ root_search statuses.
+
+	
+
+Review
+
+	
+
+Current source implementation.
+
+
+
+
+The CognitiveAgent opponent maintains recurrent observation and RNG state.
+
+	
+
+supported
+
+	
+
+claudio/base/tonkai/opponents.py:53–84; site_mutation.py:68–86.
+
+	
+
+Review
+
+	
+
+Decision-only cache equivalence is not automatic.
+
+
+
+
+Sonnet's specified decision cache is proven exactly equivalent.
+
+	
+
+contested
+
+	
+
+Sonnet §4 cache proposal versus stateful source behavior; objection normal-R02-02.
+
+	
+
+Review
+
+	
+
+Could be resolved by complete state-identity and replay tests.
+
+
+
+
+The before-lazy source is the authoritative active baseline.
+
+	
+
+unknown
+
+	
+
+Supplied claudio_fast.before-lazy.cpp and current claudio_fast.cpp; no live binary identity.
+
+	
+
+Review
+
+	
+
+Historical comparison alone cannot establish authority.
+
+
+
+
+Native DeepSearch allocates a 65,536-entry table.
+
+	
+
+supported
+
+	
+
+working-tree/claudio/fast/claudio_fast.cpp:895–909.
+
+	
+
+Review
+
+	
+
+Concrete candidate optimization; gain unmeasured.
+
+
+
+
+Frozen survival-head tensors are assembled during inference calls.
+
+	
+
+supported
+
+	
+
+claudio/base/tonkai/temporal_model.py:120–131.
+
+	
+
+Review
+
+	
+
+Immutable-model caching candidate; gain and exactness untested.
+
+
+
+
+Arena's wall_seconds includes final JSON persistence.
+
+	
+
+contested
+
+	
+
+working-tree/claudio/arena.py:150–160 sets elapsed wall time before report serialization and writing.
+
+	
+
+Review
+
+	
+
+Its existing timer is not full durable-batch time.
+
+
+
+
+GPU inference cannot improve the target workload.
+
+	
+
+unknown
+
+	
+
+CPU-oriented loader/broker plus Sonnet's assumed FLOP and transfer estimates; no real benchmark.
+
+	
+
+Review
+
+	
+
+Requires checkpoint-specific, end-to-end comparison.
+
+
+
+
+The reported absolute throughput scenarios are achieved on the target PC.
+
+	
+
+assumption
+
+	
+
+Astra §5, Normal §5, Sol §3, Sonnet §5 scenario inputs.
+
+	
+
+Review
+
+	
+
+Illustrative arithmetic only.
+
+
+
+
+Bounded personality scores guarantee preserved chess strength.
+
+	
+
+contested
+
+	
+
+Current lazy-search implementation and absence of calibrated checkpoint/gameplay results.
+
+	
+
+Review
+
+	
+
+Requires certified alternatives and held-out strength tests.
+
+
+
+
+The ten personalities will be observably distinguishable.
+
+	
+
+unknown
+
+	
+
+Four proposed profile matrices and test designs; no outcome data.
+
+	
+
+Review
+
+	
+
+Empirical validation still required.
+
+
+
+
+The current Council phase performed no benchmark or code modification.
+
+	
+
+supported
+
+	
+
+Read-only operations in this review.
+
+	
+
+Review
+
+	
+
+Does not assert anything about external running jobs.
+
+Agreement among the proposals is treated as convergence of advice, not independent empirical corroboration. In particular, agreement among GPT-6-based participants does not constitute additional performance evidence.
+
+Risks and checks
+
+Risk or failure condition
+
+	
+
+Requirements affected
+
+	
+
+Required check and recommendation effect
+
+
+
+
+Optimizing the wrong runner or checkpoint
+
+	
+
+R1, R2, R3
+
+	
+
+Resolve actual target identity before applying source-specific changes. Redirect optimization if the active runner differs.
+
+
+
+
+Reusing stale native transposition knowledge
+
+	
+
+R2
+
+	
+
+Compare search state, move order, node budgets and selected moves. Reject an equivalence claim after a reproducible mismatch.
+
+
+
+
+Decision cache skips stateful agent evolution
+
+	
+
+R2
+
+	
+
+Compare full recurrent, observation and RNG trajectories. Withhold caching if they cannot be reproduced.
+
+
+
+
+Historical backup source is mistaken for the active oracle
+
+	
+
+R2, R3
+
+	
+
+Verify active source/binary; treat backup comparisons as diagnostics, not binding truth.
+
+
+
+
+GPU batching changes numerical decisions or lowers completion throughput
+
+	
+
+R1, R2
+
+	
+
+Require both whole-tournament speed improvement and independent strength validation. Otherwise retain CPU behavior.
+
+
+
+
+Inference caching uses mutable or mismatched weights
+
+	
+
+R2
+
+	
+
+Bind cached tensors to immutable model identity, dtype, device and version; invalidate on replacement.
+
+
+
+
+Move caps, stalls or failures inflate games/s
+
+	
+
+R1, R2
+
+	
+
+Freeze termination rules and report completion classes separately; count only defined valid results.
+
+
+
+
+Adaptive mutant selection overfits fixed openings
+
+	
+
+R2
+
+	
+
+Use held-out paired blocks, uncertainty correction and independent final confirmation.
+
+
+
+
+Style-selected move has incomplete tactical evidence
+
+	
+
+R2, R4, R5
+
+	
+
+Compare completed neutral/alternative evaluations; fall back to neutral on uncertainty.
+
+
+
+
+Personality features add excessive computation
+
+	
+
+R1, R4
+
+	
+
+Measure personality-enabled games/s separately; simplify or reuse feature work if costs defeat the objective.
+
+
+
+
+Ten profiles collapse into indistinguishable signatures
+
+	
+
+R4
+
+	
+
+Test every pair and neutral on held-out histories; redesign profiles rather than weakening safety.
+
+
+
+
+Weaker search is silently encoded as personality
+
+	
+
+R2, R5
+
+	
+
+Audit independent configuration axes and preserve full-strength default search budgets.
+
+
+
+
+Adjacent process pools violate the worker/priority constraint
+
+	
+
+R6
+
+	
+
+Verify all game workers, subprocesses and relevant thread pools in a later authorized run.
+
+
+
+
+A supposed profiling script performs training or writes to disk
+
+	
+
+R7
+
+	
+
+Inspect the execution path for side effects before invoking it; never run during this phase.
+
+
+
+
+A Council participant has no quota, credits or working interface
+
+	
+
+R8
+
+	
+
+Operator records the observed error and skips that participant for the phase; no waiting or substitution.
+
+Refutation conditions
+
+The following observations would change my current recommendation:
+
+The established active tournament is a CognitiveAgent path rather than Claudio. In that case, Claudio-native optimizations cease to be the primary candidate and the actual CognitiveAgent hot path takes priority.
+
+Full-batch profiling shows Python initialization or checkpoint deserialization dominates total tournament time. Persistent worker/snapshot work moves ahead of native search micro-optimizations.
+
+Differential tests show table reuse or cached inference changes decisions under the original workload. The affected change must be rejected as equivalent or reclassified for separate strength testing.
+
+Cache state-reconstruction tests fail. The decision cache remains excluded regardless of its apparent hit rate.
+
+The GPU delivers better valid completed-game throughput under the same comparison protocol and passes numerical and strength validation. The CPU-first ranking is revised.
+
+Ten profiles cannot be distinguished under the shared tactical and strength limits. The proposed profile representation is inadequate; simply widening the weakness window is not an acceptable unexamined remedy.
+
+A proposed throughput gain disappears after initialization, persistence, worker failures, capped games and paired-completion requirements are included. The claimed acceleration is not established for R1.
+
+Review conclusion: The packet supports a credible set of conditional engineering candidates, not a measured hardware ceiling or validated implementation. The King can use the strengths and objections above in synthesis, while keeping all blocking/material IDs explicitly dispositioned. No final decree, benchmark, training job, code change or public release is made by this review.
+
+END-OF-CONTRIBUTION
