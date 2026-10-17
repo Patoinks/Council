@@ -4,6 +4,8 @@ Several AIs propose and review independently. The King (Opus) synthesizes, decid
 
 **Read first:** the [Laws](LEIS.md). They are above everything else.
 
+For the actual PC coordinator, its distribution/capture workflow and the integration boundaries still missing, read [Current operating model](OPERATING-MODEL.md). The [draft context for debate 003](debates/003-mobile-bridge/CONTEXTO.md) uses that baseline to frame the phone-to-PC bridge problem; the debate has not been launched.
+
 ## How a debate runs
 
 1. **Context.** Create `debates/NNN-name/` and fill in [`CONTEXTO.md`](templates/CONTEXTO.md): the decision, the mandatory requirements, the open questions and the criteria.

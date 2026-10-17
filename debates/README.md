@@ -2,6 +2,7 @@
 
 | Debate | Status | Entry |
 | --- | --- | --- |
+| 003 — Connect the phone apps to the PC operator | Draft context for Martim's review — not launched | [Context](003-mobile-bridge/CONTEXTO.md) |
 | 002 — Improve the current Council | Closed — decree | [Decree](002-aperfeicoar-council/DECISAO.md) |
 | 001 — Improve and maximize the Council | Closed — synthesis | [Synthesis](001-melhorar-council/PLANO-FINAL.md) |
 
