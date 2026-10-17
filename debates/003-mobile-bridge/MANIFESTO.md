@@ -2,12 +2,12 @@
 
 - **Debate:** 003-mobile-bridge.
 - **Phase and round:** independent proposals, round 01.
-- **Collection state:** open; dispatch completed, browser collection awaiting re-enabled access.
+- **Collection state:** all five proposals captured and closed together; review preparation follows this closure.
 - **Launch instruction:** Martim, "lança council", 2026-10-17 Europe/Lisbon.
 - **Context version:** v1, authorized for this launch.
 - **Packet file:** PACOTE-PROPOSTA.md v1.
 - **Source baseline:** 95d853ba7480260d5a9c4b8541b4b1b32a6d90f3; v2.1 governance was enacted in 389a4367de088361adcaeec271fb438c6fb0b492.
-- **Commit of closed proposal set:** not closed.
+- **Commit of closed proposal set:** the commit introducing the complete propostas/ directory; its exact ID will be recorded before review dispatch.
 - **Deadline set by Martim:** none.
 
 ## Inventory and packet order
@@ -42,11 +42,11 @@ Frozen reference copies normalize source line endings to LF. Capture files are p
 
 | Participant | Provider family | Requested configuration/channel | Receipt/capture |
 | --- | --- | --- | --- |
-| sol / proposal | OpenAI | gpt-6.1-sol, effort xhigh; new ephemeral Codex CLI | Pending |
-| normal / proposal | OpenAI | GPT-6 Normal; new ChatGPT web conversation | Pending |
-| argon / proposal | Google | Argon 4; new Gemini web conversation | Pending |
-| sonnet / proposal | Anthropic | Sonnet 5.5; new Claude web conversation | Pending |
-| astra / proposal | OpenAI | gpt-6-astra, effort high; new ephemeral Codex CLI | Pending |
+| sol / proposal | OpenAI | gpt-6.1-sol, effort xhigh; new ephemeral Codex CLI | Complete; exact CLI output |
+| normal / proposal | OpenAI | GPT-6 Normal; new ChatGPT web conversation | Complete; Copy export |
+| argon / proposal | Google | Argon 4; new Gemini web conversation | Complete; rendered DOM export |
+| sonnet / proposal | Anthropic | Sonnet 5.5; new Claude web conversation | Complete recovery; rendered DOM export; initial retained |
+| astra / proposal | OpenAI | gpt-6-astra, effort high; new ephemeral Codex CLI | Complete; exact CLI output |
 
 Exact labels/configuration evidence, session/conversation references, marker checks, closing markers, tools and exposure declarations will be recorded after actual dispatch and capture. The requested model is not an independent attestation of provider-internal model identity.
 
@@ -87,3 +87,27 @@ Both responses declare official-source web research, injected general memory wit
 During continuation on 2026-10-17, browser access returned `Local browser use is disabled in Work settings`. After Martim asked to test again, a second direct browser-access attempt returned the same setting restriction. The coordinator did not bypass the setting or replace web participants. The proposal packet's frozen inputs and external digest were verified again. No new proposal originals have been published, no proposal set is closed, and no review request has been dispatched.
 
 Resume by re-enabling Local browser use in Work settings, then recover the existing proposal conversations, capture all web originals with receipt and closing-marker checks, and follow the declared closure rule. Do not resend already submitted proposal requests as new independent attempts unless a specific transport recovery is required. The external staging directory and CLI execution helpers are retained locally; its path is recorded in the ignored .council-runs/003-stage-path.txt operator pointer.
+
+## Proposal closure after browser access resumed
+
+On Martim's instruction to continue, the browser became accessible. The existing submitted conversations were recovered through the browser's focused history lookup; no new independent proposal was commissioned. All five accepted captures begin with END-OF-PACKET-003-PROPOSAL-v1, declare no missing sections, and end with END-OF-CONTRIBUTION. These checks establish transport markers, not comprehension or capability truth.
+
+| Participant | Original | SHA-256 |
+| --- | --- | --- |
+| sol | propostas/sol.md | 5b2d4df7ef84dddd032417011e93a3a197658ec5edd316813af6108dd8a875e6 |
+| normal | propostas/normal.md | 11f2a1573ddc8ab61053a513e5b91e53df4eb3be3219e76493dcf8d5de230104 |
+| argon | propostas/argon.md | dd1afda9903f565d71e833014c22cd35ec3f60390a3b07488aa218e4a9d6ba5e |
+| sonnet | propostas/sonnet.md | 428c30b8d60c984b6cd9dd912da6cf0ae1dc15ce342a5bf07dab0c0dfd9dcb29 |
+| astra | propostas/astra.md | 95b8dccb83b740914eee361f374e8fafac3e243ced4068eef5712ba77d4fb3a2 |
+
+| Participant | Actual conversation | Receipt and capture evidence |
+| --- | --- | --- |
+| normal | https://chatgpt.com/c/6ad31a8a-d250-83ed-9907-ce960420e965 | Completed response, exact Copy export validated as normal; UI showed GPT-6/High at dispatch. Declares official web research, available memory not used as evidence, and no peer proposal exposure. |
+| argon | https://gemini.google.com/u/1/app/8a28d5fc854caaf1?pageId=none | Argon Alto selector; completed response, both markers. Copy control timed out; after reload the complete rendered response container was exported without editing. Declares no external tools, unknown provider memory setting and no peer exposure. |
+| sonnet | https://claude.ai/chat/9546a852-2368-42d5-abf8-80c71631399d | Sonnet 5.5 High selector; completed response and later transport recovery, no peer material supplied. UI showed six web searches. Its declarations and source qualifications remain attributed. |
+
+Argon and Sonnet are rendered-text captures: tables retain their rendered text order rather than Markdown table syntax, and citation labels remain as displayed. The corresponding exact rendered HTML is preserved in capturas/. DOM-extracted link-label/href lists are retained beside it; the link lists, plus the full initial Sonnet capture, accompany the shared review and synthesis packets. No response text was silently cleaned or normalized. External source validity is for review; the operator does not promote model assertions into verified facts.
+
+Sonnet's initial complete visible response put a Sources list after END-OF-CONTRIBUTION, so it failed the required final-line check. It is preserved unchanged as propostas/sonnet.incomplete.md, with its rendered HTML and link list. The operator requested: "Transport recovery only: your proposal placed a Sources list after END-OF-CONTRIBUTION. The required closing marker must be the final non-empty line. Resend the complete original proposal, preserving all substantive content and sources, with END-OF-PACKET-003-PROPOSAL-v1 and missing-sections declaration on the first line, and END-OF-CONTRIBUTION as the final non-empty line after all sources. Do not add new arguments, revise the proposal, or produce a review or synthesis. The original capture is preserved separately. Work in English." The recovery is a separate unedited original; no byte-identical resend is claimed. Reviewers receive both versions and their source-link exports.
+
+The browser clipboard initially returned an empty value and later a stale Normal export during a Sonnet Copy attempt. The stale duplicate was identified by its content and retained only in external transport staging, not accepted as Sonnet's contribution. Sonnet was then captured from its own rendered response container. The five accepted originals were copied from external staging together and hash-checked before publication.

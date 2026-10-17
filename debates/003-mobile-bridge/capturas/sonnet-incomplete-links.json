@@ -1,0 +1,58 @@
+[
+  {
+    "href": "https://developers.openai.com/apps-sdk/deploy/connect-chatgpt",
+    "label": "# Connect from ChatGPT\n +13\n"
+  },
+  {
+    "href": "https://developers.openai.com/apps-sdk/deploy/connect-chatgpt",
+    "label": "OpenAI Apps SDK: Connect from ChatGPT"
+  },
+  {
+    "href": "https://support.claude.com/en/articles/11503834-building-custom-connectors-via-remote-mcp-servers",
+    "label": "Claude Help Center: Building custom connectors via remote MCP servers"
+  },
+  {
+    "href": "https://developers.openai.com/codex/noninteractive.md",
+    "label": "OpenAI Codex: non-interactive mode"
+  },
+  {
+    "href": "https://developers.openai.com/codex/integrations/github",
+    "label": "OpenAI Codex: code review in GitHub"
+  },
+  {
+    "href": "https://help.boomi.com/docs/Atomsphere/Platform/Connect_chatgpt_setup",
+    "label": "Boomi: connecting ChatGPT to a custom MCP server (third-party mirror)"
+  },
+  {
+    "href": "https://help.boomi.com/docs/Atomsphere/Connect/MCPSetup/Connect_claude_setup",
+    "label": "Boomi: connecting Claude to a custom MCP server (third-party mirror)"
+  },
+  {
+    "href": "https://help.openai.com/sq-al/articles/12584461-developer-mode-and-full-mcp-connectors-in-chatgpt-beta",
+    "label": "OpenAI Help: developer mode and full MCP connectors (non-English page)"
+  },
+  {
+    "href": "https://docs.askelephant.ai/chatgpt",
+    "label": "AskElephant: ChatGPT connector setup"
+  },
+  {
+    "href": "https://hjarni.com/mcp-fix/chatgpt-mcp-connectors-not-showing",
+    "label": "hjarni: ChatGPT MCP connectors not showing"
+  },
+  {
+    "href": "https://github.com/openai/codex/issues/36072",
+    "label": "openai/codex issue 36072"
+  },
+  {
+    "href": "https://notes.kodekloud.com/docs/GitHub-Actions/Self-Hosted-Runner/Running-Workflow-on-Self-Hosted-Runner",
+    "label": "KodeKloud: running a workflow on a self-hosted runner"
+  },
+  {
+    "href": "https://github.com/anthropics/claude-code/issues/76722",
+    "label": "anthropics/claude-code issue 76722"
+  },
+  {
+    "href": "https://beginnersinai.org/?p=29841",
+    "label": "Claude connector guide (third-party)"
+  }
+]

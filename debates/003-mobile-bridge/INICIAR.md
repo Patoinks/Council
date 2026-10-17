@@ -2,7 +2,7 @@
 
 Status: proposal collection opened by Martim on 2026-10-17. The bridge remains to be decided by the Council and decreed by Opus.
 
-Current collection: all participant requests dispatched; Sol and Astra complete and preserved outside the checkout. Web response collection is waiting for Local browser use to be re-enabled in Work settings. The proposal round remains open; reviews have not started. See the manifest's continuation point.
+Current collection: all five proposals are complete and closed together. Sonnet's initial response and its transport recovery are both retained. Cross-review preparation follows the closed proposal commit. See the manifest for capture provenance and checks.
 
 - [Authorized context](CONTEXTO.md)
 - [Operating-model baseline](../../OPERATING-MODEL.md)
