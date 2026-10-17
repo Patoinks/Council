@@ -1,0 +1,30 @@
+[
+  {
+    "href": "https://help.openai.com/en/articles/10929079-google-drive-app-and-setup-in-chatgpt?utm_source=chatgpt.com",
+    "label": "Google Drive app and setup"
+  },
+  {
+    "href": "https://developers.google.com/workspace/drive/api/guides/manage-changes?utm_source=chatgpt.com",
+    "label": "Google Drive — Retrieve changes"
+  },
+  {
+    "href": "https://help.openai.com/en/articles/12584461-connecting-custom-mcp-servers-in-chatgpt?utm_source=chatgpt.com",
+    "label": "OpenAI custom MCP FAQ"
+  },
+  {
+    "href": "https://help.openai.com/en/articles/20001256-plugins-in-chatgpt?utm_source=chatgpt.com",
+    "label": "Plugins in ChatGPT"
+  },
+  {
+    "href": "https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp?utm_source=chatgpt.com",
+    "label": "Claude remote MCP connectors"
+  },
+  {
+    "href": "https://support.claude.com/en/articles/10166901-use-google-workspace-connectors?utm_source=chatgpt.com",
+    "label": "Claude Google Workspace connectors"
+  },
+  {
+    "href": "https://developers.openai.com/api/docs/actions/introduction?utm_source=chatgpt.com",
+    "label": "OpenAI GPT Actions"
+  }
+]

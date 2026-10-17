@@ -2,12 +2,13 @@
 
 - **Debate:** 003-mobile-bridge.
 - **Phase and round:** cross review, round 02; independent proposals closed.
-- **Collection state:** cross-review collection open; all five review requests dispatched.
+- **Collection state:** all five cross-reviews captured and closed together; preparing the King's complete handoff.
 - **Launch instruction:** Martim, "lança council", 2026-10-17 Europe/Lisbon.
 - **Context version:** v1, authorized for this launch.
 - **Packet file:** PACOTE-REVISAO.md v1 for round 02; PACOTE-PROPOSTA.md v1 remains unchanged.
 - **Source baseline:** 95d853ba7480260d5a9c4b8541b4b1b32a6d90f3; v2.1 governance was enacted in 389a4367de088361adcaeec271fb438c6fb0b492.
 - **Commit of closed proposal set:** 730f578ee8a32aa22a5d1310524cc990db26f683, published to origin/main.
+- **Commit of closed review set:** the commit introducing the complete revisoes/ directory; its exact ID will be recorded before synthesis-packet preparation.
 - **Deadline set by Martim:** none.
 
 ## Inventory and packet order
@@ -120,10 +121,32 @@ Fresh conversations/executions are required for all five reviewers. The declared
 
 | Participant | Requested review configuration | State |
 | --- | --- | --- |
-| sol | gpt-6.1-sol, effort xhigh; fresh ephemeral Codex CLI | Dispatched; session 01a148ac-00ca-7db1-b52b-e86aa5161c3c |
-| normal | GPT-6 Normal; new ChatGPT web conversation | Dispatched; https://chatgpt.com/c/6ad31ddf-62b8-83eb-9a84-a3f04c75c239 |
-| argon | Argon 4; new Gemini web conversation | Dispatched; attached PACOTE-REVISAO.md; durable conversation URL pending |
-| sonnet | Sonnet 5.5; new Claude web conversation | Dispatched; https://claude.ai/chat/a0576b22-7562-4c82-b329-c3b24200b977 |
-| astra | gpt-6-astra, effort high; fresh ephemeral Codex CLI | Dispatched; session 01a148ac-00d9-7e52-9665-a48b8e659de5 |
+| sol | gpt-6.1-sol, effort xhigh; fresh ephemeral Codex CLI | Complete; session 01a148ac-00ca-7db1-b52b-e86aa5161c3c |
+| normal | GPT-6 Normal; new ChatGPT web conversation | Complete; https://chatgpt.com/c/6ad31ddf-62b8-83eb-9a84-a3f04c75c239 |
+| argon | Argon 4; new Gemini web conversation | Complete; https://gemini.google.com/u/1/app/069fa28ab735175c?pageId=none |
+| sonnet | Sonnet 5.5; new Claude web conversation | Complete; https://claude.ai/chat/a0576b22-7562-4c82-b329-c3b24200b977 |
+| astra | gpt-6-astra, effort high; fresh ephemeral Codex CLI | Complete; session 01a148ac-00d9-7e52-9665-a48b8e659de5 |
 
 The frozen review packet is published in 616a154 with SHA-256 c20f83db4078558c68d54576d13e928f340b2f4a17742e7460ad54b097443c86, recorded externally in PACOTES.sha256. At actual dispatch the Normal selector showed GPT-6 checked and High; Gemini showed Argon Alto; Claude showed Sonnet 5.5 High. Normal and Sonnet received the complete pasted packet as an automatic text attachment. Sonnet additionally received the declared routing message. Gemini's file-upload control confirmed PACOTE-REVISAO.md uploaded before the declared routing message was submitted. All three web responses were observed generating. The two CLI event records show fresh sessions and official web-research activity. No review result is yet published or represented as complete by this dispatch record.
+
+## Cross-review closure
+
+All five responses are complete. Each begins with END-OF-PACKET-003-REVIEW-v1 and declares no missing sections; each final non-empty line is END-OF-CONTRIBUTION. Each declares all sixteen review-packet sections received and read, including its own proposal and Sonnet's initial capture. These are attributed reading declarations, not proof of comprehension. No reviewer was supplied a peer review, no participant was substituted, and no additional deliberation round was opened.
+
+| Participant | Original | SHA-256 |
+| --- | --- | --- |
+| sol | revisoes/sol.md | f0eefc3e6eefdf66d504e2e280e8c746e58f2d1042416a511e3d720767ee8991 |
+| normal | revisoes/normal.md | 797f4539dfafe53df988f20ea77660c773a21befa6d73f1c94825f440ad704ca |
+| argon | revisoes/argon.md | 07dfd47853a37064102717e38fada4d5b6335639459fdd0478cf8317b67e924a |
+| sonnet | revisoes/sonnet.md | fca285ba340ccd4cfef3a677299a3ac9dc7d9e9975e15bf37970ea5ecb167a37 |
+| astra | revisoes/astra.md | 777b462a03701e2454b3e7531a7a468c2d1ab86dc54fa9a80cadb14e5c446f77 |
+
+Sol and Astra CLI executions both exited zero, saved complete final output and recorded turn.completed. Both declare official-source web research, injected general memory unused as Council evidence, recognition of the supplied own-ID proposal without independently remembered authorship, and an attempted environment skill-file read that failed before process execution. The captured event records show web-search activity and the failed command, with no repository reads observed. Existing feature warnings and the post-response notification-hook failure did not prevent capture.
+
+Normal declares supplied-file inspection, programmatic comparison of the Sonnet versions, official web research, available general memory not used as evidence and no peer-review access. Argon declares no external tools, unknown provider memory configuration and only the supplied review packet. Sonnet declares no tools in this phase, an unrelated account-memory snapshot not used and no independently remembered authorship of the supplied own-ID files. Actual UI model selectors and fresh conversation references are recorded above. Model, tool and memory self-descriptions remain attributed within their stated limits.
+
+The three web reviews were exported directly from their completed response containers as exact rendered innerText, with no editing or whitespace normalization. Their rendered HTML and DOM link-label/href lists are preserved in capturas/<id>-review-rendered.html and capturas/<id>-review-links.json. Tables retain rendered text order in the .md captures; the HTML retains their original cell structure. This avoids accepting stale clipboard data. No review transport recovery was necessary. A Claude usage-limit notice appeared after Sonnet's complete response; the original was captured without changing plans, models or account settings.
+
+Several reviews question citation traceability or abrupt passages in the supplied proposal captures. Those findings remain in the originals, without an operator disposition. The synthesis packet also carries every preserved rendered HTML capture, including the initial Sonnet version, plus the link exports, so the King can inspect capture fidelity directly. These are existing source artifacts, not new participant arguments or independently validated product evidence. Nothing is reconstructed to fill a perceived gap.
+
+All accepted reviews were staged outside the checkout until the entire set was ready, then copied unchanged together and hash-checked. The King's handoff will contain the complete closed source set, not an operator summary or preferred bridge. Synthesis, decree, implementation and execution review have not occurred.
