@@ -1,0 +1,5 @@
+* -text
+propostas/* whitespace=-blank-at-eol,-blank-at-eof
+revisoes/* whitespace=-blank-at-eol,-blank-at-eof
+referencia/source/** whitespace=-blank-at-eol,-blank-at-eof
+PACOTE-*.md whitespace=-blank-at-eol,-blank-at-eof

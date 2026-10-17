@@ -1,0 +1,52 @@
+{
+  "runs": [
+    {
+      "mode": "legacy",
+      "snapshots": 256,
+      "seconds": 2.4726497999945423,
+      "snapshots_per_second": 103.53265553438463,
+      "pack_seconds": 2.239333999896189
+    },
+    {
+      "mode": "arrays",
+      "snapshots": 256,
+      "seconds": 2.0531294999964302,
+      "snapshots_per_second": 124.6877023589818,
+      "pack_seconds": 1.3506730000226526
+    },
+    {
+      "mode": "shared",
+      "snapshots": 256,
+      "seconds": 2.1136350000015227,
+      "snapshots_per_second": 121.11835771068115,
+      "pack_seconds": 1.4127137000177754
+    },
+    {
+      "mode": "shared",
+      "snapshots": 256,
+      "seconds": 1.9854500999936135,
+      "snapshots_per_second": 128.93801763178206,
+      "pack_seconds": 1.3170174999395385
+    },
+    {
+      "mode": "arrays",
+      "snapshots": 256,
+      "seconds": 1.8863488000060897,
+      "snapshots_per_second": 135.71191075540938,
+      "pack_seconds": 1.2109715998522006
+    },
+    {
+      "mode": "legacy",
+      "snapshots": 256,
+      "seconds": 2.2748494999977993,
+      "snapshots_per_second": 112.53491714517715,
+      "pack_seconds": 2.1150079000217374
+    }
+  ],
+  "workers": 8,
+  "exact_snapshot_state": true,
+  "state_digest": "5b6d81eb9a34fd3837d5992eea4147dfb5be98d0d462660cc13b813f2fa287f6",
+  "checkpoint_sha256": "7c1d34d16929c3542a6af31569dd58dc29b57bda92cbb040ca4117b1c824617e",
+  "checkpoint_unchanged": true,
+  "conditions": "No opponent, no learning; same frozen snapshot each job, deserialized and loaded into actor net/knowledge then fully hashed. Process startup excluded."
+}

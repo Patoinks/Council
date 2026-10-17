@@ -1,0 +1,63 @@
+{
+  "runs": [
+    {
+      "backend": "cpp",
+      "games": 20,
+      "seconds": 7.3478751000075135,
+      "games_per_second": 2.721875335085588,
+      "plies": 1491,
+      "plies_per_second": 202.91580623063058,
+      "updates": 40,
+      "decisions": 741,
+      "experiments": 2,
+      "version": "before",
+      "evidence_sha256": "668a6773db45e9691ad3feaa5716ba5cb0ea7ed3f71d46601070b6649114b030",
+      "checkpoint_sha256": "7c1d34d16929c3542a6af31569dd58dc29b57bda92cbb040ca4117b1c824617e"
+    },
+    {
+      "backend": "cpp",
+      "games": 20,
+      "seconds": 7.093336699996144,
+      "games_per_second": 2.819547533956886,
+      "plies": 1491,
+      "plies_per_second": 210.19726865648582,
+      "updates": 40,
+      "decisions": 741,
+      "experiments": 2,
+      "version": "after",
+      "evidence_sha256": "668a6773db45e9691ad3feaa5716ba5cb0ea7ed3f71d46601070b6649114b030",
+      "checkpoint_sha256": "7c1d34d16929c3542a6af31569dd58dc29b57bda92cbb040ca4117b1c824617e"
+    },
+    {
+      "backend": "cpp",
+      "games": 20,
+      "seconds": 7.176223600006779,
+      "games_per_second": 2.7869811637392554,
+      "plies": 1491,
+      "plies_per_second": 207.76944575676148,
+      "updates": 40,
+      "decisions": 741,
+      "experiments": 2,
+      "version": "after",
+      "evidence_sha256": "668a6773db45e9691ad3feaa5716ba5cb0ea7ed3f71d46601070b6649114b030",
+      "checkpoint_sha256": "7c1d34d16929c3542a6af31569dd58dc29b57bda92cbb040ca4117b1c824617e"
+    },
+    {
+      "backend": "cpp",
+      "games": 20,
+      "seconds": 7.373861099986243,
+      "games_per_second": 2.7122832568730257,
+      "plies": 1491,
+      "plies_per_second": 202.20071679988408,
+      "updates": 40,
+      "decisions": 741,
+      "experiments": 2,
+      "version": "before",
+      "evidence_sha256": "668a6773db45e9691ad3feaa5716ba5cb0ea7ed3f71d46601070b6649114b030",
+      "checkpoint_sha256": "7c1d34d16929c3542a6af31569dd58dc29b57bda92cbb040ca4117b1c824617e"
+    }
+  ],
+  "exact_state_match": true,
+  "native_speedup": 1.0317197414872283,
+  "checkpoint_unchanged": true
+}
