@@ -54,3 +54,10 @@ Browser access was temporarily disabled in Work settings. It was restored before
 ## Synthesis handoff
 
 The Right Hand prepares the full `PACOTE-SINTESE.md`, all original files, `INDICE-REI.md` with every blocking/material ID and source line pointers, and mechanical verification evidence. This Law No. 5 delivery note is an operator addition to the fixed synthesis prompt; no technical preference is added. Opus alone synthesizes and decrees. No new GitHub publication, source-checkout modification, benchmark, training or tournament was performed.
+
+## Delivery inventory — 2026-10-18
+
+- `PACOTE-SINTESE.md` and `PACOTE-SINTESE.zip`: complete synthesis packet and separate original files.
+- `INDICE-REI.md`: every blocking/material objection with exact original/target line pointers; source-dependent decisive claims and verification limits.
+- `VERIFICACAO-MECANICA.md`, `REVIEWS.sha256` and `SINTESE.sha256`: transport, byte/hash and index checks.
+- The ZIP includes the 178 source files at their frozen inventory paths, plus the original source ZIP. The high-confidence private-key/token literal scan found zero matches. No live TonkAI checkout was opened or changed for this handoff.
