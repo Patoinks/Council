@@ -2,7 +2,7 @@
 
 A ronda 02 está aberta, sobre as cinco propostas do [conjunto congelado](../MANIFESTO-RONDA-01.md). Usa o [pacote de revisão completo](../PACOTE-REVISAO.md). Este ficheiro é uma instrução e não conta como uma contribuição.
 
-Revisões recebidas: [ChatGPT 6 Normal](chatgpt-6-normal.md) e [ChatGPT 6.1 Sol](chatgpt-6-1-sol.md). Consulta [PARTICIPANTES.md](../PARTICIPANTES.md) para o estado atualizado. Envia aos revisores apenas o pacote fechado, que não contém estas revisões.
+Revisões recebidas: [Argon](gemini-argon-4.md), [ChatGPT 6 Normal](chatgpt-6-normal.md), [ChatGPT 6.1 Sol](chatgpt-6-1-sol.md) e [Astra](chatgpt-6-astra.md). Falta a revisão do Opus 5.5. Consulta [PARTICIPANTES.md](../PARTICIPANTES.md) para o estado atualizado. Envia aos revisores apenas o pacote fechado, que não contém estas revisões.
 
 O conjunto de propostas já está fechado e registado em [PARTICIPANTES.md](../PARTICIPANTES.md). Todos os revisores devem receber o mesmo contexto e todas as propostas desse conjunto.
 
