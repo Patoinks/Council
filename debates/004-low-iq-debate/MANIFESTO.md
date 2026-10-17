@@ -3,7 +3,7 @@
 - **Debate:** 004-low-iq-debate.
 - **Date:** 2026-10-17 Europe/Lisbon.
 - **Phase and round:** independent proposals / round 01.
-- **Collection state:** preparation; not dispatched.
+- **Collection state:** open; complete common proposal packet dispatched to all four requested models.
 - **Context version:** v1, from Martim's requested title, roster and explicit training-throughput clarification.
 - **Governance source:** Council HEAD 073e4fa at preparation; full Laws/rules/prompts/templates frozen below.
 - **Packet:** PACOTE-PROPOSTA.md v1; digest only in PACOTES.sha256.
@@ -26,10 +26,10 @@ No contribution is published while its round is open. Missing markers produce se
 
 | Participant | Requested model | Actual readiness evidence | Phase state |
 | --- | --- | --- | --- |
-| gemini | gemini-3.8-flash-high | agy catalogue plus READY-004 from a separate probe | Awaiting proposal dispatch |
-| glm | opencode/glm-5.3-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Awaiting proposal dispatch |
-| deepseek | opencode/deepseek-v4.1-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Awaiting proposal dispatch |
-| mimo | opencode/mimo-v2.6-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Awaiting proposal dispatch |
+| gemini | gemini-3.8-flash-high | agy catalogue plus READY-004 from a separate probe | Proposal dispatched; pending receipt/capture |
+| glm | opencode/glm-5.3-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Proposal dispatched; pending receipt/capture |
+| deepseek | opencode/deepseek-v4.1-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Proposal dispatched; pending receipt/capture |
+| mimo | opencode/mimo-v2.6-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Proposal dispatched; pending receipt/capture |
 
 The actual OpenCode executable is the desktop app's cached v2.0.32 CLI. The bundled v2.0.16 CLI initially returned an empty catalogue; later discovery listed the free models. No missing catalogue or empty auth list is treated as proof that free models need an account. A readiness test was rerun with v2.0.32 after verifying its advisory profile, rather than assuming the older CLI loaded that profile.
 
@@ -42,3 +42,9 @@ Routing is `Participant ID: <id>.` The shared transport addition is: `This is a 
 ## Limitations and closure
 
 No fresh performance baseline has been measured. The acceptance campaign/checkpoint and exact workload are unresolved in context v1. Existing dirty work is frozen as evidence, not repaired or attributed to this operator. Provider self-descriptions and research declarations remain attributed. The complete set, including all material or blocking objection IDs, will be handed to Opus without operator synthesis. The title does not justify an IQ comparison or a vote.
+
+## Actual launch record
+
+The proposal packet was frozen in 7af4c94, with original-line-ending check configuration corrected in 609daa3. Before dispatch, the packet's external digest and complete containment of all 36 source files, Laws, rules, unchanged context and source notes passed verification. The operator corrected a PowerShell verifier parsing error before distribution; no source evidence or packet payload was changed by that correction.
+
+The complete packet travels through stdin as an agy user event and through OpenCode's documented file attachment. Each participant receives the same packet bytes and the declared ID/shared transport instruction. Proposal working folders are new, external to the Council checkout, and initially contain only that packet. CLI metadata and responses are captured outside both source and Council checkouts. Actual terminal status, session references, tool activity, reading/exposure declarations and both markers remain to be recorded on collection.
