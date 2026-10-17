@@ -4,7 +4,7 @@ Council 005 asks how to maximize completed chess games per second through archit
 
 Martim specified G4 Leto as the desired website engine. The live page presently identifies G16 v2, which the Council must address. The local G4 Leto port, the live-site source and the G4-based Nezha personality prototype have distinct checkouts and worktree states, all recorded by file hashes. No source implementation, benchmark campaign, retraining or deployment is part of these deliberations.
 
-Status: context v2 and proposal packet v3 are active. Martim closed the proposal round without Argon on 2026-10-17. The four v3 contributions are recorded in `proposals/`; proposal v2 remains superseded. No reviews have been sent. The review set will use the same four proposals.
+Status: proposal and review rounds are closed. The four v3 proposals are recorded in `proposals/`; proposal v2 remains superseded. Martim chose to close reviews with three contributors: Sol, GPT-6 Normal and Astra High. Sonnet 5.5 High is absent because the Claude account reached its usage quota; Argon was already absent from the closed proposal set. No substitute was assigned. The three complete reviews are recorded in `revisoes/` and were committed together. Synthesis and decree by Opus are pending.
 
 - [Active context v2](CONTEXTO.md)
 - [Superseded context v1](CONTEXTO-v1.md)
@@ -15,6 +15,10 @@ Status: context v2 and proposal packet v3 are active. Martim closed the proposal
 - [Hash-only model/data exclusions](SOURCE-EXCLUDED.md)
 - [Superseded proposal packet v2](PACOTE-PROPOSTA-v2.md)
 - [Proposal packet v3](PACOTE-PROPOSTA-v3.md)
+- [Frozen review packet v1](PACOTE-REVISAO-v1.md)
+- [Sol review](revisoes/sol.md)
+- [GPT-6 Normal review](revisoes/normal.md)
+- [Astra review](revisoes/astra.md)
 - [Packet digests](PACOTES.sha256)
 
 All Council contributions are in English. The live G16 label is preserved as an observed fact; the specified target model is G4 Leto.

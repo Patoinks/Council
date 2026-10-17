@@ -2,8 +2,8 @@
 
 - **Debate:** 005-g4-leto-gamespeed.
 - **Date:** 2026-10-17 Europe/Lisbon.
-- **Phase and round:** proposal round closed; review round in progress.
-- **Collection state:** proposal v2 is superseded. The closed v3 set contains Sol, GPT-6 Normal, Sonnet 5.5 High and Astra High. Martim directed the Council to advance without Argon; no substitute is assigned. The frozen review packet contains the same four proposals. Complete GPT-6 Normal, Sol and Astra reviews are captured in external staging and remain outside the repository. The Sonnet 5.5 High review packet and routing prompt are prepared in a new Claude conversation, but the account is out of messages until 3:30 PM Europe/Lisbon. No review files will enter the repository until the round is closed; collected reviews will be committed together.
+- **Phase and round:** proposal round and review round closed.
+- **Collection state:** proposal v2 is superseded. The closed v3 set contains Sol, GPT-6 Normal, Sonnet 5.5 High and Astra High. Martim directed the Council to advance without Argon; no substitute is assigned. The frozen review packet contains the same four proposals. The review round is closed with three reviews: Sol, GPT-6 Normal and Astra High. Sonnet 5.5 High is absent because the Claude account had reached its usage quota; Martim chose to close with three reviews. No substitute was assigned. Any later Sonnet answer is a separately named addendum and is not part of this closed review set.
 - **Context version:** v2.
 - **Governance source:** current Council `LEIS.md` (Law No. 1 amended by Martim on 2026-10-17) and `REGRAS.md` v2.1, copied in full in the v3 packet.
 - **Source evidence:** 56 exact working-file copies across the three source checkouts, plus three hash-only exclusions listed in `SOURCE-EXCLUDED.md`.
@@ -57,3 +57,18 @@ The first local proposal packet draft included the 2.5 MB cognitive model JSON, 
 - **Closed set and order:** Sol, GPT-6 Normal, Sonnet 5.5 High, Astra High.
 - **Absence:** Argon did not receive packet v3; no substitute was assigned.
 - **Originals:** The GPT and Claude responses remain in their source conversations; committed transcripts preserve the complete visible response text and both packet/contribution markers. UI presentation normalized Markdown punctuation and headings; source links are recorded in the external staging index.
+
+## Review round closure
+
+- **Sovereign decision:** Martim chose to close the review round with three reviews, without waiting for Sonnet 5.5 High.
+- **Closed review set:** Sol, GPT-6 Normal and Astra High. Argon was not a reviewer because it was absent from the closed proposal set; Sonnet 5.5 High did not return a review before closure.
+- **Absence:** Claude's usage quota prevented collecting the Sonnet review at the time of closure. No substitute was assigned. Under `REGRAS.md`, a later Sonnet answer may be kept as a separately named addendum, but does not enter this closed set.
+- **Integrity:** Each captured review starts with `END-OF-PACKET-005-REVIEW-v1 | Missing sections: none` and ends with `END-OF-CONTRIBUTION`. The exact staged response bytes were copied unchanged into `revisoes/` and verified against the hashes below. All three originals are committed together in one closure commit.
+
+| Reviewer | File | SHA-256 | Capture |
+| --- | --- | --- | --- |
+| Sol (assigned GPT-6.1 Sol xHigh; visible model not visible) | `revisoes/sol.md` | `EB22414514F57A95CAA471D37DDC1E9125C69302FA8BD5DC992AC09A956B7EF3` | Complete response captured from the assigned CLI session; exit 0. |
+| GPT-6 Normal (visible model GPT-6) | `revisoes/normal.md` | `502B0A7B8B90888813A95A0F995A910D43C42329949212E84931A62F7E55043B` | Complete response copied from the ChatGPT conversation. |
+| Astra (assigned GPT-6 Astra High; visible model not visible) | `revisoes/astra.md` | `CE1958855A15B5CD4D708AFAE5034744EA638DE653432E08173CFD77F9B4AA68` | Complete response captured from the assigned CLI session; exit 0. |
+
+No synthesis or decree is included in this closure. Opus remains King and may synthesize from the frozen proposals and this closed three-review set. No code, model, benchmark or website work is authorized by this record.
