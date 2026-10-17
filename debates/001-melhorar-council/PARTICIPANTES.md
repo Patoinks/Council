@@ -6,7 +6,7 @@ Contexto: v1, de 2026-10-16. Os nomes abaixo são os fornecidos por Martim. A id
 | --- | --- | --- | --- |
 | `gemini-argon-4` | Gemini Argon 4 | [Recebida](propostas/gemini-argon-4.md), 2026-10-17, pacote v1 | Revisão da ronda 02 por recolher |
 | `opus-5-5` | Opus 5.5 | [Recebida](propostas/opus-5-5.md), 2026-10-17, pacote v1 | Revisão da ronda 02 por recolher |
-| `chatgpt-6-1-sol` | ChatGPT 6.1 Sol | [Recebida; influência prévia declarada](propostas/chatgpt-6-1-sol.md), 2026-10-17, pacote v1 | Revisão da ronda 02 por recolher |
+| `chatgpt-6-1-sol` | ChatGPT 6.1 Sol | [Recebida; influência prévia declarada](propostas/chatgpt-6-1-sol.md), 2026-10-17, pacote v1 | [Recebida](revisoes/chatgpt-6-1-sol.md), 2026-10-17 |
 | `chatgpt-6-astra` | ChatGPT 6 Astra | [Recebida](propostas/chatgpt-6-astra.md), 2026-10-17, pacote v1 | Revisão da ronda 02 por recolher |
 | `chatgpt-6-normal` | ChatGPT 6 Normal | [Recebida](propostas/chatgpt-6-normal.md), 2026-10-17, contexto v1 | [Recebida](revisoes/chatgpt-6-normal.md), 2026-10-17 |
 
@@ -35,7 +35,8 @@ O registo é manual. Depois de guardar uma resposta, acrescenta o caminho, data 
 - Estado: **aberta** em 2026-10-17.
 - Distribuição obrigatória: mesmo contexto v1, regras e prompt de revisão, e as cinco propostas do conjunto fechado. Não distribuir revisões já recebidas aos revisores seguintes.
 - Revisões esperadas: `revisoes/gemini-argon-4.md`, `revisoes/opus-5-5.md`, `revisoes/chatgpt-6-1-sol.md`, `revisoes/chatgpt-6-astra.md`, `revisoes/chatgpt-6-normal.md`.
-- Revisões recebidas: **1 de 5**, com ficheiros efetivamente presentes em `revisoes/`; faltam `gemini-argon-4`, `opus-5-5`, `chatgpt-6-1-sol`, `chatgpt-6-astra`.
+- Revisões recebidas: **2 de 5**, com ficheiros efetivamente presentes em `revisoes/`; faltam `gemini-argon-4`, `opus-5-5`, `chatgpt-6-astra`.
+- `chatgpt-6-1-sol`: revisão produzida em 2026-10-17, sobre o pacote `revisão-r02-v1` e as cinco propostas congeladas no commit `2a49da8703f99a03e112e06b3560730463e9fdb8`. Inclui autocrítica, conserva a declaração de exposição prévia na proposta inicial e declara não ter consultado o conteúdo de revisões de outros participantes.
 
 ## Síntese
 
