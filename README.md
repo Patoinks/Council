@@ -21,6 +21,8 @@ Segue as [regras](REGRAS.md). Para abrir um debate, cria uma pasta numerada em `
 7. **F6 — Decisão.** Martim regista a decisão num [ficheiro separado](templates/DECISAO.md).
 8. **F7 — Resultados.** Havendo execução ou teste, regista [resultados com evidência](templates/RESULTADOS.md).
 
+Para interfaces só web, como a Gemini App, há [ferramentas opcionais](ferramentas/README.md) que copiam o pacote e gravam a resposta com um comando cada.
+
 Na avaliação, o braço S usa o [prompt de AI única](prompts/90-AI-UNICA.md). A composição e as diferenças entre braços estão no protocolo.
 
 ## Estrutura de um debate
