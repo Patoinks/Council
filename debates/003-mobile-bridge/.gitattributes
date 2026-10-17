@@ -1,0 +1,6 @@
+# Preserve captured contribution and packet bytes across checkouts.
+* -text
+# Captures may contain original source whitespace; never rewrite it for lint.
+propostas/* whitespace=-blank-at-eol,-blank-at-eof
+revisoes/* whitespace=-blank-at-eol,-blank-at-eof
+PACOTE-*.md whitespace=-blank-at-eol,-blank-at-eof

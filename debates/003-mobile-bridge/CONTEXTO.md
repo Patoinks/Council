@@ -1,8 +1,8 @@
 # Context — connect the phone apps to the existing PC Council operator
 
 - **Debate ID:** 003-mobile-bridge.
-- **Version:** draft v1, 2026-10-17.
-- **Status:** preparation only; not launched. No participant requests, bridge implementation or decree execution are authorized by this draft.
+- **Version:** v1, authorized for launch by Martim on 2026-10-17.
+- **Status:** independent proposal collection. Martim's instruction: "lança council". This launches deliberation; no bridge has been selected or implemented.
 - **Prepared by:** the Right Hand, from the scenario Martim supplied, for his review.
 - **Sovereign:** Martim. **King:** Opus. **Right Hand:** Codex 6.1 Sol xHigh.
 - **Governance baseline:** Council v2.1, commit `389a4367de088361adcaeec271fb438c6fb0b492`.
@@ -42,17 +42,16 @@ Read [OPERATING-MODEL.md](../../OPERATING-MODEL.md) **in full**. It separates ob
 
 Specify the message/data contracts, source of truth, identities, triggers, state changes, permissions and recovery behavior needed for those connections. These responsibilities are required; their implementation is open.
 
-## Out of scope
+## Out of scope for the deliberation
 
-- Launching debate 003 as part of preparing this draft.
 - Selecting or implementing a bridge before the debate's decision.
 - Amending the Laws, changing the monarchic authority or redesigning the proposal/review process.
 - Replacing the specified phone entry and King interfaces without an explicit instruction from Martim.
 - Treating conversation sync, a repository URL or model self-report as proof of an executable integration.
 
-## Mandatory requirements proposed from the scenario
+## Mandatory requirements
 
-These are draft acceptance requirements for Martim's review, not claims that the bridge exists.
+These are the acceptance requirements from the context Martim authorized for launch, not claims that the bridge exists.
 
 | R# | Requirement | How to verify |
 | --- | --- | --- |
@@ -103,10 +102,22 @@ These are draft acceptance requirements for Martim's review, not claims that the
 
 Working assumption from the supplied scenario: GPT-6 Normal remains an adviser while also serving as the phone entry/status interface. Argon, Sonnet and Astra retain their existing channels. This dual role requires a declared exposure history; a phone conversation appearing on the PC is not proof of independent reasoning or an execution trigger.
 
-The Right Hand remains the operator. Before dispatch, record whether it also contributes a proposal/review and the actual participant roster in the manifest, following Martim's selection. Agreement among models from the same provider is not independent corroboration. Opus remains the King under Law No. 2.
+The panel is carried forward from debate 002. The Right Hand remains the operator and also contributes under ID sol through a separate fresh CLI execution for each phase, requesting gpt-6.1-sol with reasoning effort xhigh. Astra uses separate fresh CLI executions requesting gpt-6-astra with effort high. Both use temporary working folders containing only their phase packet. This reduces accidental exposure; no filesystem-read isolation is claimed. Actual configuration, tools and memory are declared in the manifest and contributions.
 
-## Expected result and preparation boundary
+| ID | Requested model | Proposal/review channel |
+| --- | --- | --- |
+| sol | GPT-6.1 Sol xHigh | Fresh Codex CLI execution per phase; separate from the coordinator's conversation |
+| normal | GPT-6 Normal | Fresh ChatGPT web conversation per phase |
+| argon | Gemini Argon 4 | Fresh Gemini web conversation per phase |
+| sonnet | Sonnet 5.5 | Fresh Claude web conversation per phase |
+| astra | GPT-6 Astra High | Fresh Codex CLI execution per phase |
+
+Agreement among models from the same provider is not independent corroboration. Opus remains the King under Law No. 2. The King's mobile synthesis/decree handoff remains with Martim, as in the supplied scenario; this run prepares the complete packet for that handoff.
+
+## Expected result and launch boundary
 
 The debate should deliver a concrete bridge architecture, message/state contracts, a sequence for implementing the chosen mechanism, functional acceptance checks, and a reasoned plan and decree from Opus. Martim may veto or amend the decree. The Right Hand subsequently implements it and returns its work for the King's review.
 
-The eventual proposal packet must include the complete Laws, current rules, this context and OPERATING-MODEL.md, with explicit frozen versions. That packet has **not** been assembled or dispatched by preparing this draft. Martim reviews the thesis/context before the debate starts.
+Every phase packet includes the complete Laws, current rules, this context and OPERATING-MODEL.md, with explicit frozen versions. Martim has authorized launching this context. U2 remains explicit: proposals must state the PC-availability condition they require and what happens while it is unavailable, without inventing powered-off execution.
+
+Closure follows v2.1: collect every participant's response, or obtain Martim's explicit decision on an absence; publish each complete round together. No deadline was set by Martim. No additional round is opened without his specific question. This run ends by handing the closed source set to Martim for Opus's synthesis and decree; it does not impersonate the King or choose the bridge.
