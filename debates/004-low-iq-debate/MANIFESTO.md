@@ -2,13 +2,13 @@
 
 - **Debate:** 004-low-iq-debate.
 - **Date:** 2026-10-17 Europe/Lisbon.
-- **Phase and round:** cross review / round 02; independent proposals closed.
-- **Collection state:** review collection open; common packet dispatched to all four reviewers in new executions.
+- **Phase and round:** cross review / round 02 closed; royal handoff preparation.
+- **Collection state:** all four complete reviews captured; originals published together as a closed set.
 - **Context version:** v1, from Martim's requested title, roster and explicit training-throughput clarification.
 - **Governance source:** Council HEAD 073e4fa at preparation; full Laws/rules/prompts/templates frozen below.
 - **Packet:** PACOTE-REVISAO.md v1; proposal packet unchanged; digests only in PACOTES.sha256.
 - **Closed proposal commit:** 4517d08124e66a188eb53b6bcd0875f3f3756d3d, published to origin/main.
-- **Closed review commit:** not closed.
+- **Closed review commit:** the commit adding the complete review set; its exact hash will be recorded in the synthesis handoff.
 - **Deadline set by Martim:** none.
 
 ## Roles and source scope
@@ -79,3 +79,22 @@ PACOTE-REVISAO.md v1 preserves the full Laws, rules, context v1, inventory, sour
 | mimo | opencode/mimo-v2.6-flash-free; OpenCode v2.0.32 | Review dispatched; pending capture |
 
 The review packet was frozen and published in 641a26a. Full containment of the unchanged Laws, rules, context, source notes, all 36 source files and all four complete proposals was verified before dispatch, together with its external digest. All review executions use new working folders, the same routing and the same requested models as round 01. The previous proposal sessions are not resumed. No review original is present in the repository during this open collection.
+
+## Review closure — round 02
+
+The dispatch table above is the historical launch state. Collection is now complete. All four final responses begin with END-OF-PACKET-004-REVIEW-v1 and Missing sections: none, and end with END-OF-CONTRIBUTION. Only after all four final responses were present were the originals copied unchanged into this checkout. The complete set is published together. No reviewer received another review during collection.
+
+| Reviewer | Original | SHA-256 | Actual session | Terminal capture |
+| --- | --- | --- | --- | --- |
+| gemini | revisoes/gemini.md | fc072f605d8c3b2e5096a3bbfdcd40b3cd8234bb9ae53536eecc32ad63b18a45 | f4764deb-2677-4c01-9499-0ac1619b32c3 | agy SUCCESS; exit 0 |
+| glm | revisoes/glm.md | 66ec142a865f9c6ef77594941ec9d7ff646e245ef60c8ca5271a04e625802d53 | ses_eb734dd85ffezj1dhBTIW9sMok | CLI exit 0 |
+| deepseek | revisoes/deepseek.md | d1d9466f28eeda83589c9a54fcc28f20c1a66ae2a9278d76f2271675f2ae8cad | ses_eb734dd80ffeaHBsK3fSoMS7us | CLI exit 0 |
+| mimo | revisoes/mimo.md | c62c48e839292ebaae26eaf0da247b24eadc61d155f7d33678ed8cbcf8caa13e | ses_eb734dd69ffeM1UqbnhpBOfS0c | Complete final text; CLI exit 1 |
+
+The receipt files capturas/review-<id>-receipt.json retain observed exit codes and capture states. MiMo's complete markers establish complete answer capture, not successful CLI termination: exit 1 is preserved, stderr is empty, and the event stream has no top-level error event. Its cause is not established. No second request, model substitution or invented successful terminal state was used. The same session also emitted an earlier 2,041-character text part ending mid-sentence; revisoes/mimo.incomplete-01.md preserves that exact part separately. The later 25,158-character final response is the complete review. Raw events, stderr and all text parts remain in external staging.
+
+All reviewers declare the full 36-file inventory and all four proposals read, and no peer-review exposure. These remain reading declarations rather than attestation. Gemini declares phase-packet view_file use and no cross-conversation memory. GLM and DeepSeek declare no tools; their captured streams contain no tool_use events. GLM discloses unrelated platform-injected AGENTS.md context. Each reviewer sees its own attributed proposal in the common packet; that is exposure, not proof of memory continuity.
+
+MiMo declares unrelated injected AGENTS.md context, no cross-conversation memory, own-proposal exposure, packet reads, five PyTorch webfetch calls returning truncated material and two cancelled websearch attempts. The event stream corroborates five completed webfetch calls and two cancelled searches. It also records three denied reads (the staging directory, its working directory and an unprovided CONTEXTO.md path), one out-of-range packet read, and subsequent successful reads of its own review packet. No successful unrelated local read, shell action, edit, delegation or UI action is observed. Restrictions were kept in place. The original declaration is preserved without silently adding those failed attempts to it.
+
+Gemini's original includes temporary file:/// links to the review packet with model-authored line ranges; those links are preserved and their ranges are not independently verified. PACOTE-REVISAO.md and all source originals remain available in the record. The synthesis packet includes every complete original and MiMo's incomplete intermediate capture; no operator argument or optimization choice replaces them. Objection severity and disposition are for the King's full ledger under the fixed synthesis prompt.
