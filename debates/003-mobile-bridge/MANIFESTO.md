@@ -2,7 +2,7 @@
 
 - **Debate:** 003-mobile-bridge.
 - **Phase and round:** cross review, round 02; independent proposals closed.
-- **Collection state:** review preparation; all five proposals closed together in the commit below.
+- **Collection state:** cross-review collection open; all five review requests dispatched.
 - **Launch instruction:** Martim, "lança council", 2026-10-17 Europe/Lisbon.
 - **Context version:** v1, authorized for this launch.
 - **Packet file:** PACOTE-REVISAO.md v1 for round 02; PACOTE-PROPOSTA.md v1 remains unchanged.
@@ -120,8 +120,10 @@ Fresh conversations/executions are required for all five reviewers. The declared
 
 | Participant | Requested review configuration | State |
 | --- | --- | --- |
-| sol | gpt-6.1-sol, effort xhigh; fresh ephemeral Codex CLI | Awaiting dispatch |
-| normal | GPT-6 Normal; new ChatGPT web conversation | Awaiting dispatch |
-| argon | Argon 4; new Gemini web conversation | Awaiting dispatch |
-| sonnet | Sonnet 5.5; new Claude web conversation | Awaiting dispatch |
-| astra | gpt-6-astra, effort high; fresh ephemeral Codex CLI | Awaiting dispatch |
+| sol | gpt-6.1-sol, effort xhigh; fresh ephemeral Codex CLI | Dispatched; session 01a148ac-00ca-7db1-b52b-e86aa5161c3c |
+| normal | GPT-6 Normal; new ChatGPT web conversation | Dispatched; https://chatgpt.com/c/6ad31ddf-62b8-83eb-9a84-a3f04c75c239 |
+| argon | Argon 4; new Gemini web conversation | Dispatched; attached PACOTE-REVISAO.md; durable conversation URL pending |
+| sonnet | Sonnet 5.5; new Claude web conversation | Dispatched; https://claude.ai/chat/a0576b22-7562-4c82-b329-c3b24200b977 |
+| astra | gpt-6-astra, effort high; fresh ephemeral Codex CLI | Dispatched; session 01a148ac-00d9-7e52-9665-a48b8e659de5 |
+
+The frozen review packet is published in 616a154 with SHA-256 c20f83db4078558c68d54576d13e928f340b2f4a17742e7460ad54b097443c86, recorded externally in PACOTES.sha256. At actual dispatch the Normal selector showed GPT-6 checked and High; Gemini showed Argon Alto; Claude showed Sonnet 5.5 High. Normal and Sonnet received the complete pasted packet as an automatic text attachment. Sonnet additionally received the declared routing message. Gemini's file-upload control confirmed PACOTE-REVISAO.md uploaded before the declared routing message was submitted. All three web responses were observed generating. The two CLI event records show fresh sessions and official web-research activity. No review result is yet published or represented as complete by this dispatch record.
