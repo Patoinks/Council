@@ -4,23 +4,26 @@ Version v1; prepared 2026-10-18 Europe/Lisbon. Closed review commit: `bbe4dcbd89
 
 Start with the adjacent `INDICE-REI.md` under Law No. 5. The ZIP supplies every original as a separate file at the indexed paths. This packet retains all originals in full; the King reads targeted passages as required by Law 5. Code-dependent checks and limits are in the index and mechanical report. The operator assigns no objection dispositions and writes no plan or decree.
 
+Current Law No. 6 applies to the synthesis and prevails over templates or original advice that would make the plan wait for tests. Deliver the best theoretical plan; any tests belong to the separate Laboratory. Earlier originals and their objection IDs remain unchanged.
+
 ## Ordered sections
 
 1. `LEIS.md`
 2. `REGRAS.md`
-3. `CONTEXTO.md`
-4. `MANIFESTO.md`
-5. `proposals/astra.md`
-6. `proposals/normal.md`
-7. `proposals/sol.md`
-8. `proposals/sonnet.md`
-9. `reviews/astra.md`
-10. `reviews/normal.md`
-11. `reviews/sol.md`
-12. `reviews/sonnet.txt`
-13. `templates/PLANO-FINAL.md`
-14. `templates/DECISAO.md`
-15. `prompts/03-SINTETIZAR.md`
+3. `LABORATORIO.md`
+4. `CONTEXTO.md`
+5. `MANIFESTO.md`
+6. `proposals/astra.md`
+7. `proposals/normal.md`
+8. `proposals/sol.md`
+9. `proposals/sonnet.md`
+10. `reviews/astra.md`
+11. `reviews/normal.md`
+12. `reviews/sol.md`
+13. `reviews/sonnet.txt`
+14. `templates/PLANO-FINAL.md`
+15. `templates/DECISAO.md`
+16. `prompts/03-SINTETIZAR.md`
 
 
 ## File: LEIS.md
@@ -208,6 +211,34 @@ Every decisive claim has a state and a provenance (file and passage, source, or 
 If a participant does not answer, Martim decides whether to wait or to close the round. The manifest records the absence. A late answer is kept as an addendum and does not enter a closed set.
 
 
+## File: LABORATORIO.md
+
+# Laboratory — tests requested by the Council
+
+The Laboratory is where the Council asks for a test and a tester AI runs it and publishes the result. Plans stay theoretical (Law No. 6); tests live here and only inform later decisions.
+
+## Roles
+
+- **Requester:** any Council participant, the King or Martim. A participant asks for a test in its proposal or review, in a section `## Test requests`.
+- **Right Hand (Codex):** turns each request into a file in `laboratorio/pedidos/`, assigns a tester and dispatches it.
+- **Tester:** a low-cost AI with execution rights on a separate copy of the code, for example Gemini 3.8 Flash (agy) or MiMo 2.6 Flash (OpenCode). Law No. 4 applies: no quota, credits or a bug, then the next tester.
+- **King:** reads only the result summaries in the synthesis (Law No. 5).
+
+## Flow
+
+1. `laboratorio/pedidos/<NNN>-<slug>.md` from `laboratorio/PEDIDO.md`: question, exact commands, expected observation, what counts as success or failure.
+2. The tester runs it in a separate working copy, never on live training, checkpoints or the original checkouts.
+3. `laboratorio/resultados/<NNN>-<slug>.md` from `laboratorio/RESULTADO.md`: verdict line first (`PASS`, `FAIL` or `INCONCLUSIVE`), the raw output, the environment and the commit tested.
+4. The Right Hand commits and pushes the request and the result to `Patoinks/Council`.
+5. The synthesis packet lists every result with its verdict line and link, so the King sees at a glance whether it worked.
+
+## Limits
+
+- No credentials, tokens, `.env`, weights or checkpoints in any request or result.
+- No test changes a live campaign, a training run or the original repositories.
+- A tester runs only the commands written in its request.
+
+
 ## File: CONTEXTO.md
 
 # Context — Browser account switcher
@@ -352,6 +383,10 @@ The Right Hand prepares the full `PACOTE-SINTESE.md`, all original files, `INDIC
 - `INDICE-REI.md`: every blocking/material objection with exact original/target line pointers; source-dependent decisive claims and verification limits.
 - `VERIFICACAO-MECANICA.md`, `REVIEWS.sha256` and `SINTESE.sha256`: transport, byte/hash and index checks.
 - The original Sonnet proposal had CRLF line endings; an earlier Git commit normalized them. The delivery restores its untouched original bytes to Git, matching the original receipt hash. Scoped contribution attributes prevent future normalization; no text was revised.
+
+## Synthesis governance refresh — Law No. 6
+
+Local commit `49bf2e8` enacted Law No. 6 after dispatch/closure. The full current Laws 1–6 and `LABORATORIO.md` are included in the synthesis delivery. Opus applies Law 6 to the theoretical plan, including its precedence over test/measurement stages in templates and older advice. Originals, closed sets, objection IDs and severities are unchanged. No Laboratory request, test, publication or new participant phase was launched.
 
 
 ## Original file: proposals/astra.md

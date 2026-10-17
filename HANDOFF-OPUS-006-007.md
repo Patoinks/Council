@@ -2,7 +2,7 @@
 
 Prepared 2026-10-18 Europe/Lisbon. Opus writes the synthesis and decree; the Right Hand has completed dispatch recovery, archival capture, phase closure and mechanical checks.
 
-Read each short index first under Law No. 5. Every blocking/material ID still needs its own disposition. All originals are complete as separate files in each ZIP and embedded in full in each Markdown packet.
+Read each short index first under Law No. 5. Every blocking/material ID still needs its own disposition. All originals are complete as separate files in each ZIP and embedded in full in each Markdown packet. Current Law No. 6 (`49bf2e8`) applies to the synthesis: deliver the best theoretical plan without waiting for tests; tests belong only to separate Laboratory requests. The earlier originals remain unchanged.
 
 | Debate | Closed proposals | Closed reviews | Blocking/material IDs | Entry point | Complete bundle |
 |---|---:|---|---:|---|---|

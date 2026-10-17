@@ -61,3 +61,7 @@ The Right Hand prepares the full `PACOTE-SINTESE.md`, all original files, `INDIC
 - `INDICE-REI.md`: every blocking/material objection with exact original/target line pointers; source-dependent decisive claims and verification limits.
 - `VERIFICACAO-MECANICA.md`, `REVIEWS.sha256` and `SINTESE.sha256`: transport, byte/hash and index checks.
 - The ZIP includes the 178 source files at their frozen inventory paths, plus the original source ZIP. The high-confidence private-key/token literal scan found zero matches. No live TonkAI checkout was opened or changed for this handoff.
+
+## Synthesis governance refresh — Law No. 6
+
+Local commit `49bf2e8` enacted Law No. 6 after dispatch/closure. The full current Laws 1–6 and `LABORATORIO.md` are included in the synthesis delivery. Opus applies Law 6 to the theoretical plan, including its precedence over test/measurement stages in templates and older advice. Originals, closed sets, objection IDs and severities are unchanged. No Laboratory request, test, publication or new participant phase was launched.

@@ -43,4 +43,4 @@ No switcher implementation or browser source was supplied in 006. Therefore ther
 | Work ownership, backup freshness and recovery outcomes | `P/normal.md:167–178`; `P/normal.md:217`; `P/sol.md:159`; `P/sol.md:168`; `P/sonnet.md:105` |
 | Authentication observation pause and excluded Codex identity | `P/sonnet.md:94`; `CONTEXTO.md:35–41` |
 
-Governance: the bundled `LEIS.md:43–69` supplies Laws 3–5. Original dispatches preceded Law 5; original packets remain frozen. See `VERIFICACAO-MECANICA.md` for capture/hash checks. No objection is resolved by this index.
+Governance: bundled `LEIS.md:43–81` supplies Laws 3–6. Dispatches preceded Laws 5–6; originals remain frozen. Law 6 now governs the synthesis: deliver the best theoretical plan without waiting for tests; any tests are separate Laboratory requests (`LABORATORIO.md`). See `VERIFICACAO-MECANICA.md` for capture/hash checks. No objection is resolved by this index.

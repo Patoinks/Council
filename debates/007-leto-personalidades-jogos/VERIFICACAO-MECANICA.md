@@ -8,7 +8,7 @@
 - Every indexed path and line interval exists and is nonempty; passage digests are recorded below.
 - Originals are not rewritten. All complete originals are supplied separately, and embedded in full in the synthesis packet.
 - Frozen review packet SHA-256: `ddd10efa27e964be7514592ce3885597eb9e5f4629ff57a9d79f0eb8cb3232fe`.
-- Current synthesis governance: Laws 1–5; Law 5 local commit `97ebe07`.
+- Current synthesis governance: Laws 1–6; Law 5 local commit `97ebe07`, Law 6 local commit `49bf2e8`.
 - No push, benchmark, tournament/training job, model execution, account switch or origin-checkout change was performed.
 
 Normal’s 53,480-character / 53,602-byte UTF-8 download matches the original rendered capture exactly (FNV-1a-64 `b13643120b7c5102`). The pre-existing fresh review was recovered, not rerun. Four skips are not completed reviews.

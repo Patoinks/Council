@@ -36,4 +36,4 @@ The Right Hand checked the source passages below mechanically. Source presence s
 | C12 | profile_selfplay includes learner updates despite its read-only description. Do not execute a helper by name alone; no helper was run for this handoff. | `S/profile_selfplay.py:1–2`; `S/profile_selfplay.py:65–87` |
 | C13 | All ten styles and difficulty separation are proposals, not implemented/validated personalities. Observable distinctness, strength retention and speed ceilings remain unknown. | `P/normal.md:419–613`; `P/sonnet.md:176–243`; `S/claudio_agent.py:301–340` |
 
-Governance: the bundled `LEIS.md:43–69` supplies Laws 3–5. Original dispatches preceded Law 5; original packets remain frozen. See `VERIFICACAO-MECANICA.md` for capture/hash checks. No objection is resolved by this index.
+Governance: bundled `LEIS.md:43–81` supplies Laws 3–6. Dispatches preceded Laws 5–6; originals remain frozen. Law 6 now governs the synthesis: deliver the best theoretical plan without waiting for tests; any tests are separate Laboratory requests (`LABORATORIO.md`). See `VERIFICACAO-MECANICA.md` for capture/hash checks. No objection is resolved by this index.

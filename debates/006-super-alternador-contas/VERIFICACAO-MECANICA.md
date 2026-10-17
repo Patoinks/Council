@@ -8,7 +8,7 @@
 - Every indexed path and line interval exists and is nonempty; passage digests are recorded below.
 - Originals are not rewritten. All complete originals are supplied separately, and embedded in full in the synthesis packet.
 - Frozen review packet SHA-256: `52870710d15c7f6b80ff0643f31839365f0f9c01ae311d6df92011be7ec8aa60`.
-- Current synthesis governance: Laws 1–5; Law 5 local commit `97ebe07`.
+- Current synthesis governance: Laws 1–6; Law 5 local commit `97ebe07`, Law 6 local commit `49bf2e8`.
 - No push, benchmark, tournament/training job, model execution, account switch or origin-checkout change was performed.
 
 Capture limits: Normal’s preserved pre-existing plain-text archive matches the rendered original after whitespace normalization (37,371 non-whitespace characters, FNV-1a-64 `90f4befb2bcdc47d`). Sonnet’s plain-text DOM capture matches byte-for-byte to the captured rendered text (15,400 characters, 15,528 UTF-8 bytes, FNV-1a-64 `844b67720489c81f`). This establishes content transport, not hidden provider Markdown identity. The wrong Normal/Sonnet-proposal duplicate and incomplete Claude Doc are excluded.
