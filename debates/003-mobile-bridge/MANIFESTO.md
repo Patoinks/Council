@@ -1,13 +1,13 @@
 # Manifest — Council 003 mobile bridge
 
 - **Debate:** 003-mobile-bridge.
-- **Phase and round:** independent proposals, round 01.
-- **Collection state:** all five proposals captured and closed together; review preparation follows this closure.
+- **Phase and round:** cross review, round 02; independent proposals closed.
+- **Collection state:** review preparation; all five proposals closed together in the commit below.
 - **Launch instruction:** Martim, "lança council", 2026-10-17 Europe/Lisbon.
 - **Context version:** v1, authorized for this launch.
-- **Packet file:** PACOTE-PROPOSTA.md v1.
+- **Packet file:** PACOTE-REVISAO.md v1 for round 02; PACOTE-PROPOSTA.md v1 remains unchanged.
 - **Source baseline:** 95d853ba7480260d5a9c4b8541b4b1b32a6d90f3; v2.1 governance was enacted in 389a4367de088361adcaeec271fb438c6fb0b492.
-- **Commit of closed proposal set:** the commit introducing the complete propostas/ directory; its exact ID will be recorded before review dispatch.
+- **Commit of closed proposal set:** 730f578ee8a32aa22a5d1310524cc990db26f683, published to origin/main.
 - **Deadline set by Martim:** none.
 
 ## Inventory and packet order
@@ -111,3 +111,17 @@ Argon and Sonnet are rendered-text captures: tables retain their rendered text o
 Sonnet's initial complete visible response put a Sources list after END-OF-CONTRIBUTION, so it failed the required final-line check. It is preserved unchanged as propostas/sonnet.incomplete.md, with its rendered HTML and link list. The operator requested: "Transport recovery only: your proposal placed a Sources list after END-OF-CONTRIBUTION. The required closing marker must be the final non-empty line. Resend the complete original proposal, preserving all substantive content and sources, with END-OF-PACKET-003-PROPOSAL-v1 and missing-sections declaration on the first line, and END-OF-CONTRIBUTION as the final non-empty line after all sources. Do not add new arguments, revise the proposal, or produce a review or synthesis. The original capture is preserved separately. Work in English." The recovery is a separate unedited original; no byte-identical resend is claimed. Reviewers receive both versions and their source-link exports.
 
 The browser clipboard initially returned an empty value and later a stale Normal export during a Sonnet Copy attempt. The stale duplicate was identified by its content and retained only in external transport staging, not accepted as Sonnet's contribution. Sonnet was then captured from its own rendered response container. The five accepted originals were copied from external staging together and hash-checked before publication.
+
+## Cross-review packet and collection — round 02
+
+The common PACOTE-REVISAO.md v1 contains the full Laws, rules, unchanged context, operating model, this manifest snapshot and contribution template, then all five closed proposals in order sol, normal, argon, sonnet, astra. It also includes the full sonnet.incomplete.md initial capture and the DOM-extracted source-link lists, followed by the unchanged fixed review prompt and END-OF-PACKET-003-REVIEW-v1. Each reviewer receives this same file, including its own proposal. The digest remains outside the packet in PACOTES.sha256. The proposal packet is never overwritten.
+
+Fresh conversations/executions are required for all five reviewers. The declared participant routing and CLI access instructions above apply unchanged. No peer review is supplied during this open round. Captures remain in the external staging directory until all five are complete or Martim explicitly decides an absence.
+
+| Participant | Requested review configuration | State |
+| --- | --- | --- |
+| sol | gpt-6.1-sol, effort xhigh; fresh ephemeral Codex CLI | Awaiting dispatch |
+| normal | GPT-6 Normal; new ChatGPT web conversation | Awaiting dispatch |
+| argon | Argon 4; new Gemini web conversation | Awaiting dispatch |
+| sonnet | Sonnet 5.5; new Claude web conversation | Awaiting dispatch |
+| astra | gpt-6-astra, effort high; fresh ephemeral Codex CLI | Awaiting dispatch |
