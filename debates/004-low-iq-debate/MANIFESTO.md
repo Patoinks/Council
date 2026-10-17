@@ -2,12 +2,12 @@
 
 - **Debate:** 004-low-iq-debate.
 - **Date:** 2026-10-17 Europe/Lisbon.
-- **Phase and round:** independent proposals / round 01.
-- **Collection state:** all four proposals captured and closed together; review preparation next.
+- **Phase and round:** cross review / round 02; independent proposals closed.
+- **Collection state:** review preparation; all four reviewers receive the complete closed proposal set.
 - **Context version:** v1, from Martim's requested title, roster and explicit training-throughput clarification.
 - **Governance source:** Council HEAD 073e4fa at preparation; full Laws/rules/prompts/templates frozen below.
-- **Packet:** PACOTE-PROPOSTA.md v1; digest only in PACOTES.sha256.
-- **Closed proposal commit:** the commit introducing the complete propostas/ directory; exact reference recorded before review dispatch.
+- **Packet:** PACOTE-REVISAO.md v1; proposal packet unchanged; digests only in PACOTES.sha256.
+- **Closed proposal commit:** 4517d08124e66a188eb53b6bcd0875f3f3756d3d, published to origin/main.
 - **Closed review commit:** not closed.
 - **Deadline set by Martim:** none.
 
@@ -66,3 +66,14 @@ Capture is the exact decoded final response string from agy's terminal result, o
 Gemini declares all packet sections read, no prior exposure or memory, and only view_file on its phase packet. Its event stream corroborates phase-packet view_file calls and no shell or UI tool use. DeepSeek declares all listed material read, four webfetch retrievals, no local tools, memory or peer exposure; its event stream corroborates webfetch activity and no shell or UI tool use. GLM and MiMo declare no tool use and no prior Council exposure; their event streams contain no tool_use events. GLM additionally declares unrelated general AGENTS.md context injected by the platform. These declarations remain attributed; fresh sessions do not establish that all provider-level memory is disabled.
 
 The real source inventory contains 36 files. GLM's declaration calls them 30, and DeepSeek's calls them 31 while both claim all listed sections and no unread material. Those inconsistent counts are preserved, not silently corrected in the originals. The common packet's full-source containment is independently checked; reading and comprehension are not independently attested. Every reviewer receives all originals, including these declarations and their stated missing-dependency limits. No source file is added mid-round to answer a participant's requested missing dependency.
+
+## Cross-review packet — round 02
+
+PACOTE-REVISAO.md v1 preserves the full Laws, rules, context v1, inventory, source notes and all 36 frozen source files, and adds the complete closed proposals in order gemini, glm, deepseek, mimo, including each reviewer's own proposal. The fixed review prompt is unchanged and ends with END-OF-PACKET-004-REVIEW-v1. Each reviewer runs in a new conversation/execution. The same declared ID/shared transport instruction applies without a preferred argument or optimization. No peer review is supplied during the open round; originals remain outside the checkout until closure.
+
+| Reviewer | Requested model/channel | State |
+| --- | --- | --- |
+| gemini | gemini-3.8-flash-high; agy | Awaiting review dispatch |
+| glm | opencode/glm-5.3-flash-free; OpenCode v2.0.32 | Awaiting review dispatch |
+| deepseek | opencode/deepseek-v4.1-flash-free; OpenCode v2.0.32 | Awaiting review dispatch |
+| mimo | opencode/mimo-v2.6-flash-free; OpenCode v2.0.32 | Awaiting review dispatch |
