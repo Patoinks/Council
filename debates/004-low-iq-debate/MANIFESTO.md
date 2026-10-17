@@ -3,7 +3,7 @@
 - **Debate:** 004-low-iq-debate.
 - **Date:** 2026-10-17 Europe/Lisbon.
 - **Phase and round:** cross review / round 02; independent proposals closed.
-- **Collection state:** review preparation; all four reviewers receive the complete closed proposal set.
+- **Collection state:** review collection open; common packet dispatched to all four reviewers in new executions.
 - **Context version:** v1, from Martim's requested title, roster and explicit training-throughput clarification.
 - **Governance source:** Council HEAD 073e4fa at preparation; full Laws/rules/prompts/templates frozen below.
 - **Packet:** PACOTE-REVISAO.md v1; proposal packet unchanged; digests only in PACOTES.sha256.
@@ -73,7 +73,9 @@ PACOTE-REVISAO.md v1 preserves the full Laws, rules, context v1, inventory, sour
 
 | Reviewer | Requested model/channel | State |
 | --- | --- | --- |
-| gemini | gemini-3.8-flash-high; agy | Awaiting review dispatch |
-| glm | opencode/glm-5.3-flash-free; OpenCode v2.0.32 | Awaiting review dispatch |
-| deepseek | opencode/deepseek-v4.1-flash-free; OpenCode v2.0.32 | Awaiting review dispatch |
-| mimo | opencode/mimo-v2.6-flash-free; OpenCode v2.0.32 | Awaiting review dispatch |
+| gemini | gemini-3.8-flash-high; agy | Review dispatched; pending capture |
+| glm | opencode/glm-5.3-flash-free; OpenCode v2.0.32 | Review dispatched; pending capture |
+| deepseek | opencode/deepseek-v4.1-flash-free; OpenCode v2.0.32 | Review dispatched; pending capture |
+| mimo | opencode/mimo-v2.6-flash-free; OpenCode v2.0.32 | Review dispatched; pending capture |
+
+The review packet was frozen and published in 641a26a. Full containment of the unchanged Laws, rules, context, source notes, all 36 source files and all four complete proposals was verified before dispatch, together with its external digest. All review executions use new working folders, the same routing and the same requested models as round 01. The previous proposal sessions are not resumed. No review original is present in the repository during this open collection.
