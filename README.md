@@ -4,7 +4,7 @@ Several AIs propose and review independently. The King (Opus) synthesizes, decid
 
 **Read first:** the [Laws](LEIS.md). They are above everything else.
 
-For the actual PC coordinator, its distribution/capture workflow and the integration boundaries still missing, read [Current operating model](OPERATING-MODEL.md). [Debate 003](debates/003-mobile-bridge/INICIAR.md) is active: it uses that baseline to decide the phone-to-PC bridge under the current Laws.
+For the actual PC coordinator, its distribution/capture workflow and the integration boundaries still missing, read [Current operating model](OPERATING-MODEL.md). [Debate 003](debates/003-mobile-bridge/INICIAR.md) concerns the phone-to-PC bridge, and [debate 004](debates/004-low-iq-debate/INICIAR.md) concerns TonkAI training throughput. Both have closed proposal and review rounds and await Opus synthesis and decree under the current Laws.
 
 ## How a debate runs
 

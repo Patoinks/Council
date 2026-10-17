@@ -2,13 +2,13 @@
 
 - **Debate:** 004-low-iq-debate.
 - **Date:** 2026-10-17 Europe/Lisbon.
-- **Phase and round:** cross review / round 02 closed; royal handoff preparation.
+- **Phase and round:** proposals and cross reviews closed; awaiting royal synthesis and decree.
 - **Collection state:** all four complete reviews captured; originals published together as a closed set.
 - **Context version:** v1, from Martim's requested title, roster and explicit training-throughput clarification.
 - **Governance source:** Council HEAD 073e4fa at preparation; full Laws/rules/prompts/templates frozen below.
-- **Packet:** PACOTE-REVISAO.md v1; proposal packet unchanged; digests only in PACOTES.sha256.
+- **Packet:** PACOTE-SINTESE.md v1; proposal and review packets unchanged; digests only in PACOTES.sha256.
 - **Closed proposal commit:** 4517d08124e66a188eb53b6bcd0875f3f3756d3d, published to origin/main.
-- **Closed review commit:** the commit adding the complete review set; its exact hash will be recorded in the synthesis handoff.
+- **Closed review commit:** 1ca5a8893ecc178fc6f45b1aa494018e97aaf9d2, published to origin/main.
 - **Deadline set by Martim:** none.
 
 ## Roles and source scope
@@ -98,3 +98,9 @@ All reviewers declare the full 36-file inventory and all four proposals read, an
 MiMo declares unrelated injected AGENTS.md context, no cross-conversation memory, own-proposal exposure, packet reads, five PyTorch webfetch calls returning truncated material and two cancelled websearch attempts. The event stream corroborates five completed webfetch calls and two cancelled searches. It also records three denied reads (the staging directory, its working directory and an unprovided CONTEXTO.md path), one out-of-range packet read, and subsequent successful reads of its own review packet. No successful unrelated local read, shell action, edit, delegation or UI action is observed. Restrictions were kept in place. The original declaration is preserved without silently adding those failed attempts to it.
 
 Gemini's original includes temporary file:/// links to the review packet with model-authored line ranges; those links are preserved and their ranges are not independently verified. PACOTE-REVISAO.md and all source originals remain available in the record. The synthesis packet includes every complete original and MiMo's incomplete intermediate capture; no operator argument or optimization choice replaces them. Objection severity and disposition are for the King's full ledger under the fixed synthesis prompt.
+
+## Royal handoff
+
+PACOTE-SINTESE.md v1 carries the complete frozen Laws, rules, context v1, source inventory, observations, manifest, all 36 source/evidence files, all four proposals, all four complete reviews, MiMo's incomplete intermediate capture, the royal templates and the unchanged fixed synthesis prompt. Its final non-empty line is END-OF-PACKET-004-SYNTHESIS-v1. Its own digest is external in PACOTES.sha256. No preferred plan or additional technical instruction is supplied by the operator.
+
+HANDOFF-OPUS.md gives Martim the attachment, exact routing message and return procedure. Opus receipt, synthesis and decree are pending. No code optimization, training restart, performance campaign or achieved speedup follows from closing this advisory record. No missing dependency is added after freezing the common evidence. Implementation requires the King's attributable decree and any sovereign amendment.
