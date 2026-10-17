@@ -79,3 +79,14 @@ When Martim asks for a plan, the Council delivers the best plan in theory.
 - An estimate is stated as an estimate, with its reasoning. «Unknown» is not an answer: give the best theoretical reading.
 - Tests exist only in the Laboratory (`LABORATORIO.md`), as separate requests. Their results inform later decisions; they are not part of the plan.
 - Where `REGRAS.md` or a template asks for acceptance tests or measurement stages in a plan, this Law prevails.
+
+### Law No. 7 — Ask for missing data before every Council
+
+*Enacted by Martim on 2026-10-18: «O Council deve fazer um prompt teste com o Normal, a perguntar "precisas de mais algum dado", se sim, oferece o dado e faz o council direito».*
+
+Before a proposal packet is frozen, the Right Hand runs a data check.
+
+- It sends the draft packet to GPT-6 Normal in a fresh conversation, with one question: «Do you need any more data to answer this as well as possible? List exactly what and why.» If Normal is unavailable, Law No. 4 applies and the check goes to the next available participant.
+- The Right Hand supplies every requested item it can obtain (code, logs, measurements already on disk, configuration). Only what Martim alone knows is asked of Martim.
+- The context and the packet are updated with that data, then frozen and dispatched. The manifest lists what was asked, what was added and what could not be obtained.
+- The data-check answer is not a proposal and that conversation is not reused. Every participant, Normal included, still proposes in a fresh conversation.
