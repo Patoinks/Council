@@ -55,3 +55,15 @@ Martim uses several accounts in every service, and they differ across his device
 *Enacted by Martim on 2026-10-17: «Sem quota creditos ou bug = skip».*
 
 When a participant cannot take part because its account has no quota or credits, or because its interface, CLI or model fails with a bug, the operator skips it for that phase and continues with the participants that answered. Do not wait for a quota reset, do not assign a substitute, and do not ask Martim to decide the absence. The manifest records the skip, the participant and the observed error. A late answer from a skipped participant is an addendum outside the closed set.
+
+### Law No. 5 — The King saves his tokens
+
+*Enacted by Martim on 2026-10-18: «tu como Rei poupas ao máximo sempre os teus tokens».*
+
+The King always spends as few tokens as possible. This is the explicit request that Law No. 1 requires for optimizing the Council's own resources.
+
+- The Right Hand prepares the King's input: the synthesis packet, plus a short index of every blocking and material objection ID with file and line pointers to the passages it depends on.
+- The King reads targeted passages, not whole packets or source trees. He reads an original in full only when a decision depends on it, and never reads the same file twice.
+- The Right Hand does all execution, waiting, polling, dispatch, capture and mechanical checks. The King does not watch runs or retry tools.
+- The King writes briefly: the plan and decree keep every required section and every objection ID's disposition, with no repetition.
+- This Law never removes a requirement of `REGRAS.md` that a decision depends on. When saving tokens conflicts with that, the King says so in one line and keeps the requirement.
