@@ -3,11 +3,12 @@
 - **Debate:** 004-low-iq-debate.
 - **Date:** 2026-10-17 Europe/Lisbon.
 - **Phase and round:** independent proposals / round 01.
-- **Collection state:** open; complete common proposal packet dispatched to all four requested models.
+- **Collection state:** all four proposals captured and closed together; review preparation next.
 - **Context version:** v1, from Martim's requested title, roster and explicit training-throughput clarification.
 - **Governance source:** Council HEAD 073e4fa at preparation; full Laws/rules/prompts/templates frozen below.
 - **Packet:** PACOTE-PROPOSTA.md v1; digest only in PACOTES.sha256.
-- **Closed proposal/review commits:** not closed.
+- **Closed proposal commit:** the commit introducing the complete propostas/ directory; exact reference recorded before review dispatch.
+- **Closed review commit:** not closed.
 - **Deadline set by Martim:** none.
 
 ## Roles and source scope
@@ -26,10 +27,10 @@ No contribution is published while its round is open. Missing markers produce se
 
 | Participant | Requested model | Actual readiness evidence | Phase state |
 | --- | --- | --- | --- |
-| gemini | gemini-3.8-flash-high | agy catalogue plus READY-004 from a separate probe | Proposal dispatched; pending receipt/capture |
-| glm | opencode/glm-5.3-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Proposal dispatched; pending receipt/capture |
-| deepseek | opencode/deepseek-v4.1-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Proposal dispatched; pending receipt/capture |
-| mimo | opencode/mimo-v2.6-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Proposal dispatched; pending receipt/capture |
+| gemini | gemini-3.8-flash-high | agy catalogue plus READY-004 from a separate probe | Complete proposal; agy SUCCESS; exit 0 |
+| glm | opencode/glm-5.3-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Complete proposal; CLI exit 0 |
+| deepseek | opencode/deepseek-v4.1-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Complete proposal; CLI exit 0 |
+| mimo | opencode/mimo-v2.6-flash-free | OpenCode catalogue plus READY-004 from a separate probe | Complete proposal; CLI exit 0 |
 
 The actual OpenCode executable is the desktop app's cached v2.0.32 CLI. The bundled v2.0.16 CLI initially returned an empty catalogue; later discovery listed the free models. No missing catalogue or empty auth list is treated as proof that free models need an account. A readiness test was rerun with v2.0.32 after verifying its advisory profile, rather than assuming the older CLI loaded that profile.
 
@@ -48,3 +49,20 @@ No fresh performance baseline has been measured. The acceptance campaign/checkpo
 The proposal packet was frozen in 7af4c94, with original-line-ending check configuration corrected in 609daa3. Before dispatch, the packet's external digest and complete containment of all 36 source files, Laws, rules, unchanged context and source notes passed verification. The operator corrected a PowerShell verifier parsing error before distribution; no source evidence or packet payload was changed by that correction.
 
 The complete packet travels through stdin as an agy user event and through OpenCode's documented file attachment. Each participant receives the same packet bytes and the declared ID/shared transport instruction. Proposal working folders are new, external to the Council checkout, and initially contain only that packet. CLI metadata and responses are captured outside both source and Council checkouts. Actual terminal status, session references, tool activity, reading/exposure declarations and both markers remain to be recorded on collection.
+
+## Proposal closure — round 01
+
+All four requests completed without substituting a model. Each original starts with END-OF-PACKET-004-PROPOSAL-v1 and Missing sections: none; each ends with END-OF-CONTRIBUTION. The originals were copied unchanged from external staging only after the entire set was present and their hashes were checked. No transport recovery was necessary for a Council proposal.
+
+| Participant | Original | SHA-256 | Actual session |
+| --- | --- | --- | --- |
+| gemini | propostas/gemini.md | 11386321dd88b8d7d7a05027728c1c9c6f81363991a18450bcbecf4daed5def4 | 5dbd978b-17b7-4b09-9fa3-d9eb7d73df7b |
+| glm | propostas/glm.md | 722ea64fef8015d0f0585968d8450c5ff01d3790f901c6987c528b7df92bfc71 | ses_eb739ee20ffeO4X5bnnLdeTfWP |
+| deepseek | propostas/deepseek.md | d3589804d3f5fddaa7c80f854cd9d456f3d0e3992041c1b30f1362b61787a9fe | ses_eb739ee3bffezqp0qh6lUc77vd |
+| mimo | propostas/mimo.md | 79cf0f7a88b4c10a39f71ecc0488fe9e47a6d5f1be3ee8a9717a9fdd777e9907 | ses_eb739ee48ffeORCDC2wb8xSt3q |
+
+Capture is the exact decoded final response string from agy's terminal result, or OpenCode's final text part, written as UTF-8 without body edits, trimming or newline normalization. Raw events, stderr and all OpenCode text parts remain in external staging. capturas/proposal-<id>-receipt.json records the terminal execution/capture metadata. These are operational receipts, not attestation of provider-internal model identity.
+
+Gemini declares all packet sections read, no prior exposure or memory, and only view_file on its phase packet. Its event stream corroborates phase-packet view_file calls and no shell or UI tool use. DeepSeek declares all listed material read, four webfetch retrievals, no local tools, memory or peer exposure; its event stream corroborates webfetch activity and no shell or UI tool use. GLM and MiMo declare no tool use and no prior Council exposure; their event streams contain no tool_use events. GLM additionally declares unrelated general AGENTS.md context injected by the platform. These declarations remain attributed; fresh sessions do not establish that all provider-level memory is disabled.
+
+The real source inventory contains 36 files. GLM's declaration calls them 30, and DeepSeek's calls them 31 while both claim all listed sections and no unread material. Those inconsistent counts are preserved, not silently corrected in the originals. The common packet's full-source containment is independently checked; reading and comprehension are not independently attested. Every reviewer receives all originals, including these declarations and their stated missing-dependency limits. No source file is added mid-round to answer a participant's requested missing dependency.

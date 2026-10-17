@@ -2,7 +2,7 @@
 
 Martim's test with Gemini 3.8 Flash through agy and GLM 5.3 Flash, DeepSeek V4.1 Flash and MiMo V2.6 Flash through OpenCode CLI. The topic is training: more useful positions and optimizer updates per second while preserving learning semantics and checkpoint continuity.
 
-Status: independent proposal collection open. The complete common source packet has been dispatched to all four models. Reviews start only after the proposal set closes. No training, benchmark campaign or implementation is launched by this test.
+Status: all four independent proposals are complete and closed together. Cross-review preparation follows this closure. No training, benchmark campaign or implementation is launched by this test.
 
 - [Context and requirements](CONTEXTO.md)
 - [Manifest and capture record](MANIFESTO.md)
