@@ -39,3 +39,19 @@ The Council must help Martim optimize his time and resources when he explicitly 
 - **The King is Opus.** The King synthesizes, decides the plan and issues the decree. There is no vote: participants advise, the King decides, and the decree states its reasons.
 - **The Right Hand is Codex, model 6.1 Sol, reasoning effort xHigh.** The Right Hand is the operator: it builds the packets, carries them to the participants, captures and commits the answers, and implements what the King decrees. The King delegates execution to the Right Hand and reviews its work.
 - Participants propose and review. They do not decide, and they do not debate this Law.
+
+### Law No. 3 — Martim uses multiple accounts
+
+*Enacted by Martim on 2026-10-17: «Martim usa multicontas em tudo, não assumir nada que envolva isso».*
+
+Martim uses several accounts in every service, and they differ across his devices. Assume nothing about which account is used where.
+
+- No design, step or check may depend on two devices, apps or services sharing the same account, or on a conversation, connector, sync or setting carrying over between accounts.
+- Where an identity must be checked, use a list of authorized identities that Martim configures, which may hold one or several. Never assume a single one.
+- Account identity is never evidence that two actions came from the same session, device or conversation.
+
+### Law No. 4 — No quota, no credits or a bug: skip
+
+*Enacted by Martim on 2026-10-17: «Sem quota creditos ou bug = skip».*
+
+When a participant cannot take part because its account has no quota or credits, or because its interface, CLI or model fails with a bug, the operator skips it for that phase and continues with the participants that answered. Do not wait for a quota reset, do not assign a substitute, and do not ask Martim to decide the absence. The manifest records the skip, the participant and the observed error. A late answer from a skipped participant is an addendum outside the closed set.
