@@ -40,6 +40,6 @@ O registo é manual. Depois de guardar uma resposta, acrescenta o caminho, data 
 
 ## Síntese
 
-- Sintetizador: por escolher.
+- Sintetizador: **Opus 5.5** (`opus-5-5`), designado por Martim em 2026-10-17 para produzir a síntese final após o fecho da ronda 02. Esta designação não antecipa nem substitui as revisões restantes.
 - Plano final: ainda não produzido.
 - Alterações ao Council v1 aprovadas por este debate: nenhuma.
