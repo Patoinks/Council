@@ -4,7 +4,7 @@ Version v1; prepared 2026-10-18 Europe/Lisbon. Closed review commit: `bbe4dcbd89
 
 Start with the adjacent `INDICE-REI.md` under Law No. 5. The ZIP supplies every original as a separate file at the indexed paths. This packet retains all originals in full; the King reads targeted passages as required by Law 5. Code-dependent checks and limits are in the index and mechanical report. The operator assigns no objection dispositions and writes no plan or decree.
 
-Current Law No. 6 applies to the synthesis and prevails over templates or original advice that would make the plan wait for tests. Deliver the best theoretical plan; any tests belong to the separate Laboratory. Earlier originals and their objection IDs remain unchanged.
+Current Law No. 6 applies to the synthesis and prevails over templates or original advice that would make the plan wait for tests. Deliver the best theoretical plan; any tests belong to the separate Laboratory. Law No. 7 was enacted after the proposal packets were frozen; the manifest does not claim a retroactive data check. Earlier originals and their objection IDs remain unchanged. The bundled governance is the immutable `7dd7539` snapshot (Laws 1–7), captured after the rounds closed.
 
 ## Ordered sections
 
@@ -109,6 +109,17 @@ When Martim asks for a plan, the Council delivers the best plan in theory.
 - An estimate is stated as an estimate, with its reasoning. «Unknown» is not an answer: give the best theoretical reading.
 - Tests exist only in the Laboratory (`LABORATORIO.md`), as separate requests. Their results inform later decisions; they are not part of the plan.
 - Where `REGRAS.md` or a template asks for acceptance tests or measurement stages in a plan, this Law prevails.
+
+### Law No. 7 — Ask for missing data before every Council
+
+*Enacted by Martim on 2026-10-18: «O Council deve fazer um prompt teste com o Normal, a perguntar "precisas de mais algum dado", se sim, oferece o dado e faz o council direito».*
+
+Before a proposal packet is frozen, the Right Hand runs a data check.
+
+- It sends the draft packet to GPT-6 Normal in a fresh conversation, with one question: «Do you need any more data to answer this as well as possible? List exactly what and why.» If Normal is unavailable, Law No. 4 applies and the check goes to the next available participant.
+- The Right Hand supplies every requested item it can obtain (code, logs, measurements already on disk, configuration). Only what Martim alone knows is asked of Martim.
+- The context and the packet are updated with that data, then frozen and dispatched. The manifest lists what was asked, what was added and what could not be obtained.
+- The data-check answer is not a proposal and that conversation is not reused. Every participant, Normal included, still proposes in a fresh conversation.
 
 
 ## File: REGRAS.md
@@ -384,9 +395,9 @@ The Right Hand prepares the full `PACOTE-SINTESE.md`, all original files, `INDIC
 - `VERIFICACAO-MECANICA.md`, `REVIEWS.sha256` and `SINTESE.sha256`: transport, byte/hash and index checks.
 - The original Sonnet proposal had CRLF line endings; an earlier Git commit normalized them. The delivery restores its untouched original bytes to Git, matching the original receipt hash. Scoped contribution attributes prevent future normalization; no text was revised.
 
-## Synthesis governance refresh — Law No. 6
+## Final synthesis governance snapshot — Laws No. 6 and 7
 
-Local commit `49bf2e8` enacted Law No. 6 after dispatch/closure. The full current Laws 1–6 and `LABORATORIO.md` are included in the synthesis delivery. Opus applies Law 6 to the theoretical plan, including its precedence over test/measurement stages in templates and older advice. Originals, closed sets, objection IDs and severities are unchanged. No Laboratory request, test, publication or new participant phase was launched.
+Local commits `49bf2e8` and `7dd7539` enacted Laws 6 and 7 after dispatch/closure. The full Laws 1–7 and `LABORATORIO.md` from immutable commit `7dd7539` are included in the final delivery. Law 6 governs the theoretical synthesis and prevails over template/older-advice test stages. Law 7 applies before freezing proposal packets; these packets were already frozen, so no retroactive data check is claimed and no round was reopened. Originals, closed sets, objection IDs and severities are unchanged. No Laboratory request, test, publication or new participant phase was launched.
 
 
 ## Original file: proposals/astra.md
