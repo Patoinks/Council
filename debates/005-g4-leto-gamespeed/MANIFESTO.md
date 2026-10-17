@@ -2,8 +2,8 @@
 
 - **Debate:** 005-g4-leto-gamespeed.
 - **Date:** 2026-10-17 Europe/Lisbon.
-- **Phase and round:** proposal resubmission after sovereign clarifications.
-- **Collection state:** v2 proposal attempt superseded. The v3 proposals from Sol, GPT-6 Normal and Sonnet 5.5 High are complete in their source conversations; Astra High is complete and captured in the external staging directory. The exact browser originals remain in their handoff-marked chats pending local archival. Argon is blocked at a subscription upsell and did not receive v3; no substitute is assigned. The proposal set is not closed pending Martim’s decision on Argon’s absence.
+- **Phase and round:** proposal round closed; review round in progress.
+- **Collection state:** proposal v2 is superseded. The closed v3 set contains Sol, GPT-6 Normal, Sonnet 5.5 High and Astra High. Martim directed the Council to advance without Argon; no substitute is assigned. The frozen review packet contains the same four proposals. Review collection is currently paused by model usage limits and browser access settings; no review files have been collected into the repository.
 - **Context version:** v2.
 - **Governance source:** current Council `LEIS.md` (Law No. 1 amended by Martim on 2026-10-17) and `REGRAS.md` v2.1, copied in full in the v3 packet.
 - **Source evidence:** 56 exact working-file copies across the three source checkouts, plus three hash-only exclusions listed in `SOURCE-EXCLUDED.md`.
@@ -31,7 +31,7 @@ The source checkouts have dirty or untracked work. The snapshot contains selecte
 - **Routing:** `Participant ID: <id>. Follow the fixed phase prompt in the attached packet. Work in English.`
 - **Addition to fixed prompt:** none beyond participant ID and English instruction.
 
-All available advisers receive the same frozen v3 packet in a new conversation/execution. Each must declare prior exposure to the superseded v2 attempt where applicable. Reviews receive the complete closed proposal set, including their own proposal, and no peer review. Preserve the exact captured originals outside the checkout until each round closes. Argon availability is pending; no substitute is assigned.
+Each reviewer receives the same frozen review packet in a new conversation/execution. Each must declare prior exposure to the superseded v2 attempt where applicable. Reviews contain the complete closed proposal set, including the reviewer's own proposal, and no peer review. Preserve the exact captured originals outside the checkout until the review round closes.
 
 ## Attribution and independence
 
