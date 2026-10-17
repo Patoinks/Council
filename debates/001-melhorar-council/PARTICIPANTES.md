@@ -5,7 +5,7 @@ Contexto: v1, de 2026-10-16. Os nomes abaixo são os fornecidos por Martim. A id
 | Identificador | Nome indicado | Proposta | Revisão |
 | --- | --- | --- | --- |
 | `gemini-argon-4` | Gemini Argon 4 | [Recebida](propostas/gemini-argon-4.md), 2026-10-17, pacote v1 | [Recebida](revisoes/gemini-argon-4.md), 2026-10-17 |
-| `opus-5-5` | Opus 5.5 | [Recebida](propostas/opus-5-5.md), 2026-10-17, pacote v1 | Revisão da ronda 02 por recolher |
+| `opus-5-5` | Opus 5.5 | [Recebida](propostas/opus-5-5.md), 2026-10-17, pacote v1 | [Recebida](revisoes/opus-5-5.md), 2026-10-17 |
 | `chatgpt-6-1-sol` | ChatGPT 6.1 Sol | [Recebida; influência prévia declarada](propostas/chatgpt-6-1-sol.md), 2026-10-17, pacote v1 | [Recebida](revisoes/chatgpt-6-1-sol.md), 2026-10-17 |
 | `chatgpt-6-astra` | ChatGPT 6 Astra | [Recebida](propostas/chatgpt-6-astra.md), 2026-10-17, pacote v1 | [Recebida](revisoes/chatgpt-6-astra.md), 2026-10-17 |
 | `chatgpt-6-normal` | ChatGPT 6 Normal | [Recebida](propostas/chatgpt-6-normal.md), 2026-10-17, contexto v1 | [Recebida](revisoes/chatgpt-6-normal.md), 2026-10-17 |
@@ -35,12 +35,13 @@ O registo é manual. Depois de guardar uma resposta, acrescenta o caminho, data 
 - Estado: **aberta** em 2026-10-17.
 - Distribuição obrigatória: mesmo contexto v1, regras e prompt de revisão, e as cinco propostas do conjunto fechado. Não distribuir revisões já recebidas aos revisores seguintes.
 - Revisões esperadas: `revisoes/gemini-argon-4.md`, `revisoes/opus-5-5.md`, `revisoes/chatgpt-6-1-sol.md`, `revisoes/chatgpt-6-astra.md`, `revisoes/chatgpt-6-normal.md`.
-- Revisões recebidas: **4 de 5**, com ficheiros efetivamente presentes em `revisoes/`; falta `opus-5-5`.
+- Revisões recebidas: **5 de 5**, com ficheiros efetivamente presentes em `revisoes/`. A condição de fecho da ronda 02 está cumprida, sem ausências.
+- `opus-5-5`: revisão produzida em 2026-10-17 no Claude Code (aplicação desktop), que indica o modelo `claude-opus-5-5`; o rótulo visível na interface não foi confirmado. Leu os originais do clone de `main` em `5ee5a1d`, com blobs das propostas iguais aos do conjunto congelado `2a49da8703f99a03e112e06b3560730463e9fdb8`. Declara ser autor da proposta `opus-5-5` e sintetizador designado, e ter tido as outras quatro revisões no clone sem abrir o conteúdo antes de registar a sua no commit `40563b9`.
 - `gemini-argon-4`: revisão fornecida e atribuída ao Argon por Martim em 2026-10-17. Foi extraída integralmente do texto enviado a partir de «Revisão Independente — Ronda 02 (Debate 001: Melhorar o Council)», excluindo apenas o pacote inicial e o texto de enquadramento anteriores. Contexto v1, pacote `revisão-r02-v1`, conjunto congelado `2a49da8703f99a03e112e06b3560730463e9fdb8`. O cabeçalho original declara ter assumido o identificador por faltar a linha de atribuição e indica o modelo como não visível; o texto foi preservado sem corrigir essa declaração.
 - `chatgpt-6-1-sol`: revisão produzida em 2026-10-17, sobre o pacote `revisão-r02-v1` e as cinco propostas congeladas no commit `2a49da8703f99a03e112e06b3560730463e9fdb8`. Inclui autocrítica, conserva a declaração de exposição prévia na proposta inicial e declara não ter consultado o conteúdo de revisões de outros participantes.
 
 ## Síntese
 
 - Sintetizador: **Opus 5.5** (`opus-5-5`), designado por Martim em 2026-10-17 para produzir a síntese final após o fecho da ronda 02. Esta designação não antecipa nem substitui as revisões restantes.
-- Plano final: ainda não produzido.
+- Plano final: [PLANO-FINAL.md](PLANO-FINAL.md), entregue em 2026-10-17 (commit `06eb3cf`), com o estado **Proposto para revisão**. Usa as cinco propostas e as cinco revisões. Aguarda a auditoria por um participante diferente do Opus (Anexo B do plano) e a decisão de Martim em `DECISAO.md`.
 - Alterações ao Council v1 aprovadas por este debate: nenhuma.
