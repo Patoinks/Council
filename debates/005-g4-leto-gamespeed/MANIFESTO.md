@@ -3,7 +3,7 @@
 - **Debate:** 005-g4-leto-gamespeed.
 - **Date:** 2026-10-17 Europe/Lisbon.
 - **Phase and round:** proposal round closed; review round in progress.
-- **Collection state:** proposal v2 is superseded. The closed v3 set contains Sol, GPT-6 Normal, Sonnet 5.5 High and Astra High. Martim directed the Council to advance without Argon; no substitute is assigned. The frozen review packet contains the same four proposals. GPT-6 Normal's complete review is captured in external staging and remains outside the repository. Sol and Astra CLI reviews and the Sonnet review are pending service usage resets; the remaining reviews will be committed together when the round closes.
+- **Collection state:** proposal v2 is superseded. The closed v3 set contains Sol, GPT-6 Normal, Sonnet 5.5 High and Astra High. Martim directed the Council to advance without Argon; no substitute is assigned. The frozen review packet contains the same four proposals. Complete GPT-6 Normal, Sol and Astra reviews are captured in external staging and remain outside the repository. The Sonnet 5.5 High review packet and routing prompt are prepared in a new Claude conversation, but the account is out of messages until 3:30 PM Europe/Lisbon. No review files will enter the repository until the round is closed; collected reviews will be committed together.
 - **Context version:** v2.
 - **Governance source:** current Council `LEIS.md` (Law No. 1 amended by Martim on 2026-10-17) and `REGRAS.md` v2.1, copied in full in the v3 packet.
 - **Source evidence:** 56 exact working-file copies across the three source checkouts, plus three hash-only exclusions listed in `SOURCE-EXCLUDED.md`.
