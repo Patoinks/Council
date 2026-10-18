@@ -6,7 +6,7 @@ The Laboratory is where the Council asks for a test and a tester AI runs it and 
 
 - **Requester:** any Council participant, the King or Martim. A participant asks for a test in its proposal or review, in a section `## Test requests`.
 - **Right Hand (Codex):** turns each request into a file in `laboratorio/pedidos/`, assigns a tester and dispatches it.
-- **Tester:** a low-cost AI with execution rights on a separate copy of the code, for example Gemini 3.8 Flash (agy) or MiMo 2.6 Flash (OpenCode). Law No. 4 applies: no quota, credits or a bug, then the next tester.
+- **Tester:** a low-cost AI with execution rights on a separate copy of the code, Gemini 3.8 Flash through agy. Law No. 4 applies: no quota, credits or a bug, then the next tester.
 - **King:** reads only the result summaries in the synthesis (Law No. 5).
 
 ## Flow

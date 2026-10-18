@@ -2,8 +2,8 @@
 
 - **Requested by:** <participant / King / Martim>, in <debate and file>
 - **Debate:** <NNN-name>
-- **Tester assigned:** <model and channel>
-- **Code under test:** <repository, commit or snapshot>
+- **Tester assigned:** gemini
+- **Working copy:** <local git repository path @ commit, or none>
 
 ## Question
 
