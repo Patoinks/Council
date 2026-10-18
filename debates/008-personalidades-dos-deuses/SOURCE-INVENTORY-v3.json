@@ -1,0 +1,188 @@
+[
+  {
+    "path": "tonkai/releases/g4-leto/README.md",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\README.md",
+    "bytes": 3340,
+    "sha256": "65957c6985ee2715a9c6c27b173a18e8e25419ce3491c1fec15ede7e24281389"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/claudio_agent.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\claudio_agent.py",
+    "bytes": 50763,
+    "sha256": "31aedceb35b42a7f4be497f2f7e18716179c045543ddba6c37ed695325b13481"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/claudio_load.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\claudio_load.py",
+    "bytes": 3772,
+    "sha256": "c1c276e82366162f9370b33a25e8d14531f8be5378f3ce3b39b03dbcceaef689"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/claudio_net.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\claudio_net.py",
+    "bytes": 4132,
+    "sha256": "0796d8e58bebfacf00e5f042d4502e02dbbec6a64203c458426d6e03627d83f3"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/pawnomics.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\pawnomics.py",
+    "bytes": 10034,
+    "sha256": "02d29d67ab94561cf9b2b43719c2f1c2c7ab2b2b3194d74b7f0e24a55b2e2c6d"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/abertura.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\abertura.py",
+    "bytes": 41016,
+    "sha256": "cb6548f3ae4695c24148e581ef5570187d703ce7c6052234f1a8e350485ac0e6"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/uci.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\uci.py",
+    "bytes": 2707,
+    "sha256": "609a1ad5a99d5efc9be41f3f77fca103dd84823c6c44e468e61cc98a41102177"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/base/tonkai/encoding.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\base\\tonkai\\encoding.py",
+    "bytes": 7338,
+    "sha256": "757207b2a6638d2476c06f0b0c27f4c7dc637b0e1288beafae8d540201552e04"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/base/tonkai/cognitive_memory.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\base\\tonkai\\cognitive_memory.py",
+    "bytes": 12742,
+    "sha256": "8508ebb0412d9d976985e2a2a46ec6068a6dbb1c390633fefd68c0cec35d2426"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/personalities/nezha.json",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\personalities\\nezha.json",
+    "bytes": 395,
+    "sha256": "3227073850f00ed011a0b373cdc17aea91dcc296b45c65c28b01f79ea0c22db8"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/src/tonkai/personality.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\src\\tonkai\\personality.ts",
+    "bytes": 3255,
+    "sha256": "678b57a88179ea5a7c0db791c22fe7ea1b8bb1ff58310c9af59cf74d9980d7de"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/src/tonkai/g16v2.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\src\\tonkai\\g16v2.ts",
+    "bytes": 33201,
+    "sha256": "dba0b7b0605a95e79d8cedc4de852d44582dcbc5a91b33b8e320cbcbef6e70a6"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/src/tonkai/letoThinking.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\src\\tonkai\\letoThinking.ts",
+    "bytes": 7742,
+    "sha256": "d5586f6966b1e9d2c823a7e73c1b1109ce1cb80778258c0cfe041a0b2414fbc5"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/src/tonkai/letoTimedSearch.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\src\\tonkai\\letoTimedSearch.ts",
+    "bytes": 2339,
+    "sha256": "6c1e21d234f4ed1aa49eb0faf87851a9d2099f223ef706391acfbcdc81820e39"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/src/tonkai/kingSafety.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\src\\tonkai\\kingSafety.ts",
+    "bytes": 6591,
+    "sha256": "cbc0f94484b480fd9cccb223c4ea42cb0188dd3fcf44fd5bdb8a3fabc8fde109"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/src/tonkai/network.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\src\\tonkai\\network.ts",
+    "bytes": 8441,
+    "sha256": "82e0df18adb1a1db149c1509a5e647139f3b37603193d4534b2fe912cb2317e0"
+  },
+  {
+    "path": "site/src/tonkai/pantheon.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\ANW-TONKAI-RELEASE-20260922\\src\\tonkai\\pantheon.ts",
+    "bytes": 5362,
+    "sha256": "2b22ec0b83696fd88b256455965a82301ccbe4bc3c258cffab4d3becf0484ad5"
+  },
+  {
+    "path": "site/src/tonkai/campaign.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\ANW-TONKAI-RELEASE-20260922\\src\\tonkai\\campaign.ts",
+    "bytes": 3122,
+    "sha256": "348bc1416d7f6d756444dbe36e2185f019fd6e53d9d9256bbd0da973ec923ebc"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/fast/claudio_fast.cpp",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\fast\\claudio_fast.cpp",
+    "bytes": 108075,
+    "sha256": "99b14a41b186434973e7770c854db8d7ddc1b7e3d9dd9b8868bb351227cc89db"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/base/tonkai_fast/fast.cpp",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\base\\tonkai_fast\\fast.cpp",
+    "bytes": 76684,
+    "sha256": "4ae2984d06ae90dc0117ecf4e4516efb3551af4f8ef9a98939d5963cd1922204"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/base/tonkai/temporal_model.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\base\\tonkai\\temporal_model.py",
+    "bytes": 9829,
+    "sha256": "ce36467d7f5c079103db30c9a746b3da2594d8bd65d3c8d702b792012089af42"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/base/tonkai/king_safety_model.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\base\\tonkai\\king_safety_model.py",
+    "bytes": 4909,
+    "sha256": "4bdd0f8baf8cfea12e32eea356be84dd45bb2c783d434c5577da233ffffea365"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/base/tonkai/king_safety.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\base\\tonkai\\king_safety.py",
+    "bytes": 4825,
+    "sha256": "ba292d12b0d11c9a010b5bf4f5816ebb36a024be9fd20224dc35e887d3a34ff4"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/base/tonkai/fast_rules.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\base\\tonkai\\fast_rules.py",
+    "bytes": 3684,
+    "sha256": "c4c716beb166d6ebf247c566f27f7999aec14d53b8481af4f7006330d5a049a3"
+  },
+  {
+    "path": "evidence/web-export-configuration-metadata.json",
+    "source": "Whitelisted extraction from existing web export manifest, provenance inside",
+    "bytes": 3992,
+    "sha256": "eaa387dc0b440692ebe8d3658ca092290ca8de7451218e37b6c2b715ae059e92"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/src/tonkai/leto.worker.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\src\\tonkai\\leto.worker.ts",
+    "bytes": 2866,
+    "sha256": "677d4187ef80a03a0164b995e51caec4316dd6abd11b46e36508602d45e9a5b7"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/src/tonkai/letoThinkingProtocol.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\src\\tonkai\\letoThinkingProtocol.ts",
+    "bytes": 816,
+    "sha256": "96c2e2b17805280482ea6d26e2b0151397ddf84b27ec5aebe8e6d7753419ca83"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/src/tonkai/temporal.ts",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\src\\tonkai\\temporal.ts",
+    "bytes": 26572,
+    "sha256": "2838bc5e816a43975626541c56304b391124ab26cee4f6bc6234f3a268272002"
+  },
+  {
+    "path": "tonkai/releases/g4-nezha/web/native/g4-rules.cpp",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\native\\g4-rules.cpp",
+    "bytes": 104115,
+    "sha256": "b8ea93e8cecf5ce5876565a29c2c6efcb905c79cdfc49ee6172e0c2cbbae771a"
+  },
+  {
+    "path": "tonkai/releases/g4-leto/python/claudio/base/tonkai/tablebase.py",
+    "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\python\\claudio\\base\\tonkai\\tablebase.py",
+    "bytes": 1540,
+    "sha256": "1695759e8f1e8d1f54741bce7b12950e3c68ab3ae5283744ecbbcb0e2d5f9f85"
+  },
+  {
+    "path": "evidence/leto-web-export-configuration-metadata.json",
+    "source": "Whitelisted extraction from existing Leto web export manifest, provenance inside",
+    "bytes": 3304,
+    "sha256": "b46f0324ba8f3e554ef325a5229eb6b8cc6bf8810d701f2227119411c721f936"
+  }
+]

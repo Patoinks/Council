@@ -1,0 +1,62 @@
+END-OF-COUNCIL-008-DATA-CHECK-v1 | Missing sections: none
+
+# Council 008 — Law 7 Data Check
+
+Participant: normal (GPT-6) Visible model: GPT-6 Date: 2026-10-18 Phase: Data check v1 — not a proposal Context: Council 008, draft v1 Reference commit: `99e22e7` (declared in packet; not independently verified) New conversation: Yes Prior Council 008 exposure: None known Cross-conversation memory: Summaries of earlier Councils were available but were not used as technical evidence. Tools used: Local Python/container for static file inspection, ZIP reading and SHA-256 verification. Execution: No engine, game, training, build, benchmark or test executed.
+
+## Receipt
+
+Read `PACOTE-DADOS-v1.md` in full (487 lines), including Laws 1–9, Rules, Context, Manifest, contribution template, later proposal prompt, evidence inventory and data-check instruction.
+
+Inspected `CODIGO-EVIDENCIA-v1.zip`, including its metadata and 18 inventoried source/reference files. All 18 file sizes and SHA-256 hashes match `SOURCE-INVENTORY.json`.
+
+Missing packet sections: none.
+
+## Answer: YES — additional existing data would improve the final theoretical proposal.
+
+The supplied evidence is sufficient to understand the objective and formulate a theoretical design. However, several obtainable source files and configuration records would materially improve precision, particularly for R3–R7.
+
+### Exact additional data requested
+
+| Priority        | Data requested                                                                                                                                                                                                | Why it matters                                                                                                                                                                                                                                                                    | Who can obtain it                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 1 — High        | Non-protected C++ source and bindings implementing `claudio_fast.Board` under `g4-leto/python/claudio/fast/`, plus the relevant frozen `tonkai.fast_rules` source                                             | The Python decision path calls native `root_search`, `deep_after_moves`, `forced_mate`, exchange and terminal functions. Their implementation determines the real search/proof boundaries and what a personality selector can safely preserve.                                    | Operator, from existing TonkAI source                |
+| 2 — High        | `g4-leto/python/claudio/base/tonkai/temporal_model.py`; `king_safety_model.py` if the optional learned king model is active                                                                                   | Establishes the real GRU, latent-state and value-head interfaces, plus any existing learned king-safety signal. Prevents treating inaccessible or hypothetical learned signals as available.                                                                                      | Operator                                             |
+| 3 — High        | Existing nonsecret effective configuration metadata: exported `g4-leto/web/public/tonkai/leto.json`, corresponding Nezha web manifest, and any already-existing Python configuration dump or launch overrides | Determines which opening-book, search, tactical, phase-value, scaling and endgame settings are actually enabled. The dataclass defaults are not evidence of checkpoint settings. Also establishes whether the Nezha personality profile is actually wired into a loaded manifest. | Operator, where existing separately from checkpoints |
+| 4 — Medium      | Existing Nezha web integration source: `leto.worker.ts`, `letoThinkingProtocol.ts`, `temporal.ts`, and corresponding non-protected native rules source if present                                             | Clarifies lifecycle, memory ownership, candidate/search interfaces and decision transport for the separately requested web adaptation. Not necessary for the Python-first design.                                                                                                 | Operator                                             |
+| 5 — Conditional | `abertura_v4.py` if the effective Python configuration enables opening-principles version 4 or its transition; relevant `tonkai.tablebase` interface source if Syzygy is active                               | These optional paths can materially constrain stylistic freedom in openings or exact endings. No need to supply them if disabled.                                                                                                                                                 | Operator                                             |
+
+Do not read checkpoints to extract configuration. If equivalent metadata does not already exist in permitted files, record the effective Python configuration as unavailable.
+
+Do not include protected Gepeto code, credentials, `.env`, weights, checkpoint contents, binaries, opening-book datasets or tablebase datasets.
+
+## Findings already established
+
+The source inspection supports these distinctions:
+
+- `claudio_agent.py:633–875` contains the primary Python move-selection path, including early opening-book and mate choices, network evaluation, tactical evaluation and final selection. No explicit ten-deity style-selection layer is present in that supplied path.
+- `claudio_agent.py:194–236` maintains game-dependent recurrent memory, but that is not itself evidence of explicit long-term personality-plan commitments.
+- `personality.ts:42–52` and `g16v2.ts:387–447` define a conservative web personality alternative mechanism requiring verified, eligible near-ties. Its restrictions can theoretically leave little opportunity for visible style changes; no frequency measurement was supplied.
+- `pantheon.ts` explicitly describes visual identity, not move-selection identity. `campaign.ts` supplies the ten deity identifiers/order, not ten implemented playing styles.
+
+These observations come from static source inspection, not runtime verification.
+
+## Data requiring Martim personally
+
+None is indispensable.
+
+The context already delegates final chess archetype selection to the advisers. Martim would only need to contribute further information if he has previously unstated, non-negotiable personality characteristics for individual gods.
+
+No new games, benchmarks, Elo measurements, training runs or test stages are required before the theoretical Council.
+
+## Freeze readiness
+
+Recommendation: Have the operator supply priorities 1–3 where permissible and obtainable, add priority 4 for more precise web integration, and include priority 5 only where configuration activates those paths.
+
+Record unavailable items explicitly rather than guessing.
+
+After that, the Council can freeze and proceed to independent proposals. Even if some requested material cannot be obtained, the existing packet supports a theoretical proposal with properly stated assumptions and limitations.
+
+No architecture selected. No proposal written. No code modified.
+
+END-OF-CONTRIBUTION
