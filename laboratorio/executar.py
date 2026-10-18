@@ -8,7 +8,8 @@ Usage (from the Council checkout):
 A request is pending when laboratorio/resultados/<same name>.md does not exist.
 The tester is Gemini 3.8 Flash through agy. It runs in a fresh working copy
 outside the Council and outside the source repository. Law No. 4: if it fails
-or returns no VERDICT line, the result is recorded as INCONCLUSIVE.
+or returns no VERDICT line, the result is recorded as INCONCLUSIVE. Results are committed and pushed
+(Law No. 8: never forced).
 """
 import argparse
 import datetime as dt
@@ -109,6 +110,9 @@ def handle(request, commit):
         subprocess.run(["git", "-C", str(COUNCIL), "add", str(request), str(result)], check=True)
         subprocess.run(["git", "-C", str(COUNCIL), "commit", "-q", "-m",
                         f"Laboratory {name}: {verdict[:60]}"], check=True)
+        # Law No. 8: push without forcing; a rejected push is reported, never forced.
+        pushed = subprocess.run(["git", "-C", str(COUNCIL), "push", "origin", "HEAD"], capture_output=True, text=True)
+        print("pushed" if pushed.returncode == 0 else f"push rejected: {pushed.stderr.strip()[:200]}")
 
 
 def main():

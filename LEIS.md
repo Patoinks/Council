@@ -90,3 +90,23 @@ Before a proposal packet is frozen, the Right Hand runs a data check.
 - The Right Hand supplies every requested item it can obtain (code, logs, measurements already on disk, configuration). Only what Martim alone knows is asked of Martim.
 - The context and the packet are updated with that data, then frozen and dispatched. The manifest lists what was asked, what was added and what could not be obtained.
 - The data-check answer is not a proposal and that conversation is not reused. Every participant, Normal included, still proposes in a fresh conversation.
+
+### Law No. 8 — Everyone may push, without overriding or deleting
+
+*Enacted by Martim on 2026-10-18: «todos têm autorizações de fazer push desde que não override nem delete nada».*
+
+The King, the Right Hand, the participants and the Laboratory testers are authorized to push to the Council's repositories without asking first.
+
+- A push only adds history: no force push, no rewritten or reset history, no deleted branches, tags, files or content, and no overwriting another agent's work.
+- Before pushing, integrate the remote changes; if a push is rejected, record it and leave the conflict to the Right Hand. Never resolve it by forcing.
+- What may never be pushed stays unchanged: credentials, tokens, `.env` files, model weights and checkpoints, and the protected Gepeto sources.
+
+### Law No. 9 — A test tells the worker exactly what to do
+
+*Enacted by Martim on 2026-10-18: «o teste tem de ser minuciosamente explícito sobre o que o trabalhador deveria fazer para testar».*
+
+Every Laboratory request is written so that the tester has nothing to guess.
+
+- It states the working copy and commit, every command in order with its exact arguments and working directory, every file to create or edit with its exact content, and the expected output of each step.
+- It states what to record, which output decides the verdict, and the exact PASS, FAIL and INCONCLUSIVE conditions.
+- A request that leaves a step to the tester's judgment is returned to its author before it runs.

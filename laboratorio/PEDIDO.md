@@ -9,6 +9,13 @@
 
 <One sentence: what this test decides.>
 
+## Steps (Law No. 9: nothing left to guess)
+
+Number every step. For each: the working directory, the exact command or the exact file content to write, and the expected output.
+
+1. <directory> — `<command>` — expected: <output>
+2. ...
+
 ## Commands
 
 ```

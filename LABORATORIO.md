@@ -14,7 +14,7 @@ The Laboratory is where the Council asks for a test and a tester AI runs it and 
 1. `laboratorio/pedidos/<NNN>-<slug>.md` from `laboratorio/PEDIDO.md`: question, exact commands, expected observation, what counts as success or failure.
 2. The tester runs it in a separate working copy, never on live training, checkpoints or the original checkouts.
 3. `laboratorio/resultados/<NNN>-<slug>.md` from `laboratorio/RESULTADO.md`: verdict line first (`PASS`, `FAIL` or `INCONCLUSIVE`), the raw output, the environment and the commit tested.
-4. The Right Hand commits and pushes the request and the result to `Patoinks/Council`.
+4. The runner commits and pushes the request and the result to `Patoinks/Council` (Law No. 8; never forced).
 5. The synthesis packet lists every result with its verdict line and link, so the King sees at a glance whether it worked.
 
 ## Limits
