@@ -1,0 +1,3995 @@
+END-OF-PACKET-007-PROPOSAL-v5 | Missing sections: none
+
+Independent Proposal — Council 007 — GPT-6 Normal
+Contribution metadata
+
+Field
+
+	
+
+Declaration
+
+
+
+
+Participant
+
+	
+
+normal
+
+
+
+
+Visible model
+
+	
+
+GPT-6
+
+
+
+
+Date
+
+	
+
+2026-10-18
+
+
+
+
+Phase and round
+
+	
+
+Independent proposal, Council 007, fresh v5 cycle
+
+
+
+
+Context version
+
+	
+
+Frozen v5
+
+
+
+
+Reference commit
+
+	
+
+f5405a9848c68f1a7d9804c80ffeabd8470bc47a
+
+
+
+
+Files received
+
+	
+
+PACOTE-PROPOSTA-v5.md and CODIGO-EVIDENCIA.zip
+
+
+
+
+Packet receipt
+
+	
+
+Complete; correct final marker and all nine ordered sections
+
+
+
+
+Source receipt
+
+	
+
+ZIP accessible; 191 archive entries, including 178 selected source files
+
+
+
+
+Tools used
+
+	
+
+Local container/Python for reading source text, archive inventory, metadata and arithmetic; no engine execution
+
+
+
+
+Cross-conversation memory
+
+	
+
+Account-level summaries of earlier Council interactions are visible. They were not used as engineering evidence or to import another contribution.
+
+
+
+
+Prior exposure
+
+	
+
+Limited contextual exposure to earlier Council 007 interactions, including previous proposal/review activity and Law 7 data checks through conversation summaries. No peer proposal or review was opened or consulted for this contribution.
+
+
+
+
+New conversation
+
+	
+
+Yes. This is a fresh proposal conversation, separate from the Law 7 data check.
+
+
+
+
+Access limits
+
+	
+
+Checkpoint tensors, effective live Python overrides, actual runtime activation and attributable end-to-end G4 Leto timings are unavailable. The source archive was selectively inspected, not every source file line-by-line.
+
+
+
+
+Execution
+
+	
+
+No engine, games, tests, benchmarks, builds, training or source modifications
+
+Source inspection
+
+I directly inspected the preserved release's UCI adapter, checkpoint loader, main Claudio decision implementation, neural model architecture, encoder, native C++ search and board implementation, Pawnomics, fast-rule bridge, network-fastpath documentation, and selected supporting source.
+
+I also inspected the provided existing evidence, web-export configuration metadata, preserved release README, historical timing provenance, existing Nezha personality definition, historical build information and representative complete-game callers.
+
+The main source passages used below are cited by archive-relative path and line number.
+
+No protected Gepeto/ source or scripts/group_stage.py was read. No earlier Council contribution was consulted.
+
+Brief
+
+I recommend a decision-equivalent, single-worker G4 Leto execution architecture that retains the trained network and full chess decision algorithm while removing redundant computation and avoidable overhead across the complete game.
+
+The most valuable theoretical opportunity is not replacing Leto's decision system. It is reducing the cost of executing that system, particularly its native tactical searches, repeated position evaluations, Python/native transitions, Pawnomics and recurrent neural inference.
+
+The preserved reference already incorporates important optimizations. Consequently, the proposed gains must come from additional changes, not from presenting existing batching, native search or transposition tables as new inventions.
+
+The architecture should combine a persistent native game representation, incremental state maintenance, reusable inference workspaces, optimized exact tactical kernels and a fused decision pipeline. The existing trained weights, mathematical scoring rules, search parameters, move ordering, game history, numerical behavior and random-state progression define the neutral baseline.
+
+Ten Pantheon personalities should be implemented as bounded, explicit preference layers. They must be distinct from difficulty controls, and their changes must remain subject to tactical safety and bounded neutral-utility loss.
+
+Under a clearly hypothetical 80-ply, 96.1-second complete-game baseline, my model gives an illustrative 2.32× moderate scenario and a 3.58× stretch scenario, equivalent to approximately 0.0242 and 0.0372 complete games/s per worker respectively. These are theoretical engineering targets, not observed throughput.
+
+The principal alternative is a more aggressive neural-backend replacement, GPU migration or approximate search engine. It may run faster but cannot be credited as decision-equivalent without preserving numerical and tactical semantics.
+
+The recommendation fails as an exact-equivalence architecture if optimized execution changes legally reachable neutral moves, stochastic trajectories, search-budget outcomes or game termination. Such changes belong in a separately classified decision-changing design.
+
+Analysis
+1. Objective, authority and interpretation
+1.1 Sovereign objective
+
+Martim's stated objective is:
+
+Maximize the complete chess games per second that his own chess AI can play.
+
+This concerns the chess AI's intrinsic execution performance, not the performance of a tournament or evolution procedure.
+
+For a sequential complete-game process, define:
+
+𝐺
+=
+𝑁
+c
+o
+m
+p
+l
+e
+t
+e
+d
+𝑇
+e
+l
+a
+p
+s
+e
+d
+G=
+T
+elapsed
+	​
+
+N
+completed
+	​
+
+	​
+
+
+where only genuinely completed games enter the numerator.
+
+For repeated representative games:
+
+𝐺
+≈
+1
+𝐸
+[
+𝑇
+c
+o
+m
+p
+l
+e
+t
+e
+]
+G≈
+E[T
+complete
+	​
+
+]
+1
+	​
+
+
+The reciprocal metric is:
+
+𝑆
+g
+a
+m
+e
+=
+1
+𝐺
+S
+game
+	​
+
+=
+G
+1
+	​
+
+
+in seconds per complete game.
+
+A shorter game caused by weakened decisions, artificial adjudication, a lower ply cap or an altered opponent does not establish equivalent architectural acceleration.
+
+1.2 Fixed-resource interpretation
+
+The target is one fixed-resource worker operating on the existing Ryzen 5 7500F and RTX 5060 Ti system.
+
+Additional workers, processes, machines, threads or hardware are not counted as intrinsic gain.
+
+Using existing hardware differently inside the same worker could count only insofar as it genuinely reduces that worker's complete-game latency without changing decisions.
+
+1.3 Baseline identity
+
+The preserved release README identifies:
+
+The original g4t2-leto-v3.pt checkpoint.
+
+The preserved Python/C++ reference implementation.
+
+The Python UCI loader.
+
+Later web-only improvements, which must not be assumed present in the Python reference.
+
+I therefore select the preserved Python/C++ G4 Leto release as the documented baseline assumption.
+
+The adjacent working-tree files are useful for understanding existing callers and implementation variants, but are not automatically interchangeable with this baseline.
+
+The actual running process and its effective checkpoint overrides are not established by the supplied material.
+
+This is a provenance qualification, not a reason to suspend the theoretical proposal.
+
+1.4 Requirements
+
+Requirement
+
+	
+
+Interpretation
+
+
+
+
+R1
+
+	
+
+Maximize intrinsic complete-game throughput; provide architectural ranking, cost arithmetic and absolute theoretical targets
+
+
+
+
+R2
+
+	
+
+Preserve neutral decisions, strength, history, RNG, numerical and tactical semantics for equivalent acceleration
+
+
+
+
+R3
+
+	
+
+Derive the architecture from the preserved Python/C++ engine and account for full-game costs
+
+
+
+
+R4
+
+	
+
+Define all ten distinct Pantheon personalities with computable parameters and quality guards
+
+
+
+
+R5
+
+	
+
+Keep personality independent from explicit difficulty; do not credit weakening as equivalent speed
+
+
+
+
+R7
+
+	
+
+Source analysis and proposal only; no execution or changes
+
+
+
+
+R8
+
+	
+
+Respect participant skipping and archival rules
+
+
+
+
+R9
+
+	
+
+Deliver the best theoretical plan without benchmark or validation stages
+
+R6 is retired and introduces no constraint.
+
+There are no formally numbered U# questions in the frozen context. The remaining unknowns are effective Python checkpoint settings, optional dependency activation and the actual per-stage runtime distribution. They affect expected gain magnitude but do not prevent choosing the architecture.
+
+2. What the preserved engine actually does
+2.1 Existing neural architecture
+
+source/release-python/claudio/base/tonkai/temporal_model.py:21-131 establishes a network containing:
+
+A board encoder.
+
+A recurrent GRU memory cell.
+
+A fusion layer combining positional features and memory.
+
+Multiple survival-value heads.
+
+Additional prediction and auxiliary heads.
+
+The board input contains 782 float32 elements, as described in:
+
+source/release-python/claudio/base/tonkai/encoding.py:1-39.
+
+The supplied web-export metadata describes a candidate architecture with:
+
+Component
+
+	
+
+Exported value
+
+
+
+
+Encoder hidden size
+
+	
+
+512
+
+
+
+
+Latent size
+
+	
+
+128
+
+
+
+
+GRU memory size
+
+	
+
+64
+
+
+
+
+Survival ensemble
+
+	
+
+5
+
+
+
+
+Residual blocks
+
+	
+
+1
+
+
+
+
+Residual hidden size
+
+	
+
+512
+
+
+
+
+Future horizons
+
+	
+
+1, 2, 4, 8
+
+These values characterize an illustrative architecture scenario. They do not establish the exact effective Python configuration.
+
+The actual loader reconstructs the network from the checkpoint's stored architecture and loads its configuration separately.
+
+Source: claudio_load.py:32-66.
+
+2.2 Existing decision pipeline
+
+The preserved Claudio path is approximately:
+
+Actual chess position and player history
+
+Incremental history synchronization and GRU updates
+
+_catch_up()
+
+Legal moves, opening and forced-mate handling
+
+Batch candidate encoding and neural evaluation
+
+King safety / opening
+
+Pawnomics / material
+
+Reply evaluation
+
+Native tactical search
+
+Final candidate selection and tactical defence
+
+Move, legal game progression and completion
+
+This structure follows claudio_agent.py:633-875.
+
+A crucial observation is that substantial work has already been optimized:
+
+Existing capability
+
+	
+
+Source
+
+
+
+
+Persistent per-player native board with incremental move synchronization
+
+	
+
+claudio_agent.py:194-236
+
+
+
+
+Batched native candidate encoding
+
+	
+
+fast_rules.py:80-82; claudio_fast.cpp:2131-2157
+
+
+
+
+Batched neural evaluation of legal candidates
+
+	
+
+claudio_agent.py:688-693
+
+
+
+
+Native exact-result terminal checking across candidates
+
+	
+
+claudio_fast.cpp:1646-1663
+
+
+
+
+Native root principal-variation search
+
+	
+
+claudio_fast.cpp:1973-2025
+
+
+
+
+Reusable native transposition-table storage
+
+	
+
+claudio_fast.cpp:1258-1285
+
+
+
+
+Optional same-decision transposition-table session
+
+	
+
+claudio_agent.py:610-630
+
+
+
+
+Existing partial move-ordering optimizations
+
+	
+
+claudio_fast.cpp:1389-1418
+
+The proposal must improve these mechanisms rather than merely add their names to a plan.
+
+2.3 Computational pressure points
+
+The source suggests five important cost families.
+
+Native tactical search. Exchange calculations, root searches, forced mates and tactical re-evaluations can explore many positions. Under an effective configuration resembling the supplied metadata, search depth and node budgets could make this the dominant cost.
+
+Neural evaluation. Candidate positions require board encoding, recurrent transformations, fusion and multiple value heads. Reply evaluation introduces additional candidate batches.
+
+Python/native integration. Despite the persistent C++ board, Python still coordinates scoring, conversions, arrays, candidate selection and additional rules.
+
+Pawnomics. claudio_agent.py:729-740 constructs candidate positions and invokes Python Pawnomics logic. pawnomics.py:22-185 contains repeated attack, structure and reachability calculations.
+
+Full-game synchronization. The Python UCI adapter and full-game callers maintain their own board history and terminal handling in addition to the AI's native state.
+
+The exact cost shares are not measured for this preserved Leto configuration.
+
+3. Recommended theoretical architecture
+3.1 Architectural principle
+
+Use one coherent execution architecture:
+
+Native, stateful chess execution + unchanged trained neural model + equivalence-preserving tactical calculation.
+
+The model defines the AI's learned judgment.
+
+The execution architecture determines how efficiently that judgment and the existing chess logic are computed.
+
+Do not replace the model simply because a different model would be faster.
+
+Do not shorten the search simply because doing less work reduces latency.
+
+3.2 Components and responsibilities
+
+Component
+
+	
+
+Responsibility
+
+	
+
+Principal interface
+
+
+
+
+GameSession
+
+	
+
+Own complete-game progression, completion state and per-game timing boundary
+
+	
+
+reset, step, result
+
+
+
+
+PlayerState
+
+	
+
+Isolated color, GRU memory, RNG, history, repetition data and adaptation state
+
+	
+
+observe, choose, reset
+
+
+
+
+NativePosition
+
+	
+
+Persistent bitboards, legal moves, incremental undo, state keys and terminal information
+
+	
+
+push, pop, legal, terminal
+
+
+
+
+PositionEncoder
+
+	
+
+Produce checkpoint-compatible 782-element representations
+
+	
+
+encode_candidates
+
+
+
+
+InferenceExecutor
+
+	
+
+Execute the original frozen model with reusable buffers and numerically compatible kernels
+
+	
+
+evaluate, observe
+
+
+
+
+TacticalExecutor
+
+	
+
+Perform exchange, search, mate and response calculations with unchanged decision rules
+
+	
+
+exchange, root_search, forced_mate
+
+
+
+
+DecisionPipeline
+
+	
+
+Apply the baseline scoring and selection sequence
+
+	
+
+choose
+
+
+
+
+PersonalityLayer
+
+	
+
+Apply bounded preferences only when explicitly requested
+
+	
+
+rank_safe_candidates
+
+
+
+
+CompletionAccounting
+
+	
+
+Count actual completed games and both players' total wall-clock costs
+
+	
+
+record_complete
+
+The neutral personality layer is the identity transformation.
+
+The original checkpoint remains read-only.
+
+3.3 Lever A — Native tactical-search acceleration
+
+Priority: 1 — highest potential cost reduction
+
+Mechanism
+
+Retain the same search algorithm's decision semantics while reducing the cost of work performed inside each node.
+
+Proposed improvements:
+
+Use incremental make/unmake and undo records where they are cheaper than repeated full position reconstruction.
+
+Maintain incremental position hashes and selected attack information.
+
+Reuse native scratch storage and move buffers.
+
+Reduce repeated occupancy, piece-type and legality computations.
+
+Improve locality of the transposition table.
+
+Exploit identical subproblems only where reuse preserves search outcomes and budget semantics.
+
+Maintain the current search's exact and bounded-search modes, root order and terminal rules.
+
+The source currently copies Pos objects in several search paths, including material_search() at claudio_fast.cpp:1230-1249.
+
+It also computes position keys and uses a 65,536-entry per-thread table in DeepSearch.
+
+These are concrete candidates for improving instruction count and memory locality.
+
+Critical preservation rule
+
+Node budgets are not merely performance settings. Exhausting a budget can change what a search returns.
+
+Therefore, faster searching cannot silently reinterpret an existing node budget as permission to search additional logical positions when strict decision equivalence is claimed.
+
+A conservative implementation retains the baseline's logical search ordering, termination and budget accounting even if fewer physical operations are required.
+
+If a changed search order or new transposition strategy changes results under the existing node budget, it becomes a decision-changing optimization.
+
+That distinction is essential to R2.
+
+Theoretical speed mechanism
+
+Let:
+
+𝑇
+s
+e
+a
+r
+c
+h
+=
+𝑁
+n
+o
+d
+e
+s
+⋅
+𝑐
+n
+o
+d
+e
++
+𝑇
+o
+t
+h
+e
+r
+T
+search
+	​
+
+=N
+nodes
+	​
+
+⋅c
+node
+	​
+
++T
+other
+	​
+
+
+The strict-equivalence opportunity primarily reduces 
+𝑐
+n
+o
+d
+e
+c
+node
+	​
+
+, while preserving the relevant logical search behavior.
+
+A reduction from 100 to 45 units of work per logical node would theoretically reduce that node's execution cost by 2.22×.
+
+This is a mechanism illustration, not a measurement of the current code.
+
+3.4 Lever B — Persistent neural inference executor
+
+Priority: 2
+
+Mechanism
+
+The preserved SurvivalNet.survival() already combines ensemble heads into batched operations.
+
+However, temporal_model.py:120-131 constructs concatenated and stacked weight tensors in the inference path.
+
+With immutable inference weights, the architecture can maintain prepacked read-only inference representations and reuse appropriately sized buffers.
+
+The executor should:
+
+Keep trained weights immutable.
+
+Retain float32 behavior where it defines the baseline.
+
+Avoid rebuilding invariant head-weight layouts on every call.
+
+Reuse candidate and latent buffers.
+
+Avoid needless Python tensor/NumPy object creation.
+
+Preserve the distinction between actual-position observation and hypothetical candidate evaluation.
+
+Preserve the sequential dependence of GRU history updates.
+
+The recurrent state must never be shared between independent players merely because they use the same network.
+
+Why not fuse everything aggressively?
+
+The supplied network_fastpaths.py:1-5 explicitly warns that previous fused-GRU arithmetic changed FP32 trajectories and that equivalent speed gains were not established.
+
+This is unusually important evidence.
+
+Rearranging floating-point operations can change:
+
+Neural values.
+
+Candidate ordering.
+
+Value-spread updates.
+
+Tactical search selection.
+
+Subsequent game histories.
+
+The strongest exact-equivalence strategy is therefore a persistent execution layout that initially preserves the original arithmetic and operation order.
+
+More aggressive compilation, ONNX, GPU execution, mixed precision or reordered matrix operations must be classified separately unless their decision equivalence can be established.
+
+Cache-key requirement
+
+Any reusable position-dependent neural result must distinguish the complete encoded position and any recurrent-state input affecting that result.
+
+Two identical boards with different GRU histories need not have identical evaluations.
+
+A board-only cache for recurrent predictions is incorrect.
+
+3.5 Lever C — Native, batched Pawnomics
+
+Priority: 3 when the checkpoint activates Pawnomics
+
+Mechanism
+
+The current Python path can calculate Pawnomics separately for every legal candidate.
+
+It performs repeated board transitions and evaluates pawn reach, attackers, structure and material-dependent conditions.
+
+A native implementation can compute the same functions for a batch of candidate positions while sharing relevant invariant root information.
+
+The architecture should preserve:
+
+Pawn-value inputs.
+
+Piece attack semantics.
+
+Existing V1/V2 selection.
+
+Feature evaluation order where floating-point differences matter.
+
+The exact tanh(balance / 4) scoring term.
+
+Whether has_runners() activates the calculation.
+
+Existing root-level pawn-conversion behavior.
+
+The source explicitly distinguishes the preserved Python Pawnomics implementation from later web Pawnomics v3.
+
+Consequently, adopting Pawnomics v3 is not an exact architectural acceleration of the preserved Python baseline.
+
+Activation condition
+
+The supplied web-export metadata gives a positive pawn_weight, but that does not prove the preserved Python checkpoint uses it.
+
+If the effective Python configuration has pawn_weight=0, this lever contributes no corresponding scoring-path speedup.
+
+Its importance is therefore configuration-dependent.
+
+3.6 Lever D — Integrate the decision pipeline
+
+Priority: 4
+
+The current decision procedure passes intermediate candidate arrays, move lists, scores and native search results between Python and C++.
+
+The theoretical target is a persistent decision executor that minimizes these transitions without altering the score computation.
+
+This does not require rewriting the neural model.
+
+A native executor can own the chess position and tactical scratch state while invoking the same checkpoint-compatible neural evaluator for the required candidate batches.
+
+Important details include:
+
+Preserve original legal-move ordering.
+
+Preserve which scores are exact and which are partial.
+
+Preserve np.argmax-equivalent tie behavior.
+
+Preserve the distinction between baseline and adjusted scores.
+
+Preserve exception and search-abort behavior.
+
+Preserve the original terminal-value hierarchy.
+
+Preserve the timing and order of random draws.
+
+A complete C++ rewrite is not automatically superior to this hybrid architecture.
+
+The important gain is removing unnecessary orchestration and conversion work, not eliminating Python as a matter of style.
+
+3.7 Lever E — Incremental complete-game execution
+
+Priority: 5
+
+claudio/uci.py:53-69 attempts to reuse previous position history, but still reconstructs and compares historical move representations.
+
+The representative callers also maintain chess boards independently of the decision engine.
+
+A game-native session can maintain one authoritative evolving position and expose the necessary state to both independently maintained player objects.
+
+For external UCI compatibility, the adapter can still accept the standard complete position command. Internally, it should reuse verified prefixes and apply only genuine new moves.
+
+This reduces duplicate reconstruction and memory traffic.
+
+Independent self-play states
+
+For two G4 Leto instances:
+
+White has its own recurrent memory.
+
+Black has its own recurrent memory.
+
+Each has its own history, RNG, selected ensemble head and adaptive scoring state.
+
+Both may reference identical immutable checkpoint weights.
+
+Neither player's hypothetical moves advance the other player's state.
+
+Immutable parameter sharing reduces duplicate storage within one worker. It is not an increase in worker count.
+
+Completion semantics
+
+The representative caller uses python-chess completion logic with claim_draw=True.
+
+The native engine also has a terminal_strict() function with separately documented repetition behavior.
+
+They must not be casually substituted for each other.
+
+The selected representative game's original completion contract must remain fixed across the baseline and optimized architecture, including claimable draws, stalemate, checkmate, repetition, fifty-move conditions and insufficient material.
+
+A capped unfinished game is not a complete game.
+
+4. Theoretical cost model and numerical targets
+4.1 Complete-game equation
+
+For 
+𝑃
+P plies, with independently maintained White and Black player state:
+
+𝑇
+g
+a
+m
+e
+=
+𝑇
+r
+e
+s
+e
+t
+,
+W
++
+𝑇
+r
+e
+s
+e
+t
+,
+B
++
+∑
+𝑖
+=
+1
+𝑃
+(
+𝑇
+i
+n
+g
+e
+s
+t
+,
+𝑖
++
+𝑇
+d
+e
+c
+i
+s
+i
+o
+n
+,
+𝑖
++
+𝑇
+a
+p
+p
+l
+y
+,
+𝑖
++
+𝑇
+t
+e
+r
+m
+i
+n
+a
+l
+,
+𝑖
+)
++
+𝑇
+f
+i
+n
+a
+l
+i
+z
+e
+T
+game
+	​
+
+=T
+reset,W
+	​
+
++T
+reset,B
+	​
+
++
+i=1
+∑
+P
+	​
+
+(T
+ingest,i
+	​
+
++T
+decision,i
+	​
+
++T
+apply,i
+	​
+
++T
+terminal,i
+	​
+
+)+T
+finalize
+	​
+
+
+Each ply's decision includes the active neural, search, tactical, Pawnomics and other scoring costs.
+
+The sum includes both sides; it is not merely the thinking time of one player.
+
+If baseline moves remain equivalent under identical inputs, game lengths and terminations remain equivalent as well.
+
+4.2 Illustrative cost distribution
+
+Because there is no attributable full-game G4 Leto performance profile, I use an explicitly assumed 1.20 seconds of average work per ply.
+
+This is a numerical scenario, not a historical measurement.
+
+Cost family
+
+	
+
+Assumed seconds/ply
+
+	
+
+Assumed share
+
+
+
+
+Native search and tactics
+
+	
+
+0.750
+
+	
+
+62.5%
+
+
+
+
+Neural inference
+
+	
+
+0.160
+
+	
+
+13.3%
+
+
+
+
+Pawnomics
+
+	
+
+0.110
+
+	
+
+9.2%
+
+
+
+
+Board/interop work
+
+	
+
+0.080
+
+	
+
+6.7%
+
+
+
+
+Other decision operations
+
+	
+
+0.100
+
+	
+
+8.3%
+
+
+
+
+Total
+
+	
+
+1.200
+
+	
+
+100%
+
+The search-heavy share is a plausible theoretical reading for a configuration with substantial tactical budgets, such as the supplied web-export illustration.
+
+It is not an established profile of the preserved local Python process.
+
+4.3 Moderate and stretch scenarios
+
+The following component speedups are hypothetical assumptions about implementing the architecture.
+
+Cost family
+
+	
+
+Moderate component factor
+
+	
+
+Stretch component factor
+
+
+
+
+Native search
+
+	
+
+2.6×
+
+	
+
+4.0×
+
+
+
+
+Neural inference
+
+	
+
+1.8×
+
+	
+
+3.0×
+
+
+
+
+Pawnomics
+
+	
+
+2.5×
+
+	
+
+4.0×
+
+
+
+
+Board/interop
+
+	
+
+3.5×
+
+	
+
+5.0×
+
+
+
+
+Other decision work
+
+	
+
+1.4×
+
+	
+
+2.0×
+
+Combined speedup is calculated using the original cost shares:
+
+𝑆
+c
+o
+m
+b
+i
+n
+e
+d
+=
+∑
+𝑖
+𝑡
+𝑖
+∑
+𝑖
+𝑡
+𝑖
+/
+𝑠
+𝑖
+S
+combined
+	​
+
+=
+∑
+i
+	​
+
+t
+i
+	​
+
+/s
+i
+	​
+
+∑
+i
+	​
+
+t
+i
+	​
+
+	​
+
+
+The factors are not multiplied together.
+
+For the moderate scenario:
+
+𝑇
+p
+l
+y
+,
+n
+e
+w
+=
+0.75
+2.6
++
+0.16
+1.8
++
+0.11
+2.5
++
+0.08
+3.5
++
+0.10
+1.4
+T
+ply,new
+	​
+
+=
+2.6
+0.75
+	​
+
++
+1.8
+0.16
+	​
+
++
+2.5
+0.11
+	​
+
++
+3.5
+0.08
+	​
+
++
+1.4
+0.10
+	​
+
+𝑇
+p
+l
+y
+,
+n
+e
+w
+≈
+0.516
+ s
+T
+ply,new
+	​
+
+≈0.516 s
+
+For the stretch scenario:
+
+𝑇
+p
+l
+y
+,
+n
+e
+w
+=
+0.75
+4
++
+0.16
+3
++
+0.11
+4
++
+0.08
+5
++
+0.10
+2
+≈
+0.334
+ s
+T
+ply,new
+	​
+
+=
+4
+0.75
+	​
+
++
+3
+0.16
+	​
+
++
+4
+0.11
+	​
+
++
+5
+0.08
+	​
+
++
+2
+0.10
+	​
+
+≈0.334 s
+4.4 Absolute theoretical complete-game targets
+
+Assume:
+
+80 plies per completed game.
+
+Two independent Leto player states.
+
+1.20 seconds per baseline ply.
+
+0.10 seconds of other complete-game overhead, kept unchanged.
+
+No artificial termination.
+
+Identical game trajectories between baseline and exact-equivalence architecture.
+
+Then:
+
+𝑇
+b
+a
+s
+e
+l
+i
+n
+e
+=
+80
+(
+1.20
+)
++
+0.10
+=
+96.10
+ s
+T
+baseline
+	​
+
+=80(1.20)+0.10=96.10 s
+
+Scenario
+
+	
+
+Seconds/full game
+
+	
+
+Complete games/s/worker
+
+	
+
+Gain
+
+
+
+
+Assumed baseline
+
+	
+
+96.10
+
+	
+
+0.01041
+
+	
+
+1.00×
+
+
+
+
+Moderate architecture
+
+	
+
+41.35
+
+	
+
+0.02418
+
+	
+
+2.32×
+
+
+
+
+Stretch architecture
+
+	
+
+26.85
+
+	
+
+0.03725
+
+	
+
+3.58×
+
+Illustrative complete-game throughput
+
+Assumed 80-ply full game; not measured Leto performance. Fixed resources, one worker.
+
+0
+0.01
+0.02
+0.03
+0.04
+Baseline
+Moderate
+Stretch
+Baseline: Complete games per second 0.01041
+Moderate: Complete games per second 0.02418
+Stretch: Complete games per second 0.03725
+
+These are not hard upper bounds.
+
+They demonstrate the theoretical throughput arithmetic for a coherent architecture, under explicitly stated component assumptions.
+
+A different actual search share, active configuration or per-ply time changes the numerical result.
+
+The strongest theoretical engineering target is to pursue the full architecture, not to stop after the moderate scenario. The stretch case is a useful numerical target, but not a guaranteed deliverable or a substitute for source-level correctness.
+
+4.5 Ranking of levers
+
+Under the assumed moderate distribution, approximate saved seconds per ply are:
+
+Rank
+
+	
+
+Lever
+
+	
+
+Saved seconds/ply
+
+
+
+
+1
+
+	
+
+Native search
+
+	
+
+0.462
+
+
+
+
+2
+
+	
+
+Neural inference
+
+	
+
+0.071
+
+
+
+
+3
+
+	
+
+Pawnomics
+
+	
+
+0.066
+
+
+
+
+4
+
+	
+
+Board/interop
+
+	
+
+0.057
+
+
+
+
+5
+
+	
+
+Other operations
+
+	
+
+0.029
+
+This ranking is conditional on the assumed shares.
+
+If Pawnomics is disabled in the actual checkpoint, its row should disappear from that particular cost distribution and the remaining weights should be recalculated.
+
+If neural inference dominates instead, its architectural priority rises accordingly.
+
+5. Ten Pantheon personalities
+5.1 Design principle
+
+Personalities are preferences, not reduced-strength engines.
+
+All ten should inherit the same:
+
+Trained neutral network.
+
+Baseline search depth and node budgets.
+
+Tactical checking rules.
+
+Mate detection.
+
+Legal move generation.
+
+Genuine chess completion rules.
+
+A personality may select a different move from the neutral engine, provided its declared theoretical safety and quality constraints permit that change.
+
+Unlike neutral architectural acceleration, stylistic variation is intentionally decision-changing.
+
+It is therefore not correct to claim that ten different personalities produce identical decisions.
+
+5.2 Shared parameter space
+
+I recommend seven normalized axes, each in 
+[
+0
+,
+1
+]
+[0,1].
+
+Axis
+
+	
+
+Definition
+
+
+
+
+K
+
+	
+
+King-safety preference
+
+
+
+
+O
+
+	
+
+Optimism and willingness to select uncertain but promising positions
+
+
+
+
+I
+
+	
+
+Initiative versus prophylactic play
+
+
+
+
+T
+
+	
+
+Preference for maintaining tactical tension
+
+
+
+
+P
+
+	
+
+Pawn advancement and structural preference
+
+
+
+
+M
+
+	
+
+Preference for continuity of an attack or strategic momentum
+
+
+
+
+C
+
+	
+
+Resilience, resistance to draws and persistence in difficult positions
+
+Use the existing Nezha web profile as design background, not as proof of local strength.
+
+For an initial local implementation, define candidate feature values 
+𝜙
+𝑗
+(
+𝑚
+)
+∈
+[
+−
+1
+,
+1
+]
+ϕ
+j
+	​
+
+(m)∈[−1,1] using one consistent normalization and fixed feature definitions.
+
+A candidate's style preference is:
+
+𝐵
+𝑝
+(
+𝑚
+)
+=
+clip
+⁡
+(
+∑
+𝑗
+=
+1
+7
+𝑤
+𝑗
+(
+2
+𝑎
+𝑝
+,
+𝑗
+−
+1
+)
+𝜙
+𝑗
+(
+𝑚
+)
+,
+−
+𝑏
+max
+⁡
+,
+𝑏
+max
+⁡
+)
+B
+p
+	​
+
+(m)=clip(
+j=1
+∑
+7
+	​
+
+w
+j
+	​
+
+(2a
+p,j
+	​
+
+−1)ϕ
+j
+	​
+
+(m),−b
+max
+	​
+
+,b
+max
+	​
+
+)
+
+where:
+
+𝑎
+𝑝
+,
+𝑗
+a
+p,j
+	​
+
+ is personality 
+𝑝
+p's axis value.
+
+𝑤
+𝑗
+w
+j
+	​
+
+ is a shared coefficient.
+
+𝑏
+max
+⁡
+=
+0.025
+b
+max
+	​
+
+=0.025 is the initial maximum absolute style bonus.
+
+An initial shared coefficient vector is:
+
+𝑤
+=
+(
+0.006
+,
+0.003
+,
+0.007
+,
+0.004
+,
+0.005
+,
+0.004
+,
+0.004
+)
+w=(0.006,0.003,0.007,0.004,0.005,0.004,0.004)
+
+These coefficients are proposed design parameters, not learned or validated values.
+
+For computable features:
+
+K uses changes in the available king-safety evaluation, with an exact-rule fallback.
+
+O uses the existing ensemble's dispersion and the neutral value of the position.
+
+I uses forcing checks, tactical initiative and opponent-response pressure.
+
+T uses contested pieces, live exchanges and unresolved threats.
+
+P uses the preserved Python Pawnomics feature definitions.
+
+M uses an explicitly maintained style-state summary of recent actual moves, never hypothetical branches.
+
+C uses the game's position, neutral value and actual draw-risk conditions.
+
+All feature values must be defined from accessible chess state, existing model outputs or explicitly maintained player history.
+
+A neutral checkpoint missing an optional learned king model must not be made dependent on an unavailable model.
+
+5.3 Initial personality parameters
+
+K = safety; O = optimism; I = initiative; T = tension; P = pawn play; M = momentum; C = resilience.
+
+Personality
+
+	
+
+K
+
+	
+
+O
+
+	
+
+I
+
+	
+
+T
+
+	
+
+P
+
+	
+
+M
+
+	
+
+C
+
+
+
+
+Nezha
+
+	
+
+.85
+
+	
+
+.40
+
+	
+
+1.00
+
+	
+
+.65
+
+	
+
+.75
+
+	
+
+.80
+
+	
+
+.55
+
+
+
+
+Loki
+
+	
+
+.40
+
+	
+
+.90
+
+	
+
+.90
+
+	
+
+.85
+
+	
+
+.20
+
+	
+
+.80
+
+	
+
+.75
+
+
+
+
+Wukong
+
+	
+
+.55
+
+	
+
+.65
+
+	
+
+.85
+
+	
+
+.95
+
+	
+
+.55
+
+	
+
+.95
+
+	
+
+.70
+
+
+
+
+Susanoo
+
+	
+
+.50
+
+	
+
+.75
+
+	
+
+.95
+
+	
+
+.75
+
+	
+
+.30
+
+	
+
+.65
+
+	
+
+.65
+
+
+
+
+Tsukuyomi
+
+	
+
+.85
+
+	
+
+.30
+
+	
+
+.20
+
+	
+
+.15
+
+	
+
+.25
+
+	
+
+.45
+
+	
+
+.75
+
+
+
+
+Anúbis
+
+	
+
+.90
+
+	
+
+.20
+
+	
+
+.05
+
+	
+
+.10
+
+	
+
+.45
+
+	
+
+.35
+
+	
+
+.95
+
+
+
+
+Amaterasu
+
+	
+
+.95
+
+	
+
+.55
+
+	
+
+.35
+
+	
+
+.15
+
+	
+
+.75
+
+	
+
+.55
+
+	
+
+.45
+
+
+
+
+Rá
+
+	
+
+.65
+
+	
+
+.85
+
+	
+
+.90
+
+	
+
+.55
+
+	
+
+.70
+
+	
+
+.75
+
+	
+
+.60
+
+
+
+
+Hades
+
+	
+
+.90
+
+	
+
+.15
+
+	
+
+.00
+
+	
+
+.20
+
+	
+
+.35
+
+	
+
+.35
+
+	
+
+1.00
+
+
+
+
+Zeus
+
+	
+
+.70
+
+	
+
+.80
+
+	
+
+1.00
+
+	
+
+.85
+
+	
+
+.50
+
+	
+
+.95
+
+	
+
+.70
+
+Nezha's seven initial values reproduce the supplied web design background. Their use in the new local system is proposed, not asserted to be an existing local implementation.
+
+The remaining profiles are independent proposed values.
+
+5.4 Observable playing signatures
+
+Personality
+
+	
+
+Intended signature
+
+
+
+
+Nezha
+
+	
+
+Protected initiative, active pawn development and sustained attacking momentum
+
+
+
+
+Loki
+
+	
+
+Complications, imbalances and non-obvious tactical opportunities
+
+
+
+
+Wukong
+
+	
+
+Highly dynamic, disruptive play with recurring initiative and maintained tension
+
+
+
+
+Susanoo
+
+	
+
+Direct forcing play, tactical threats and comparatively rapid confrontation
+
+
+
+
+Tsukuyomi
+
+	
+
+Quiet restraint, prophylaxis, controlled exchanges and lower-tension positions
+
+
+
+
+Anúbis
+
+	
+
+Defensive certainty, patient restriction and resilient conversion
+
+
+
+
+Amaterasu
+
+	
+
+Strong king protection, structured pawn play and stable positional progress
+
+
+
+
+Rá
+
+	
+
+Active expansion, ambitious initiative and forward pressure
+
+
+
+
+Hades
+
+	
+
+Severe defensive resistance, restriction, practical draw avoidance when justified, and endgame persistence
+
+
+
+
+Zeus
+
+	
+
+Dominant initiative, forcing pressure and sustained attacking sequences
+
+These signatures follow from the proposed feature vectors and selection formula.
+
+They are design predictions, not measured behavioral differences.
+
+To make signatures observable rather than merely nominal, each personality must have a nonidentical feature vector and a preference rule capable of changing at least some genuinely eligible choices.
+
+However, no strength-preserving guard can guarantee a different move in every position.
+
+Forced moves, mates and tactically decisive situations should often collapse multiple personalities to the same choice.
+
+That is correct behavior.
+
+5.5 Theoretical quality guards
+
+A style move must satisfy explicit restrictions.
+
+Guard A — Forced results dominate style
+
+A known forced win, forced loss or mate-related tactical result is not overturned by a style bonus.
+
+The baseline's tactical result hierarchy remains authoritative.
+
+Guard B — Neutral-utility loss bound
+
+Let 
+𝑈
+0
+(
+𝑚
+)
+U
+0
+	​
+
+(m) be the neutral decision's properly resolved utility, with the original tactical semantics.
+
+The style is allowed to choose 
+𝑚
+m only when:
+
+𝑈
+0
+(
+𝑚
+n
+e
+u
+t
+r
+a
+l
+)
+−
+𝑈
+0
+(
+𝑚
+)
+≤
+0.020
+U
+0
+	​
+
+(m
+neutral
+	​
+
+)−U
+0
+	​
+
+(m)≤0.020
+
+This is an initial design tolerance, not an empirically demonstrated strength guarantee.
+
+Unresolved or partially searched candidates cannot be treated as proven to satisfy this inequality.
+
+Guard C — King-safety restriction
+
+Where the learned king-safety model is active and meaningful, impose an initial allowed deterioration no greater than 0.05 in the selected normalized safety measure.
+
+Where it is absent, rely on exact tactical safety and a defined rules-based king-risk feature.
+
+The normalization and direction of the safety measure must be fixed before interpreting this threshold.
+
+Guard D — Tactical defence remains unchanged
+
+Every personality retains the baseline's mate-defence and tactical rejection process.
+
+A move the neutral tactical process proves unacceptable cannot become acceptable merely because a personality likes the position.
+
+Guard E — Bounded final ranking
+
+Style bonuses apply only after identifying the eligible neutral candidate set and resolving the tactical information required by the guard.
+
+Within that set:
+
+𝑚
+𝑝
+=
+arg
+⁡
+max
+⁡
+𝑚
+∈
+𝐸
+(
+𝑈
+0
+(
+𝑚
+)
++
+𝐵
+𝑝
+(
+𝑚
+)
+)
+m
+p
+	​
+
+=arg
+m∈E
+max
+	​
+
+(U
+0
+	​
+
+(m)+B
+p
+	​
+
+(m))
+
+The original legal-order tie rule should remain deterministic.
+
+Personality-specific RNG, if later introduced, must be explicitly separate from the neutral baseline RNG contract.
+
+Important limitation
+
+These guards protect defined tactical and utility properties.
+
+They do not mathematically prove unchanged chess strength or Elo.
+
+A 0.02 neutral-utility difference is a bound in the engine's own score scale, not a certified bound on playing strength.
+
+That distinction must remain visible in the final decree.
+
+6. Personality versus difficulty
+
+The implementation should expose two independent configurations.
+
+Personality
+
+Selects among tactically admissible, near-equivalent preferences.
+
+It controls:
+
+Positional priorities.
+
+Initiative.
+
+Tension.
+
+Pawn preference.
+
+Risk attitude.
+
+Momentum.
+
+Resilience.
+
+Difficulty
+
+Explicitly changes the playing challenge, when requested.
+
+Potential difficulty controls include:
+
+Search depth.
+
+Node budgets.
+
+Tactical checking breadth.
+
+Deliberate move noise.
+
+Other explicitly weaker decision behavior.
+
+None of those difficulty changes can be credited as preserved-strength architecture acceleration.
+
+The recommended default is:
+
+difficulty = baseline
+
+with personality selection independent of that setting.
+
+A player's personality identifier must not silently alter the checkpoint's original computation budget.
+
+7. Architectural execution specification
+
+The final architecture should have a single consistent data flow.
+
+Game initialization
+
+Create two independent PlayerState objects referencing the same immutable trained checkpoint as appropriate.
+
+Initialize the exact required neural and chess history for each player.
+
+Preserve the original RNG initialization semantics.
+
+Actual-position observation
+
+Increment the native board state.
+
+Synchronize each player with the real positions it must observe, in the original order.
+
+Update that player's GRU memory sequentially.
+
+Do not commit hypothetical candidate memory.
+
+Candidate preparation
+
+Generate legal moves in the baseline order.
+
+Encode all required candidate positions through a reusable workspace.
+
+Retain identical terminal and opening behavior.
+
+Neutral decision
+
+Compute the original neural scores and other active contributions.
+
+Perform the configured exact exchange, tactical, reply, mate and other rule-dependent calculations.
+
+Maintain score precision, ordering and known-result priority.
+
+Select the baseline move with the original tie and RNG semantics.
+
+Personality decision
+
+If the selected mode is not neutral, apply the explicit admissibility and preference layer.
+
+Never use personality to bypass the baseline's required tactical protection.
+
+Game advancement
+
+Apply the selected move and retain complete history.
+
+Use one fixed, genuine completion contract.
+
+Finalize only when the game is actually completed under that contract.
+
+No implementation is authorized
+
+These steps describe the intended system responsibilities and operation, not a command to execute or modify the supplied code.
+
+8. Alternative architectures
+
+Alternative
+
+	
+
+Advantage
+
+	
+
+Principal weakness
+
+	
+
+Recommendation
+
+
+
+
+Proposed native/hybrid, decision-equivalent architecture
+
+	
+
+Improves the current system while preserving the trained model and decision rules
+
+	
+
+Requires careful numerical, history and search-budget semantics
+
+	
+
+Preferred
+
+
+
+
+Full C++ engine with independently reimplemented neural inference
+
+	
+
+Potentially reduces Python overhead
+
+	
+
+High numerical-equivalence risk; duplicates complex model behavior
+
+	
+
+Do not prefer by default
+
+
+
+
+GPU-first neural execution
+
+	
+
+May accelerate large neural batches on existing hardware
+
+	
+
+Transfers, batch size and floating-point differences may reduce benefit or change choices
+
+	
+
+Conditional alternative
+
+
+
+
+ONNX or aggressively compiled neural backend
+
+	
+
+Potentially faster kernels
+
+	
+
+Different operation order or precision may alter trajectories
+
+	
+
+Separate equivalence classification
+
+
+
+
+Reduced tactical search
+
+	
+
+Directly lowers calculation cost
+
+	
+
+Changes decisions and potentially strength
+
+	
+
+Difficulty/quality tradeoff only
+
+
+
+
+Simplified or distilled network
+
+	
+
+Potential inference reduction
+
+	
+
+New decision model, not equivalent acceleration
+
+	
+
+Separate research direction
+
+
+
+
+Additional workers or processes
+
+	
+
+Higher aggregate throughput
+
+	
+
+Scaling, not intrinsic per-worker gain
+
+	
+
+Outside R1 gain
+
+A fully native reimplementation is not ruled out theoretically. It is simply not the most defensible first architectural choice under the simultaneous demands of maximum speed and retained decisions.
+
+If one can execute the same mathematical and stateful pipeline faster in an integrated native process, that remains compatible with the proposed architecture.
+
+The crucial requirement is semantic preservation, not the implementation language.
+
+9. Requirements and criteria comparison
+
+Requirement
+
+	
+
+Proposed architecture
+
+	
+
+Assessment
+
+
+
+
+R1
+
+	
+
+Whole-game cost model, code-specific ranked levers and absolute hypothetical target
+
+	
+
+Addressed
+
+
+
+
+R2
+
+	
+
+Frozen neutral model, exact history, RNG, numerical and tactical contracts
+
+	
+
+Addressed as an architectural invariant
+
+
+
+
+R3
+
+	
+
+Grounded in preserved Python/C++ Leto; adjacent callers kept distinct
+
+	
+
+Addressed
+
+
+
+
+R4
+
+	
+
+Ten seven-axis profiles, computable features and guarded selection
+
+	
+
+Addressed theoretically
+
+
+
+
+R5
+
+	
+
+Personality and difficulty are independent; no weaker-workload gain claimed
+
+	
+
+Addressed
+
+
+
+
+R7
+
+	
+
+No execution or modifications
+
+	
+
+Satisfied
+
+
+
+
+R8
+
+	
+
+Operator records quota/bug skips without replacement or delay
+
+	
+
+Governed by Law 4; no local action required
+
+
+
+
+R9
+
+	
+
+No benchmark or validation stages within plan
+
+	
+
+Satisfied
+
+The primary criterion remains seconds per genuinely completed game.
+
+Decision equivalence has higher importance than an attractive but invalid throughput estimate.
+
+Personality uniqueness is a secondary objective with deliberate, bounded preference changes.
+
+10. Risks, failure conditions and dependencies
+
+ID
+
+	
+
+Risk or failure mode
+
+	
+
+Requirement affected
+
+	
+
+Architectural response
+
+
+
+
+K1
+
+	
+
+Different effective checkpoint/configuration from the assumed release
+
+	
+
+R1, R2, R3
+
+	
+
+Keep checkpoint identity and effective settings explicit; do not mistake web metadata for Python truth
+
+
+
+
+K2
+
+	
+
+Native search changes node-budget exhaustion or move ordering
+
+	
+
+R2
+
+	
+
+Preserve logical budget, ordering and abort semantics
+
+
+
+
+K3
+
+	
+
+Different floating-point evaluation changes candidate ranking
+
+	
+
+R2
+
+	
+
+Preserve original precision and reduction order in strict mode
+
+
+
+
+K4
+
+	
+
+GRU memory is updated for hypothetical rather than actual positions
+
+	
+
+R2
+
+	
+
+Separate immutable candidate-state evaluation from committed history
+
+
+
+
+K5
+
+	
+
+Two players accidentally share mutable state
+
+	
+
+R2, R3
+
+	
+
+Explicit independent player-state objects
+
+
+
+
+K6
+
+	
+
+Position caches omit history or recurrence inputs
+
+	
+
+R2
+
+	
+
+Cache only with complete relevant state and invalidation rules
+
+
+
+
+K7
+
+	
+
+Native terminal rules differ from caller completion rules
+
+	
+
+R1, R2
+
+	
+
+Preserve the selected game's completion contract
+
+
+
+
+K8
+
+	
+
+Pawnomics replacement imports later web semantics
+
+	
+
+R2, R3
+
+	
+
+Reproduce preserved Python feature definitions exactly
+
+
+
+
+K9
+
+	
+
+Optional Organic/V4 code is assumed active without evidence
+
+	
+
+R2, R3
+
+	
+
+Treat activation as conditional
+
+
+
+
+K10
+
+	
+
+Changed tactical work is incorrectly counted as speedup
+
+	
+
+R1, R2, R5
+
+	
+
+Separate equivalence-preserving optimization from decision-changing simplification
+
+
+
+
+K11
+
+	
+
+More workers or more hardware are counted as architectural gain
+
+	
+
+R1
+
+	
+
+Report fixed-resource per-worker results only
+
+
+
+
+K12
+
+	
+
+Personality overrides forced tactical results
+
+	
+
+R4, R5
+
+	
+
+Preserve baseline tactical authority
+
+
+
+
+K13
+
+	
+
+Style bonus changes high-confidence superior choices
+
+	
+
+R4
+
+	
+
+Use neutral-utility and safety gates
+
+
+
+
+K14
+
+	
+
+All personalities collapse to similar visible behavior
+
+	
+
+R4
+
+	
+
+Distinct feature vectors and designed response signatures; acknowledge forced-choice limitations
+
+
+
+
+K15
+
+	
+
+Personality heuristics increase execution time
+
+	
+
+R1, R4
+
+	
+
+Reuse decision features and keep additional work bounded; report style cost separately
+
+
+
+
+K16
+
+	
+
+Historical thinking-time totals are mistaken for full-game throughput
+
+	
+
+R1, R3
+
+	
+
+Use only complete-game wall time for the actual metric
+
+
+
+
+K17
+
+	
+
+Estimated speedup is presented as measured fact
+
+	
+
+R1, R9
+
+	
+
+Label all baseline shares and improvement factors as assumptions
+
+
+
+
+K18
+
+	
+
+Optimizations alter fallback behavior after exceptions or partial searches
+
+	
+
+R2
+
+	
+
+Preserve original fallback and incomplete-result handling
+
+Major architectural dependency
+
+The strongest exact-equivalence claim depends on treating the baseline as an execution contract, not merely a set of checkpoint weights.
+
+That contract includes decision-relevant implementation details.
+
+For example, the current neutral move selection may depend on which candidate was evaluated first and whether an earlier tactical calculation exhausted a node budget.
+
+Preserving weights alone is insufficient.
+
+Alternative recommendation trigger
+
+I would change the preferred architecture if preserving those semantics makes the proposed native integration more expensive than leaving the current path intact, or if the claimed higher-throughput path necessarily changes decisions.
+
+In that case, retain the parts of the architecture that still remove redundant execution work and classify the incompatible optimization separately.
+
+This does not imply abandoning the maximum-theoretical-performance objective.
+
+11. Evidence and assumptions
+
+All passages were consulted during the current independent proposal phase.
+
+Decisive claim
+
+	
+
+State
+
+	
+
+Provenance and passage
+
+	
+
+Phase
+
+	
+
+Scope
+
+
+
+
+The preserved Python/C++ G4 Leto is the documented release reference
+
+	
+
+supported
+
+	
+
+evidence/existing-text/releases/g4-leto/README.md:1-20,33-46
+
+	
+
+Proposal
+
+	
+
+Release provenance; not live-process identification
+
+
+
+
+Python and web engines have different later capabilities
+
+	
+
+supported
+
+	
+
+Preserved release README, lines 20 and 46
+
+	
+
+Proposal
+
+	
+
+Python/web separation
+
+
+
+
+Checkpoint architecture/configuration is loaded from the checkpoint
+
+	
+
+supported
+
+	
+
+claudio_load.py:32-66
+
+	
+
+Proposal
+
+	
+
+Loader behavior
+
+
+
+
+The supplied configuration metadata gives exact active Python settings
+
+	
+
+unknown
+
+	
+
+evidence/leto-export-configuration-metadata.json:2-4
+
+	
+
+Proposal
+
+	
+
+Export explicitly qualifies this
+
+
+
+
+Current neural inference uses encoder, GRU, fusion and ensemble heads
+
+	
+
+supported
+
+	
+
+temporal_model.py:21-131
+
+	
+
+Proposal
+
+	
+
+Preserved source structure
+
+
+
+
+Candidate observation must not commit hypothetical recurrent state
+
+	
+
+supported
+
+	
+
+temporal_model.py:100-118
+
+	
+
+Proposal
+
+	
+
+Network state semantics
+
+
+
+
+The input representation has 782 features
+
+	
+
+supported
+
+	
+
+encoding.py:1-39
+
+	
+
+Proposal
+
+	
+
+Encoder representation
+
+
+
+
+Per-player native board/history is already persistent
+
+	
+
+supported
+
+	
+
+claudio_agent.py:170-236
+
+	
+
+Proposal
+
+	
+
+Existing optimization
+
+
+
+
+Native candidate encoding already exists
+
+	
+
+supported
+
+	
+
+fast_rules.py:80-82; claudio_fast.cpp:2131-2157
+
+	
+
+Proposal
+
+	
+
+Existing optimization
+
+
+
+
+Root PVS and native transposition-table facilities already exist
+
+	
+
+supported
+
+	
+
+claudio_fast.cpp:1258-1285,1973-2025
+
+	
+
+Proposal
+
+	
+
+Existing optimization
+
+
+
+
+Pawnomics can require repeated candidate-board operations
+
+	
+
+supported
+
+	
+
+claudio_agent.py:729-740; pawnomics.py:168-185
+
+	
+
+Proposal
+
+	
+
+Conditional on active settings
+
+
+
+
+Fused GRU arithmetic can change FP32 trajectories
+
+	
+
+supported
+
+	
+
+network_fastpaths.py:1-5
+
+	
+
+Proposal
+
+	
+
+Documented implementation warning
+
+
+
+
+Replacing exact decision kernels with numerically different kernels is neutral-equivalent
+
+	
+
+contested
+
+	
+
+Arithmetic sensitivity and baseline selection code, claudio_agent.py:844-875
+
+	
+
+Proposal
+
+	
+
+Cannot be claimed without equivalence
+
+
+
+
+The representative caller can end games on a ply cap
+
+	
+
+supported
+
+	
+
+arena.py:94-110; groups.py:75-85
+
+	
+
+Proposal
+
+	
+
+Such caps cannot be credited as natural completions
+
+
+
+
+Historical timing evidence measures present Leto complete-game throughput
+
+	
+
+unknown
+
+	
+
+evidence/READ-ME-FIRST.md:5-9; timing-provenance.json
+
+	
+
+Proposal
+
+	
+
+Existing measurements have different scope
+
+
+
+
+A search-heavy assumed distribution is reasonable for an expensive tactical configuration
+
+	
+
+assumption
+
+	
+
+claudio_agent.py:41-120,742-875; export metadata tactic settings
+
+	
+
+Proposal
+
+	
+
+Theoretical distribution only
+
+
+
+
+Native search improvements can lower per-node execution cost
+
+	
+
+assumption
+
+	
+
+Existing native search implementation, claudio_fast.cpp:1229-1522
+
+	
+
+Proposal
+
+	
+
+Engineering mechanism and estimated magnitude
+
+
+
+
+The proposed moderate/stretch numerical factors are attainable
+
+	
+
+assumption
+
+	
+
+Cost model in §4
+
+	
+
+Proposal
+
+	
+
+Not measured, guaranteed or independently established
+
+
+
+
+Ten distinct preference vectors can create distinct behavior
+
+	
+
+assumption
+
+	
+
+Proposed feature model in §5
+
+	
+
+Proposal
+
+	
+
+Requires positions with eligible alternatives
+
+
+
+
+Nezha's web profile provides seven initial design axes
+
+	
+
+supported
+
+	
+
+evidence/existing-text/releases/g4-nezha/web/personalities/nezha.json
+
+	
+
+Proposal
+
+	
+
+Design background, not local strength evidence
+
+
+
+
+A bounded utility bonus guarantees unchanged Elo
+
+	
+
+unknown
+
+	
+
+Proposed style guards; no strength measurement provided
+
+	
+
+Proposal
+
+	
+
+Not an established guarantee
+
+
+
+
+Organic wrapper and V4 extension are active in the local Leto
+
+	
+
+unknown
+
+	
+
+claudio_load.py:77-81; claudio_agent.py:722-728; D3 ledger
+
+	
+
+Proposal
+
+	
+
+Optional activation not established
+
+
+
+
+Existing historical build settings establish the binary currently loaded
+
+	
+
+unknown
+
+	
+
+Existing build log and D7 ledger
+
+	
+
+Proposal
+
+	
+
+Historical metadata only
+
+The evidence states deliberately separate source support, assumptions and unresolved facts.
+
+No participant agreement or earlier Council decision is used as corroboration.
+
+12. Risks and theoretical acceptance conditions
+
+These are design invariants and refutation conditions, not implementation test stages or prerequisites.
+
+Neutral execution
+
+An exact-equivalence architecture must preserve, for the same complete inputs and original baseline configuration:
+
+The exact move-choice behavior.
+
+Relevant RNG consumption and trajectory.
+
+Actual-history neural state updates.
+
+Search options, logical budgets and fallback behavior.
+
+Chess legality and completion rules.
+
+The original distinction between known results and approximate scores.
+
+An architecture that violates these cannot claim exact neutral decision preservation.
+
+Intrinsic performance
+
+A claimed complete-game gain requires:
+
+𝑇
+c
+o
+m
+p
+l
+e
+t
+e
+,
+n
+e
+w
+<
+𝑇
+c
+o
+m
+p
+l
+e
+t
+e
+,
+b
+a
+s
+e
+l
+i
+n
+e
+T
+complete,new
+	​
+
+<T
+complete,baseline
+	​
+
+
+for equivalent completed workloads on fixed resources.
+
+A reduction in only a partial timer is insufficient.
+
+Personality quality
+
+A proposed personality should show its intended preference where several tactically admissible choices exist.
+
+Its style parameters must not modify difficulty, hidden budgets or termination.
+
+No theoretical profile can guarantee both distinct choices in every position and preservation of the neutral engine's uniquely best choices.
+
+13. Test requests
+
+The following are optional Laboratory requests only, distinct from and not prerequisites to the theoretical architectural plan.
+
+LAB-007-N01 — Neutral full-game decision equivalence
+
+Question: Does an implementation claiming exact equivalence produce identical neutral chess decisions under the same baseline checkpoint configuration, starting positions, independently initialized player histories and RNG states?
+
+Requested observation: Compare actual moves, recurrent-state transitions, search-abort behavior and genuine game termination under the same deterministic conditions.
+
+Refutation condition: Any unexplained move difference, changed tactical decision, altered history progression or changed completion contract invalidates the exact-equivalence classification for that implementation.
+
+This would cause me to withdraw the strict-equivalence claim for the offending optimization, while retaining other theoretically valid components.
+
+LAB-007-N02 — Intrinsic complete-game throughput
+
+Question: What is the per-worker complete-game wall-clock change, separately from decision-thinking time?
+
+Requested observation: Count only genuinely completed games using the same representative self-play contract, settings, resources and workload.
+
+Refutation condition: A claimed acceleration that disappears after counting reset, ingestion, both players' work and completion overhead is not a demonstrated complete-game gain.
+
+LAB-007-N03 — Personality signatures and safety
+
+Question: Do the ten preference vectors produce observably distinguishable play without bypassing the declared tactical and neutral-utility guards?
+
+Requested observation: Identical candidate positions, separate personality decisions, admissibility decisions, preference contributions and any tactical rejection.
+
+Refutation condition: Persistent lack of distinguishable choices across suitable positions, or any accepted move violating a mandatory guard, invalidates the corresponding personality implementation.
+
+No such experiment was executed in this proposal.
+
+Final participant recommendation
+
+I recommend that the King select the integrated, stateful, decision-equivalent G4 Leto architecture as the theoretical direction.
+
+Its distinctive properties are:
+
+Improve the trained AI's internal computation rather than its tournament environment.
+
+Concentrate on native tactical execution, which offers the largest conditional cost opportunity.
+
+Preserve the original recurrent network, baseline scoring and tactical/search semantics.
+
+Remove repeated neural preparation, Pawnomics work, intermediate allocations and unnecessary Python/native crossings.
+
+Preserve two independent player states and genuine complete-game accounting.
+
+Add all ten Pantheon styles as explicit, bounded preference layers without weakening the underlying baseline or conflating style with difficulty.
+
+The illustrative numerical target is approximately 0.0372 complete games/s per worker, or 26.85 seconds per complete game, in the stated stretch scenario, compared with an assumed baseline of 0.0104 games/s and 96.1 seconds/game.
+
+That is a conditional theoretical estimate, not an observed measurement or proven upper bound. The architecture should pursue the greatest intrinsic reduction in complete-game cost that retains the strict baseline decision contract, irrespective of whether the eventual gain is smaller or larger than the illustrative factor.
+
+No source alteration, build, benchmark, experiment, implementation or deployment is requested or performed by this contribution.
+
+END-OF-CONTRIBUTION

@@ -1,0 +1,3 @@
+proposals/* -text
+reviews/* -text
+data-check-normal*.txt -text

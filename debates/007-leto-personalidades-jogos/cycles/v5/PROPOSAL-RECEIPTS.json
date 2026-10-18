@@ -1,0 +1,54 @@
+{
+  "packet_sha256": "e60c509ca586a04520afd0a458a4bd100aedfc4765cae63870162c8eaaee5008",
+  "phase": "proposal",
+  "participants": {
+    "astra": {
+      "status": "skip",
+      "model": "gpt-6-astra high",
+      "interface": "fresh ephemeral read-only CLI",
+      "error": "Failed to create unified exec process: helper_unknown_error: setup refresh had errors",
+      "log": "proposal-astra-run.log",
+      "session_id": 84679,
+      "operator_stopped_after_observed_bug": true,
+      "log_sha256": "b8ff0337a2d2b4a825be92d092d9872f95b57eabf37ec78c4bd1221772f3c802"
+    },
+    "sol": {
+      "status": "skip",
+      "model": "gpt-6.1-sol xhigh",
+      "interface": "fresh ephemeral read-only CLI",
+      "error": "Failed to create unified exec process: helper_unknown_error: setup refresh had errors",
+      "log": "proposal-sol-run.log",
+      "session_id": 95726,
+      "operator_stopped_after_observed_bug": true,
+      "log_sha256": "b9c0bb41ef16effe853a322a3805886a144b818208c9a5e3dba8c9caa56cd61b"
+    },
+    "normal": {
+      "status": "complete",
+      "interface": "fresh ChatGPT web",
+      "conversation": "https://chatgpt.com/c/6ad40fb4-d0b0-83eb-92b4-7c891c6d61b7",
+      "original": "proposal-normal.txt",
+      "capture": "Exact rendered DOM text, UTF-8, no added final LF; table/math rendering artifacts retained",
+      "fnv64": "eef10680b88c3d42",
+      "bytes": 53095,
+      "visible_model": "GPT-6; High visible in web composer; Normal variant not independently verified",
+      "prior_exposure": "Account-level earlier Council summaries visible; disclosed by participant",
+      "sha256": "32e969c42b4d9e83d843259577369e68ac49545e7103c5497544117bc0c80f27"
+    },
+    "sonnet": {
+      "status": "skip",
+      "model": "Sonnet 5.5 High",
+      "interface": "fresh Claude web",
+      "conversation": "https://claude.ai/chat/a63b5676-d721-482d-aeca-bfeb9d6d56b1",
+      "error": "This response didn’t load. You are out of free messages until 2:50 AM. Keep chatting with Claude Pro.",
+      "packet_and_zip_uploaded": true
+    },
+    "argon": {
+      "status": "skip",
+      "model": "4 Argon",
+      "interface": "fresh Gemini web",
+      "conversation": "https://gemini.google.com/app",
+      "error": "A sua subscrição Google AI Pro terminou. Selecting 4 Argon opens Desbloqueie o Gemini 4, with an upgrade requirement.",
+      "packet_not_sent_due_to_model_access_block": true
+    }
+  }
+}
