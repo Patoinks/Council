@@ -1,1 +1,5 @@
 * -text
+proposals/* -whitespace
+reviews/* -whitespace
+incomplete/* -whitespace
+proposal-parts-v1/* -whitespace

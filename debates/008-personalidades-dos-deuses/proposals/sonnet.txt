@@ -1,0 +1,637 @@
+END-OF-COUNCIL-008-PROPOSTA-v1 | Missing sections: none
+
+# Proposal — sonnet (Council 008, Personalities of the Gods)
+
+- **Participant:** sonnet
+- **Visible model:** Claude Sonnet 5.5, as stated in my own context; no interface label is observable.
+- **Date:** 2026-10-18
+- **Phase and round:** Phase 2, independent proposal, round 1
+- **Context version:** v1, CONTEXTO.md including the Law 7 update
+- **Reference commit:** 99e22e7, quoted from MANIFESTO.md and not independently verified
+- **Files received and read:** all sections of the packet: LEIS, REGRAS, CONTEXTO, MANIFESTO, the contribution template, DATA-CHECK-LEDGER, the source inventory and the 31 source files.
+  - I relied on `claudio_agent.py`, `abertura.py`, `pawnomics.py`, `claudio_load.py`, `claudio_net.py`, `temporal_model.py`, `cognitive_memory.py`, `king_safety*.py`, `fast_rules.py`, `claudio_fast.cpp` (interface semantics only), `g16v2.ts`, `personality.ts`, `leto*.ts`, `temporal.ts`, `network.ts` and both metadata JSONs.
+  - The internals of the C++ `DeepSearch`/`MateSearch` and of `g4-rules.cpp` were read only for what they expose.
+- **Tools used:** none
+- **Cross-conversation memory:** a memory store exists in this deployment; I opened none of it and used none of it for this design.
+- **Prior exposure:** none beyond this packet; no earlier Council material.
+- **New conversation:** yes
+- **Access limits:**
+  - Not supplied, so not assumed: `abertura_v4.py`; the web files `pieceSafety`, `abertura.ts`, `letoPosition`, `pawnomics*.ts`, `pawnProofs`, `mateSearch`, `exchangeSearch`; any Python effective-config dump; whether the checkpoint carries a learned king-safety (KS) model.
+  - The configuration values below come from web export metadata and are `attributed`, not proven for the Python engine.
+
+## Brief (≤300 words)
+
+**Recommendation.** Build every god as a style layer over an unchanged Leto anchor.
+
+1. Run the existing `_choose` pipeline.
+2. Certify a corridor of near-equivalent moves. It uses exact tactical and mate checks, a uniform 2-ply refresh and a score window of δ·σ around the anchor. A concession ledger and a deeper-search arbiter bound it.
+3. Pick inside the corridor with a 25-signal, phase- and mode-modulated style utility plus a persistent plan overlay. The overlay has ten plan types, hysteresis, chaining and commit-on-observe memory.
+4. Replace the one-move-per-key opening book with a support-filtered theory menu, so openings can differ between gods.
+
+**Decisive reasons.**
+- **Score scale.** In the supplied metadata the network's move-value spread is about 0.0215. Safety (1.76·tanh), opening principles (0.15×units), Pawnomics (0.3·tanh) and king terms are roughly 2–25 times larger. A bonus added to the global score therefore either vanishes or overrides tactics. A corridor measured in σ avoids both.
+- **The Nezha selector rarely fires.** Only candidates that root PVS searched exactly (status 1) are "verified". Four of its seven axes reduce to one `forcing` scalar. Tension is the constant .15 for every quiet move.
+- **The book makes the bots identical.** `opening_book` returns one move per key for 40 plies.
+
+**Main alternative.** Repair and extend the Nezha tie-break. It is a strict subset of this design.
+
+**Failure condition.** The corridor is usually a single move (inert style), or chosen moves are systematically worse than the anchor under deeper calculation (δ too wide). Both can be read off the per-decision trace the design logs.
+
+**Limits.** All numeric parameters are labelled priors. No Elo parity is claimed. No experiment is part of the plan, and there are no Test requests.
+
+## Analysis
+
+Labels: **[E#]** is evidence from the table at the end. **[EXISTING]** is a function already in the supplied code. **[NEW]** is a proposed extension. **[HYP]** is a hypothesis. **[WEB]** and **[PY]** name the implementation.
+
+### 1. Reading of the objective
+
+The deliverable is ten computable personalities for the local Python/C++ Leto, with a separate transport note for the web engine.
+
+- **R1/R2** need identities that are distinguishable by intent. Aggression, randomness or passivity alone is not enough.
+- **R3/R5** need style that never weakens the core on purpose. Difficulty and style must stay separable.
+- **U1–U4** decide the mechanism: the combination, the signals, the freedom, and the audit of hidden deterioration.
+
+### 2. Why the mechanism has to be a corridor (U1, R5)
+
+**Score scale [E1, E4].** Per-move network values are rescaled to a std of `value_spread_ref` = 0.0215 (σ). The rest of the score is much larger:
+
+| Term | Size | In σ |
+|---|---|---|
+| `safety_weight`·tanh(net/3), 1 pawn | 0.565 | ≈26 |
+| Opening principles (units up to ±1.5, `hold` to ply 30) | ±0.225 | ≈10 |
+| `pawn_weight`·tanh | up to 0.30 | ≈14 |
+| `king_weight`·ΔKS | up to 0.055 | ≈2.5 |
+
+Two consequences follow.
+- **Opening, no book.** Between 0.4 and 1.5 units of principle score decides the move, not the network.
+- **Midgame.** Any material difference above about 0.03 pawn already exceeds 1σ. The slope of the safety term at zero is 1.76/3 per pawn, so 0.05 pawn ≈ 1.4σ.
+
+A style bonus added to the score would be invisible or would override tactics. A **corridor measured in σ** is therefore, by construction, a corridor of *certified equal material* among moves the network cannot separate.
+
+**Where the existing code blocks style [E5, E6, E10]:**
+- In web Nezha, `personalityAlternatives` only sees candidates in `verified`. `verified` receives only root-search status 1, plus the checked best move.
+- In the root PVS, a null-window search that does not beat the running best gives status 2, and the score is clamped to `best−1e-9`. A clamped candidate passes the gap test trivially but is not verified, so nothing gets considered.
+- The 0.02 utility window equals about 1σ, and the 0.025 bonus cap is of the same order. Even a verified alternative must overcome its gap with a ≤0.05 bonus swing.
+
+### 3. Architecture: Anchor–Corridor–Plan (ACP) [NEW unless marked]
+
+| Stage | What happens | Status |
+|---|---|---|
+| S0 gate | The existing hard returns stay untouched: tablebase, own forced mate, single legal move. Style additionally yields when `nets is None` (no tactical certificate), ≤2 legal moves, `known[b0]`, or a terminal-scale score. | EXISTING + NEW gates |
+| S1 baseline | The full `_choose` pipeline runs unchanged and yields `b0`. A copy `scores_pre` is kept before `_root` clamping. | EXISTING + 1 copy |
+| S2 shortlist and certification | Top N_s=8 by `scores_pre` (never `known` or mate-flagged), plus `b0`, plus book-menu moves in the book window. Each gets an exact `fast.deep_after_moves([code], values, depth, exch_depth, nodes, True)`, giving its loss L and main line. Then a uniform 2-ply refresh through `_replies` over the whole shortlist, and the existing `mate_defence` check. | NEW use of EXISTING calls |
+| S3 anchor and corridor | Anchor a = argmax of the refreshed S. Corridor C = {i: S_i ≥ S_a − δ_dyn} ∩ certified ∩ mate-safe ∩ ledger-affordable (the style-utility pick of S4 then also passes the P-band and the 4.5 ε_net checks). | NEW |
+| S4 style utility | U_i = S_i + σ·B·[(1−ρ)·style(i) + ρ·c(age)·plan(i)], over z-normalised signals. | NEW |
+| S5 guard | Concession ledger, then a deeper arbiter (depth_ext = tactic_depth+4, nodes ×4). On failure fall back to the anchor. | NEW |
+| S6 commit | Plan, ledger, opponent-model and trace are updated by *observing* the played move. | NEW |
+
+**The anchor differs slightly from the unrefreshed Leto choice [DESIGN].** Refresh over a wider shortlist may move the argmax. I do not claim preservation of the exact Leto decision. I claim the anchor is the best move under a uniformly refreshed score, and that every style choice is costed against that anchor. Setting style off reproduces Leto exactly.
+
+**Dynamic corridor width [HYP, E2/E19].**
+- δ_dyn = δ_d · σ_t · m_mode · g_conf.
+- σ_t = max(std of scaled network values over legal moves, 0.5·`value_spread_ref`).
+- m_mode: LEVEL/AHEAD 1.0, ATTACKED 0.7, BEHIND 0.6 (Loki 0.8, because its traps are minimax-gated).
+- g_conf = 1 + 0.5·clip(u_a/ū − 1, −0.5, 1), with u_a the head standard deviation of the anchor and ū the shortlist mean. This is relative, so it needs no unmeasured absolute scale.
+- Tactical sharpness: if any shortlist member's certified net differs from the anchor's by more than 0.8 pawn, δ_dyn ×0.5 (unless the deficit certificate below applies).
+- Ending with ≤7 total pieces and no `syzygy`: δ_dyn ×0.4, and only KCT/RUN/SMP signals are active.
+
+**Deficit-certified candidates (tier B; per-god allowance g_d) [HYP, strength-risky].** A candidate whose shallow net is below the anchor's by at most g_d pawn units may enter C if the extended search (depth_ext) certifies `net_ext_i ≥ net_ext_a − 0.15·values[PAWN]`. This only widens the set to tactics a deeper horizon confirms. g_d = 0 means never.
+
+**Ledger [NEW].**
+- cost_i = S_a − S_i.
+- Available L_t starts at cap/2, so the first style choices are affordable.
+- A candidate is affordable if cost_i ≤ L_t. After the choice, L_{t+1} = min(cap, L_t + refill − cost).
+- cap = κ·δσ and refill = 0.4·δσ per own move. This bounds the *cumulative score concession* over any window by cap + refill·window. It bounds score units, not Elo [E1].
+
+**Arbiter [NEW].** If chosen ≠ a, compare chosen and a at depth_ext. If net_ext(chosen) < net_ext(a) − 0.15·values[PAWN] (and the chosen is not a deficit-certified tier-B candidate), drop it and take the next-best U. If none survives, play a.
+
+**Protections and their real scope [R5]:**
+
+| Protection | Sees | Does not see |
+|---|---|---|
+| Own forced mate by the rules (`mate_attack`, 2 in the metadata) | Exact mates in the configured horizon | Longer mates, quiet winning plans |
+| `terminal_strict` and repetition flags on candidates | The 1-ply terminal result of each candidate, repetition of this game's history | Repetition risk that arises later |
+| `mate_defence` (2 enemy moves) | Forced mates of ≤3 plies against the chosen move | Deeper mates, unless the tactic search surfaces them as ≈−1000 |
+| `exchange_depth` 5 for all moves, `scan_depth` 3 for all moves, 6-ply exact for top-10 + final move [E14] | Material and mate inside those horizons | Anything positional, or beyond 6 plies |
+| Corridor, ledger, arbiter | Score-unit concession and deeper material equivalence | Real win-probability loss; a heuristic composite S is not a probability |
+
+A limit on S says nothing about the actual loss in strength. Style choices could still cost strength beyond these horizons [R5].
+
+**Difficulty is orthogonal [R3].** Strength comes only from the baseline `ClaudioConfig` (depth, nodes, `reply_top`, weights). Style presets never change them. Campaign difficulty is a choice of baseline preset per level. The campaign order in `campaign.ts` is not asserted to be strength order [E7].
+
+### 4. Signals (U2)
+
+**Audit of the seven Nezha axes [E6].**
+
+| Axis | Finding |
+|---|---|
+| `king_safety_bias` | One signal mixes attack on the enemy king and defence of one's own, so it cannot express "attacker who ignores safety" versus "defender". |
+| `eval_optimism` | The dispersion of the network's heads. It is network noise, not chess content. |
+| `prophylaxis_vs_initiative` | Just a `forcing` scalar (0.5·check + 0.5/(1+replies/8)). |
+| `gru_momentum_trigger` | tanh(momentum)·forcing. Momentum is identical for all candidates at the root, so this is forcing times a constant. |
+| `resilience_and_contempt` | Equals forcing·(1−value) except for repeats. |
+| `tension_preference` | For every non-capture it is the constant .15, with no information on quiet moves. |
+| `pawn_style` | Genuine, and kept. |
+
+So only about three independent signals (king, forcing, pawn) exist, and the bonus cap is ±0.025. **Seven axes are not enough.** Momentum becomes a *state variable* (below), not a candidate signal. I propose 25 signals.
+
+**Notation.**
+- `me` is the mover, R the root, A the position after the candidate (enemy to move).
+- A\* is the *settled* position: A plus the calculated main line from `deep_after_moves`, cut to an even length of at most 4 plies. This follows the `_leaf` pattern: `push`, `push_many(line)`, read, then `pop` [E9]. With no line, A\* = A.
+- Z is the enemy king zone (king plus ring).
+- K_e(X) and K_o(X) are the enemy and own king exposure in [0,1]: 0.5·`fast.king_risks()` risk + 0.5·(1−KS), or the geometric risk alone if no KS model is loaded.
+- z_ik = clip((f_ik − median_{j∈shortlist} f_jk) / ref_k, −1, 1). Ref scales are fixed per signal, so tiny differences are not amplified. If every candidate is equal, z = 0.
+
+| # | Sig | Definition (positive = more of it) | Pos | ref | Source |
+|---|---|---|---|---|---|
+| 1 | ATK | K_e(A) | A | .15 | `fast.king_risks`, `king_model.ks_rows` |
+| 2 | SHL | −K_o(A) | A | .15 | same |
+| 3 | FRC | .45·gives_check + .25·is_capture + .30·(1−min(1, R_A/24)), R_A = number of enemy legal replies in A | A | .5 | `fast.checks_after`, `legal_moves` |
+| 4 | THR | Number of enemy non-king pieces attacked in A with target undefended or attacker cheaper (own K/D values) | A | 2 | python-chess attackers |
+| 5 | TEN | Pawn-contact pairs + 0.5 × mutual piece attacks | A | 3 | NEW |
+| 6 | SMP | (non-pawn pieces(R) − non-pawn pieces(A\*)) / 2 in [0,2], queen counts 2; 0 if net_i < −ε | A\* | 1 | NEW; mirrors Leto's own `trades` rule |
+| 7 | LCK | Number of blocked pawn pairs (my pawn facing an enemy pawn) | A\* | 2 | NEW |
+| 8 | STM | Σ over my pawns with \|file − enemy-king file\| ≤2 of max(0, relrank−3) | A | 1.5 | NEW |
+| 9 | RUN | `pawnomics.balance(A, me, values, v2) − balance(R, …)`, in pawns | A | .6 | `pawnomics.py` |
+| 10 | STR | (doubled+isolated enemy) − (doubled+isolated mine) | A\* | 1 | `abertura._pawn_structure` |
+| 11 | CEN | (my attacks and occupation on d4/e4/d5/e5 − the enemy's) / 8 | A | .25 | `abertura.CENTRE` |
+| 12 | SPC | Squares in the enemy half (relative ranks 5–8) attacked by me and not by enemy pawns | A | 4 | NEW |
+| 13 | MOB | Σ over my N/B/R/Q of popcount(attacks & ~own & ~enemy-pawn attacks) | A | 6 | NEW |
+| 14 | RST | −Σ over enemy N/B/R/Q of the same | A | 6 | NEW |
+| 15 | FIL | Number of my R/Q on open or semi-open files + 0.5 for each file the move opens toward the enemy king | A | 1 | NEW |
+| 16 | PRO | −(number of enemy legal replies in A that check or capture with immediate positive gain) | A | 4 | `legal_moves`, `checks_after` |
+| 17 | SOL | −(my non-king pieces that are attacked and undefended, plus pinned ones) | A | 2 | NEW |
+| 18 | VOL | std of the candidate's five head values (+ = volatile) | A | σ | `heads` |
+| 19 | TRP | E_p[min(v_r, 1)] − min_r v_r over the enemy replies. v_r is the post-reply network value from the refresh, p the softmax of `predict_logits`. Reply values are capped at 1, and candidates allowing mate are excluded [E8, E18]. | A | .03 | `_replies` internals |
+| 20 | LEP | min(1, Chebyshev distance/5) for B/R/Q moves ≥3 squares; +0.6 for a knight move crossing from one half of the board to the other | A | .4 | NEW |
+| 21 | IMB | Σ over N,B,R,Q of \|n_t(me) − n_t(enemy)\| | A\* | 2 | NEW |
+| 22 | BPR | [≥2 own bishops] − [≥2 enemy bishops] | A\* | 1 | NEW |
+| 23 | BAT | Aligned slider pairs (R/R, R/Q, B/Q adjacent on one line) whose front piece attacks a square of Z | A | 1 | NEW |
+| 24 | KCT | −(distance of my king to the nearest of d4/e4/d5/e5)/3 | A | .5 | NEW; gated ph<.35 |
+| 25 | WKN | Number of "weak squares/pieces" set by the enemy's last move (vacated shelter squares, the moved piece if unsupported, a flank pawn advance) that my pieces attack after the move | A | 2 | NEW; 0 unless enemy_commit > 0 |
+
+**Gates.** KCT active only when ph<.35. RUN gate = 0.3+0.7·(1−ph). All others gate = 1.
+
+### 5. State variables, modes and phase
+
+- **Phase.** ph = clip((m − 4)/8, 0, 1) with m the number of non-pawn, non-king pieces on the board (start 14). Opening-script flag: ply <30 and undeveloped minors ≥2. Ending: ph <.35.
+- **Mode.** `ahead` is Leto's own computed variable (`raw_best`/material mix).
+  - AHEAD: enter at ahead ≥ .635 (`ahead_value`, attributed), leave below .600.
+  - BEHIND: enter at ahead ≤ .365, leave above .400.
+  - ATTACKED: enter when K_o(R) ≥ .30, leave below .20. It is orthogonal to AHEAD/BEHIND.
+  - The hysteresis band edges are priors.
+- **Trend τ** = (v_best_now − v_best_two_own_decisions_ago)/σ. It replaces Nezha's momentum axis and nudges plan selection: τ ≥ +1 raises the plan's continuation score, τ ≤ −1 lets CONSOL/COUNTER compete.
+- **Opponent model** [E8, E18]. `enemy_commit` ∈ [0,1] = clip(ΔK_e from their last move/0.1 + 0.5·Δ(loose enemy pieces) + 0.5·[their last move is a flank pawn push ≥ rank 4 or an unsupported piece advance], 0, 1). It is computed from `board.copy(stack=True).pop()`.
+  - `wise_streak`: after each opponent move, increment when it was within 0.5σ of the reply value minimum stored for our played move, reset otherwise.
+
+### 6. Plan system
+
+Plan overlay vectors use the same 25 signals. A plan is a time-extended re-weighting with a target and a progress test.
+
+| Plan | Applicability a_p ∈ [0,1] | Overlay weights | Complete / abandon |
+|---|---|---|---|
+| KING | 0.5·clip((K_e(R)−.05)/.25,0,1) + 0.5·min(1, att_zone/3). `att_zone` is the number of my non-pawn pieces attacking Z. Per-god gate. | ATK 6, FRC 3, THR 3, BAT 3, FIL 2, SHL 1, STM\* 2 (\*only if pawns_ok) | Complete on mate or K_e(A) ≥ .6 → hold. Abandon if K_e regresses ≥.15 over 3 moves or att_zone <2. |
+| STORM | wing(enemy king) · (0.4+0.6·[my king opposite or central]) · [≥2 of my pawns on the 3 files near the enemy king with relrank ≤4] | STM 8, SPC 3, ATK 3, TEN 2, FIL 2, SHL −1 | Complete when a file opens toward the king → chain KING. Abandon if the enemy king leaves the wing. |
+| BREAK | [a legal pawn move creates contact with supporters ≥ attackers] · (1 if undeveloped ≤1 else .5) | TEN 5, CEN 4, SPC 3, THR 2, LCK −2, SMP −1 | Complete when the break is played. |
+| CLAMP | 0.6·[≤3 captures available] + 0.4·[K_o(R) ≤.15] | RST 6, PRO 5, SPC 4, LCK 3, MOB 2, TEN −3, FRC −2 | Complete when the enemy's active replies ≤ 0.4× their count at start → chain BREAK or KING. |
+| CONSOL | max([BEHIND], [ATTACKED], clip((K_o(R)−.12)/.2,0,1)) | SOL 6, SHL 6, PRO 3, SMP 3, TEN −2, FRC −2 | Complete when mode returns to LEVEL and K_o(R) <.12. |
+| LIQUID | Leto's own `share` = clip((lead − `simplify_margin`)/3, 0, 1), + 0.4·[STR advantage ≥1] | SMP 8, STR 3, SOL 3, RUN 3, KCT 2, TEN −3, ATK −2 | Complete when non-pawn pieces ≤4 → chain PASSER. |
+| PASSER | clip(max(pawnomics_me, pawnomics_enemy)/1.2, 0, 1)·(0.5+0.5·(1−ph)) | RUN 8, KCT 3, FIL 2, SMP 2, SOL 2 | Abandon when no runner remains. |
+| COUNTER | clip(enemy_commit/0.4, 0, 1) | WKN 6, FRC 3, THR 3, ATK 3, SOL 2, SMP 1 | Chain CONSOL once the commit is punished or fades. |
+| FEINT | [ph ≥ .4] · [wise_streak <2] | TRP 8, VOL 3, PRO 2, FRC −3, THR 1 | Abandon on wise_streak ≥2 → CONSOL/CLAMP. |
+| ROAM | [ph ≥ .4] · (1 − min(1, LCK(R)/6)) | LEP 6, MOB 5, IMB 4, FIL 2, THR 2, LCK −3, SMP −3 | Abandon if mobility falls and the position locks. |
+
+**Selection.**
+- score_p = prio_d[p] · a_p(R) · gate_d[p]. Start the best plan if score_p ≥ θ_start = 0.25.
+- An active plan is replaced only if another score exceeds it by ≥0.25 and the active plan's age ≥ min_dwell_d, or on an abandon/chain event.
+
+**Abandonment triggers:**
+- *Starvation:* no corridor member with plan-z ≥ 0.2 for 2 consecutive decisions.
+- *Regression:* the plan's progress measure falls over 3 decisions.
+- *Invalidation:* a precondition is lost (see the table).
+- *Timeout:* age > max_age_d.
+- *Tactical pause:* a forced decision (a gate in S0, or a corridor of one) pauses the plan for TTL=2 decisions without aging it. After the pause the plan resumes unless invalidated.
+
+**Persistence bonus.** c(age) = 1 + 0.25·min(2, age), cap 1.5, and ρ = 0.5 while a plan is active (0 otherwise).
+
+**Commit-on-observe memory [NEW, matters for web and UCI re-asks].**
+- Plan state is updated only when the played move is observed in the game history, not when a decision is computed.
+- A snapshot `decisions[ply] = {anchor, chosen, plan, signals}` is stored per decision. If the move actually played at that ply equals `chosen`, the plan advances. If another move was played (a fallback or a deadline default), the plan registers "interrupted" and pauses.
+- `choose` is therefore idempotent for a repeated position: it recomputes from the stored pre-decision snapshot for that ply.
+- A new game or divergent history calls `reset()`. `reset()` must also clear the style state.
+- The base module `cognitive_memory.SkillLibrary` holds a perspective-mirrored action-sequence format [E17]. Claudio does not import it. This plan memory is separate and not learned.
+
+### 7. Opening and book (R6)
+
+**The problem [E3, E16].**
+- `abertura.repertoire_move` returns one move per key (`setdefault`, first line wins) for `board.ply() < 40`, so Leto's openings are identical for every personality.
+- `abertura.LINES` itself carries several alternatives per key across lines, plus fringe and refutation branches.
+
+**Menu [NEW].**
+- Build `menu[key] = [moves in first-appearance order]`, filtered to moves with `support ≥ 3`, the number of distinct lines containing (key, move). The top-1 move is always kept.
+- Examples: after 1.e4 this keeps e5, c5, e6, c6, d5, d6, g6, Nf6 and drops ...g5/...h5.
+- Menu moves are candidates in the style corridor with relaxed band δ_book = 2·δ_d (theory moves are externally vetted), plus the P-band below.
+- A menu move must still pass the tactical certificate and `mate_defence`. If no menu move fits, the baseline decides.
+- If the menu has one entry, play it, as Leto does today.
+
+**Opening principles stay but are banded [E4].** Because P-terms dominate the score, I apply a P-band: P_i ≥ P_best − δ_P, with development precondition `undeveloped_minors ≤ 1` for flank-pawn moves.
+
+**Style ramp.** `style_scale(ply) = clip((ply−6)/10, 0, 1)` applies outside the menu window, so the first 6 plies stay theory/principles.
+
+### 8. The ten gods
+
+#### 8.1 Shared parameter table [HYP: all priors]
+
+| God | δ (σ) | δ_P | g (pawn) | ledger cap (×δσ) | min_dwell/max_age | pawns_ok |
+|---|---|---|---|---|---|---|
+| Nezha | 1.0 | .50 | .6 | 2.5 | 2/8 | no |
+| Loki | 1.1 | .70 | .6 | 2.5 | 1/6 | no |
+| Wukong | 1.3 | .80 | 1.0 | 3.0 | 2/8 | no |
+| Susanoo | 1.2 | .90 | 1.0 | 3.0 | 5/16 | yes |
+| Zeus | 0.9 | .45 | .4 | 2.5 | 4/14 | yes |
+| Tsukuyomi | 0.8 | .40 | 0 | 2.5 | 6/18 | no |
+| Anubis | 0.7 | .40 | 0 | 2.0 | 3/12 | no |
+| Hades | 0.8 | .40 | 0 | 2.5 | 6/20 | no |
+| Amaterasu | 0.9 | .50 | .3 | 2.5 | 3/12 | no |
+| Rá | 0.7 | .40 | 0 | 2.0 | 5/16 | no |
+
+Refill is 0.4·δσ per own move everywhere. Candidate sets are N_s=8, depth_ext = tactic_depth+4, nodes_ext = 4×`tactic_nodes`.
+
+#### 8.2 Base weights (ints; ŵ = w/Σ|w|)
+
+| God | Base weights |
+|---|---|
+| Nezha | FRC 9, THR 7, ATK 6, TEN 4, CEN 3, MOB 3, SHL 3, BAT 2, VOL 2, SMP −3 |
+| Loki | TRP 10, VOL 4, THR 3, PRO 3, SOL 3, TEN 2, LEP 2, FRC −2, SMP −1 |
+| Wukong | LEP 8, MOB 7, IMB 6, SMP −6, LCK −5, FIL 3, THR 3, TEN 3, VOL 3 |
+| Susanoo | STM 10, TEN 6, ATK 5, SPC 4, FIL 3, CEN 3, THR 2, SHL −2, LCK −3, SMP −4 |
+| Zeus | CEN 9, SPC 6, TEN 4, SOL 4, THR 3, SHL 3, FRC 2, ATK 2, STR 2, BPR 2, SMP 1 |
+| Tsukuyomi | RST 9, PRO 8, SPC 5, LCK 4, SOL 4, MOB 3, SHL 2, TEN −4, FRC −3 |
+| Anubis | SOL 8, WKN 8, SHL 7, PRO 5, STR 3, SMP 2, THR 2, LCK 2, TEN −2, VOL −2 |
+| Hades | SMP 8, STR 7, RUN 6, KCT 5, LCK 3, SOL 3, PRO 2, VOL −2, FRC −2, ATK −2, TEN −4 |
+| Amaterasu | BPR 7, FIL 6, MOB 6, SOL 6, SHL 4, CEN 4, SPC 3, THR 2, TEN 1, LCK −3 |
+| Rá | SHL 7, BAT 7, ATK 6, SOL 5, FIL 4, PRO 3, STR 2, CEN 2, FRC 1, SMP −4 |
+
+(Σ|w| is computed per god at runtime; KCT and RUN apply their gates.)
+
+#### 8.3 Plan priorities (0 = never)
+
+Columns: KING, STORM, BREAK, CLAMP, CONSOL, LIQUID, PASSER, COUNTER, FEINT, ROAM.
+
+| God | KING | STORM | BREAK | CLAMP | CONSOL | LIQUID | PASSER | COUNTER | FEINT | ROAM |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Nezha | .9 | .2 | .6 | 0 | .3 | 0 | .4 | .6 | 0 | .1 |
+| Loki | .3 | 0 | .3 | .2 | .3 | 0 | .2 | .5 | .9 | .3 |
+| Wukong | .3 | .1 | .4 | 0 | .1 | 0 | .3 | .4 | .2 | .9 |
+| Susanoo | .5 | .9 | .7 | .1 | .1 | 0 | .3 | .2 | 0 | 0 |
+| Zeus | .4 | .1 | .9 | .5 | .2 | .5 | .4 | .3 | 0 | 0 |
+| Tsukuyomi | .3 | 0 | .2 | .9 | .4 | .2 | .3 | .3 | 0 | .1 |
+| Anubis | .1 | 0 | .2 | .2 | .9 | .3 | .2 | .9 | .1 | 0 |
+| Hades | 0 | 0 | .2 | .4 | .3 | .9 | .8 | .3 | 0 | 0 |
+| Amaterasu | .4 | 0 | .5 | .3 | .3 | .2 | .4 | .3 | 0 | .5 |
+| Rá | .9 | .2 | .4 | .4 | .5 | .3 | .3 | .4 | 0 | 0 |
+
+Gates:
+- Rá's KING needs K_o(R) ≤ .12, att_zone ≥3 and undeveloped minors ≤1 ("solar noon"). Failing it, CONSOL or CLAMP runs.
+- Tsukuyomi's KING/BREAK follow a completed CLAMP only.
+
+#### 8.4 Ending and mode modulation (Δ on base weights)
+
+| God | Ending (ph<.35) | AHEAD | BEHIND | ATTACKED |
+|---|---|---|---|---|
+| Nezha | FRC×.5, ATK×.3, RUN+6, KCT+4 | ATK+3, SHL+2 | FRC+3, THR+2 | FRC+4, SHL+2 |
+| Loki | TRP×.7, LEP→0, KCT+4, RUN+3 | TRP×.4, SOL+4, SMP→+2 | TRP×1.3 | PRO+3, SOL+2 |
+| Wukong | SMP→−2, LCK→0, KCT+5, RUN+4, IMB×.5 | SOL+3, IMB×.5 | IMB+3, MOB+2 | LEP+3, THR+2 |
+| Susanoo | STM×.5, RUN+6, KCT+4, SMP→0 | SHL→+1 | STM+3, ATK+2 | TEN+2, counter-wing STORM |
+| Zeus | CEN→0, KCT+6, RUN+5, SMP→+3 | SMP+4, SOL+2 | SMP→−3, CEN+2 | SHL+2, TEN+2 |
+| Tsukuyomi | KCT+5, RST×1.2, SPC×1.2 | RST+2, SMP+1 | PRO+3 | PRO+4, SOL+2 |
+| Anubis | KCT+5, SOL×.7, SMP→+3 | SMP+3, THR+1 | SOL+3 | SHL+3, PRO+2 |
+| Hades | KCT×1.3, RUN×1.3, STR×1.2 | SMP+3, STR+1 | SMP→−2 | SMP+3, SOL+2 |
+| Amaterasu | BPR×1.3, KCT+4, RUN+3, FIL×.7 | SOL+2, SMP+2 | FIL+2, MOB+2 | SOL+4 |
+| Rá | SHL→1, BAT×.4, KCT+4, RUN+5 | ATK+3, SMP→0 | SOL+3, SHL+2 | SHL+3, SOL+2 |
+
+#### 8.5 Dossiers
+
+Each dossier gives intent and plans, phase transitions, typical decisions, aversions, and reactions to winning, losing and attack.
+
+**Nezha, Prince of Fire: initiative with pieces.**
+- *Intent.* Seize and keep the initiative through piece play: quick development, early castling, forcing moves, open lines. He attacks the king with pieces, not with pawn storms.
+- *Phases.* Opening: menu lean toward open or semi-open lines. Middlegame: KING (priority .9), then BREAK/COUNTER. Ending: the initiative becomes passed pawns (RUN, KCT).
+- *Typical decisions.* Prefers the developing move that attacks something over the "quiet improving" move. Trades only when it keeps the initiative.
+- *Aversions.* Passive regrouping, early liquidation, locked centres, pawn storms.
+- *Reactions.* Ahead: presses for mate and stays attack-minded. Behind: seeks counterplay (FRC, THR). Under attack: counterattacks (FRC+4).
+- *Hysteresis rule.* If K_e gains less than .10 in 5 moves of KING, he pauses into CONSOL for 3 moves, then returns ("the fire needs breath").
+
+**Loki, Trickster: traps modelled on the opponent.**
+- *Intent.* Choose the move, among sound near-equals, after which the opponent's predicted natural reply is the weaker one (TRP). The minimax floor of the move stays inside the corridor, so these are never cheap shots.
+- *Phases.* Opening: prefers branching, transposing menus. Middlegame: FEINT, a decoy wing or target followed by a switch when the opponent bites. Ending: small traps only (TRP×.7).
+- *Typical decisions.* Quiet moves that preserve options (FRC −2); keeps move order flexible.
+- *Aversions.* Transparent forcing lines, mechanical liquidation, wasting tricks on an opponent who has seen through them.
+- *Reactions.* If `wise_streak` ≥2, TRP weight ×.3 and FEINT pauses; CONSOL/CLAMP take over until the opponent errs, then TRP ×1.2 for 4 moves. Ahead: closes the door (SOL, SMP up). Behind: swindles (TRP×1.3) but only minimax-sound ones. Attacked: hides defensive resources (PRO+3).
+
+**Wukong, Monkey King: dynamic imbalance and piece leaps.**
+- *Intent.* Keep every piece active and generate imbalances (piece-type differences) and long relocations ("cloud leaps"). Keep pieces on, avoid locking the centre, and switch play across the board.
+- *Phases.* Opening: flexible development, no early pawn commitments. Middlegame: ROAM, then BREAK on the wing opposite the piece cluster. Ending: king dance (KCT+5, RUN+4).
+- *Typical decisions.* A bishop or rook relocating ≥4 squares over a retreat; a knight leaping to the other wing; unbalancing exchanges.
+- *Aversions.* Trades, closed structures, static symmetry.
+- *Reactions.* Ahead: still plays dynamically but secures loose pieces (SOL+3). Behind: complicates (IMB, MOB). Attacked: relocates defenders (LEP+3).
+
+**Susanoo, Storm God: pawn storms and waves.**
+- *Intent.* Wave after wave of pawn levers, accepting some structural damage of his own, usually aimed at the enemy king's wing, preferably after opposite-side castling. He keeps tension until the break is ready.
+- *Phases.* Middlegame: STORM, chaining to KING (pieces rush in) once a file opens. Ending: pawn majorities march (RUN+6), STM halves.
+- *Typical decisions.* Flank pawn pushes once development is ≥ (undeveloped minors ≤1); f3/g4/h4-type structures; keeps levers in reserve.
+- *Aversions.* Early simplification, pure piece manoeuvring, passivity.
+- *Reactions.* Ahead: secures his own king first (SHL flips positive). Behind: raises STM and ATK (but δ ×0.6). Attacked: counter-storm on the other wing, or a central break if both kings sit on the same wing.
+
+**Zeus, King of Olympus: centre, then one decisive break.**
+- *Intent.* Build central space and coordination (CEN, SPC, SOL), then strike with a single decisive central break; convert by LIQUID when ahead. The "thunderbolt" is calculation-gated: forcing wins only appear when the existing tactical scoring already shows them.
+- *Phases.* Opening: classical centre in the menu choice. Middlegame: CLAMP→BREAK chain. Ending: KCT, RUN, SMP up.
+- *Typical decisions.* Occupies and supports the centre, delays the break until supporters ≥ attackers.
+- *Aversions.* Flank-only play, passivity, king hunts without central control, retreating from space.
+- *Reactions.* Ahead: converts methodically (SMP+4). Behind: refuses trades (SMP→−3) and seeks a central counter-break. Attacked: central counterstrike to relieve it.
+
+**Tsukuyomi, Moon: restriction and prophylaxis, pieces kept on.**
+- *Intent.* Minimise the enemy's active replies and mobility (RST, PRO), prevent breaks, and keep tension low (TEN −4). Once the enemy's active replies are down to 40% of their level at CLAMP start, strike: CLAMP chains to BREAK or KING ("eclipse, then strike").
+- *Phases.* Opening: modest, restriction-minded development. Middlegame: CLAMP. Ending: king centralisation and space.
+- *Typical decisions.* The quiet move that takes away the opponent's best lever or outpost, before it is played.
+- *Aversions.* Releasing tension, forcing lines without gain, early pawn breaks.
+- *Reactions.* Ahead: tightens (RST+2). Behind: prevents threats (PRO+3). Attacked: removes attackers before they strike (PRO+4).
+
+**Anubis, Guardian-Judge: solidity, then event-driven counterpunch.**
+- *Intent.* Hold a solid structure and keep king shelter intact. When the opponent overextends or weakens something (`enemy_commit` high), switch to COUNTER with WKN, FRC and THR aimed at the weakened sector. The plan is *triggered by the opponent*, not self-scheduled.
+- *Phases.* Opening: classical, low-risk. Middlegame: CONSOL, alternating with COUNTER on commitment. Ending: solid king activation.
+- *Typical decisions.* Refuses speculative investments (g=0). Ahead, he trades the attackers first.
+- *Aversions.* Initiating tension, speculative play.
+- *Reactions.* Ahead: SMP+3. Behind: bunker (SOL+3). A draw in the corridor is acceptable because `repeat_as_draw`/`draw_value` already prices it. Attacked: shelter and prophylaxis (SHL+3).
+
+**Hades, Ruler of the Underworld: grind to a won endgame.**
+- *Intent.* Initiate liquidation (queens count double in SMP), damage and target the enemy's pawn structure (STR), create and advance passed pawns (PASSER, RUN), centralise the king. He wants the position inevitable, not exciting.
+- *Phases.* Middlegame: LIQUID, trading as soon as the position allows. Ending: PASSER.
+- *Typical decisions.* Prefers the trade that improves his structure or damages theirs; avoids volatility (VOL −2).
+- *Aversions.* King hunts, complications, tempo-gambling attacks.
+- *Reactions.* Ahead: accelerates trades (SMP+3). Behind: avoids trades (SMP→−2) and keeps structure. Attacked: trades queens as a defence.
+
+**Amaterasu, Sun Goddess: harmony and open lines.**
+- *Intent.* Bishop pair, open lines, coordination of all pieces, quick development, space and no loose pieces. She opens the position (BREAK, ROAM) because her pieces are ready for it.
+- *Phases.* Opening: rapid development lead. Middlegame: open the position when everything is covered. Ending: bishops excel (BPR×1.3).
+- *Typical decisions.* Keeps the bishop pair; avoids giving a bishop for a knight when it loses the pair; rook to the open file.
+- *Aversions.* Closed structures (LCK −3), loose pieces, pawn storms.
+- *Reactions.* Ahead: clean conversion that keeps the pair. Behind: open lines for activity. Attacked: cover everything (SOL+4).
+
+**Rá, Sovereign Sun: readiness-gated crushing attack.**
+- *Intent.* "Noon": first build the full structure (king shelter, SOL, heavy-piece batteries), and only then launch a decisive king attack. Heavy pieces stay on (SMP −4). The KING plan is gated (see 8.3).
+- *Phases.* Before the gate: CONSOL/CLAMP. At the gate: KING. If the attack regresses, "dusk": CONSOL for at least 4 moves.
+- *Typical decisions.* Doubles heavy pieces toward Z; keeps his own king solid.
+- *Aversions.* Premature attack, loosening his own king, early heavy-piece trades.
+- *Reactions.* Ahead: finishing mode (ATK+3). Behind: hold (SOL, SHL). Attacked: shelter and cover (SHL+3).
+
+### 9. Pairwise separation (R2)
+
+| Group | What differs |
+|---|---|
+| **Nezha / Susanoo / Zeus** | The instrument: pieces and tempo (FRC, THR, ATK); wing pawn levers (STM, TEN, flank files); central space and a single break (CEN, SPC, SOL, BREAK). The plan completes differently: forcing gains; a file opening; a central break then LIQUID. They differ in what they refuse: Nezha pawn storms; Susanoo early trades; Zeus flank-only play. |
+| **Loki / Wukong** | Neither is randomness. Loki: opponent-model traps (TRP) on quiet, sound moves, and a retreat when the opponent proves wise. Wukong: imbalance, mobility and relocation (LEP, IMB, MOB), no dependence on an opponent model. |
+| **Anubis / Hades / Tsukuyomi** | None is passive; each has measurable progress. Anubis counters (WKN, COUNTER) triggered by the opponent's overextension. Hades liquidates into structural endgame advantage (SMP, STR, RUN). Tsukuyomi shrinks the opponent's active replies with pieces on (RST, PRO), then strikes. |
+| **Amaterasu / Rá** | Amaterasu: openness and coordination (BPR, FIL, MOB, LCK −3), no attack gate. Rá: closed positions are fine; king-centred batteries (BAT, ATK, SHL), solar-noon gate, heavy pieces kept. |
+
+**Illustrative contrasts. These are explicitly not engine output. I have not run any engine, and I do not claim that these candidates lie inside the real corridor.**
+
+*Example A: open Sicilian after 1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 (White to move; all are real theory moves).*
+
+| God | First move (illustrative) | Plan over the next 4–6 plies |
+|---|---|---|
+| Susanoo | 6.Be3 | f3, Qd2, O-O-O, then g4–g5 and h4: the storm |
+| Rá | 6.Be3 | Qd2 and Rd1, with O-O first: develops the battery before the attack |
+| Loki | 6.Be3 | Delays f3/g4/Qd2 until Black reveals …e5, …e6 or …Ng4 |
+| Nezha | 6.Bg5 | Pins Nf6, Qd2 and O-O-O, forcing play |
+| Zeus | 6.f4 | e5 break with central pressure |
+| Wukong | 6.Bc4 | Active piece; Be3 and Bb3 relocation, dynamic imbalances |
+| Tsukuyomi | 6.a4 (or 6.h3) | Prevents ...b5; restriction before anything else |
+| Amaterasu | 6.g3 | Fianchetto, long diagonal, bishop pair kept |
+| Anubis | 6.Be2 | Waits for a Black overextension to punish |
+| Hades | 6.Be2 | O-O, then structure-damaging trades |
+
+First moves can coincide (Be3 for three gods, Be2 for two); the contrast is in the plan from move ~8.
+
+*Example B: Carlsbad structure (QGD Exchange, White to move, pieces developed).*
+- Nezha: Ng3 and Bf5, piece play toward the king.
+- Susanoo: Ng3 with h4 and h5, a pawn-lever attack.
+- Zeus: f3, preparing e4.
+- Hades: Rab1 and b4, the minority attack trading and damaging structure.
+- Tsukuyomi: a prophylactic piece move preventing …Ng6.
+- Anubis: Rae1 and Rf1, solid, waiting.
+
+*Example C: reactions when the opponent starts a kingside attack on a castled god.*
+- Nezha counterattacks with forcing moves.
+- Zeus counterstrikes in the centre.
+- Anubis solidifies and punishes the overextension.
+- Tsukuyomi removes attackers before they act.
+- Hades trades queens.
+- Rá consolidates, then resumes the gated plan.
+- Loki hides defensive resources.
+- Wukong relocates defenders and counterattacks.
+- Susanoo launches a counter-storm on the other wing.
+- Amaterasu covers every loose piece.
+
+### 10. Pseudocode
+
+**Insertion in `_choose` [EXISTING + NEW].**
+
+```python
+# --- end of the existing final while-loop: replace `return moves[best]` ---
+baseline = best                                  # EXISTING variable
+if not cfg.style or nets is None:                # no tactical certificate -> no style
+    return moves[baseline]
+ctx = StyleCtx(board, fast, codes, moves, scores, scores_pre, known, nets, gains,
+               values, heads, after, me, ahead, centre, stretch, earlier,
+               draw=self._draw, book_menu=book_menu, baseline=baseline)
+return moves[self._style_select(ctx)]            # NEW
+```
+
+**`_style_select`.**
+
+```python
+def _style_select(self, c):
+    P, S = self.style_profile, self.style_state
+    b0 = c.baseline
+    if (len(c.codes) <= 2 or c.known[b0] or c.scores[b0] >= WIN/2
+            or c.scores[b0] <= ALLOWS_MATE/2):
+        return S.commit(c, b0, why="gate")
+    ph = phase(c.board)
+    mode = S.update_mode(c.ahead, c.board, c.fast, c.me)
+    S.observe_opponent(c)                         # enemy_commit, wise_streak, trend, bites
+    # S2: shortlist + certification
+    short = shortlist(c, P.Ns, include=[b0] + c.book_menu)
+    cert = {}
+    for i in short:
+        L, line = c.fast.deep_after_moves([c.codes[i]], self.values, depth,
+                                          cfg.exchange_depth, cfg.tactic_nodes, True)[0]
+        if L != L: continue                       # NaN: aborted -> not certified
+        net = c.gains[i] - L
+        cert[i] = Cert(net=net, line=line)
+    short = [i for i in short if i in cert and not allows_mate(c, i)]
+    refresh_replies(c, short)                      # self._replies with reply_top=len(short);
+                                                   # keep per-reply values + softmax(predict) for TRP
+    S_ = {i: refreshed_score(c, i, cert[i]) for i in short}   # same formula as _recount
+    a = max(short, key=lambda i: (S_[i], -i))                 # anchor
+    # S3: corridor
+    sigma = max(std(c.values), 0.5 * cfg.value_spread_ref)
+    delta = P.delta * sigma * P.m_mode[mode] * g_conf(c, a, short)
+    if tactical_sharpness(cert, a) > 0.8 * pawn: delta *= 0.5
+    if ending_few_pieces(c.board) and not cfg.syzygy: delta *= 0.4
+    pband = P.delta_P if in_opening(c) else None
+    corridor = []
+    for i in short:
+        cost = S_[a] - S_[i]
+        net_ok = cert[i].net >= cert[a].net - eps_net
+        tier_b = (not net_ok and P.g > 0
+                  and cert[i].net >= cert[a].net - P.g * pawn
+                  and extended_ok(c, i, a))                 # depth_ext certificate
+        if (cost <= delta and (net_ok or tier_b) and cost <= S.ledger.available()
+                and (pband is None or P_i(c, i) >= P_best(c) - pband)):
+            corridor.append(i)
+    if len(corridor) <= 1:
+        return S.commit(c, a, why="single")
+    # S4: style utility
+    w = P.weights(ph, mode, S)                     # base + ending + mode + gates + wise_streak
+    plan = S.plan_for(c, P, ph, mode)              # selection with hysteresis (below)
+    z = zscores(signals(c, corridor, cert, ph), corridor)       # robust, fixed ref scales
+    B = delta / sigma                              # amplitude in sigma units
+    U = {}
+    for i in corridor:
+        sty = dot(norm(w), z[i])
+        pl = dot(norm(plan.overlay), z[i]) if plan else 0.0
+        rho = 0.5 if plan else 0.0
+        U[i] = S_[i] + sigma * B * ramp(c.board.ply()) * ((1 - rho) * sty
+                         + rho * plan.c * pl)
+    order = sorted(corridor, key=lambda i: (-U[i], -S_[i], plan_progress(i), uci(i)))
+    # S5: arbiter
+    for i in order:
+        if i == a or arbiter_ok(c, i, a, cert):    # depth_ext re-search of i and a
+            return S.commit(c, i, why="style", cost=S_[a] - S_[i], plan=plan)
+    return S.commit(c, a, why="arbiter")
+```
+
+**Plan memory.**
+
+```python
+class PlanState:
+    kind = None; age = 0; paused = 0
+    def plan_for(self, c, P, ph, mode):
+        if self.paused > 0 or forced_decision(c): self.paused = max(0, self.paused - 1); return self.current()
+        scores = {p: P.prio[p] * applic(p, c) * gate(P, p, c) for p in PLANS}
+        best = max(scores, key=scores.get)
+        if self.kind is None:
+            if scores[best] >= 0.25: self.start(best)
+        else:
+            if (invalid(self.kind, c) or starved(self) or regressed(self) or self.age > P.max_age
+                    or (scores[best] >= scores[self.kind] + 0.25 and self.age >= P.min_dwell)):
+                self.kind = chain(self.kind, c, P) or (best if scores[best] >= .25 else None)
+                self.age = 0
+        return self.current()
+    def commit_observed(self, played_move, ply):   # CALLED ONLY when the move is observed in history
+        snap = self.decisions.get(ply)
+        if snap is None or snap.chosen != played_move: self.paused = 2; return
+        self.age += 1; self.ledger.update(snap.cost); self.wise_streak = ...
+```
+
+### 11. Code map (R4, R7)
+
+| Item | Status | Location |
+|---|---|---|
+| Existing pipeline: network values, king, pawn, exchange, endings, replies, root search, mate defence | EXISTING | `claudio_agent.py: Claudio._choose` [E2] |
+| `style: str` (and optional JSON overrides) in `ClaudioConfig`; settings via `with_settings` | NEW (EXISTING mechanism) | `ClaudioConfig`, `with_settings` [E12] |
+| `claudio/style.py`: profiles, signals, plan library, `PlanState`, ledger | NEW | new module |
+| `abertura.repertoire_menu(board, version)` with support-filter | NEW | `abertura.py`, using `LINES` |
+| Style hook after the final loop; `reset()` clears style state | NEW | `_choose`, `reset` |
+| `fast.king_risks`, `legal_moves`, `checks_after`, `deep_after_moves`, `root_search`, `forced_mate`, `exchange_after_moves`, `threats`, `activity`, `encode_here/after`, `push/pop/push_many` | EXISTING | `claudio_fast.cpp` [E11] |
+| `king_model.ks_rows`; `pawnomics.balance`; `abertura._pawn_structure`, `_bishop_activity`, `CENTRE` | EXISTING | as named |
+| Opponent policy `net.predict_logits(contexts)` and per-reply values | EXISTING (internals of `_replies`) | exposed through a small pack |
+| `self.avoid` hook | EXISTING | `_choose` [E13] |
+
+**Web transport [WEB] (a separate implementation, not equivalent [E7, E15]).**
+- Replace `PersonalityProfile` (7 axes) by a `StyleProfile` schema holding the 25 weights and parameters, validated like `parsePersonality`.
+- Replace `personalityAlternatives` by `styleSelect` on the same logic, using `kingSenses` / `kingSafety.ts`, `pawnBalanceV3`, and `temporal.predict` for the opponent policy.
+- Fix the verified-set bottleneck by exact `deep` probes on the shortlist.
+- Keep plan state on the per-game `player` created by `network.createPlayer()` inside `leto.worker.ts`. The worker already resets on history divergence, and commit-on-observe uses `request.moves`.
+- Under `searchLetoUntil`, apply style only on the last completed iteration beyond iteration 0.
+- Ship a new repertoire file (`leto-book-v3.json`) with menus, and widen the `^leto-book-v[12]\.json$` regex in `network.ts`.
+- The web baseline differs (Pawnomics v3, proofs, 5 s timed search); the Python and web styles share design, not behaviour.
+
+### 12. Alternatives
+
+| Alternative | Verdict |
+|---|---|
+| A1. Repair and extend the Nezha tie-break (more signals, fix `verified`) | Cheaper, lower ceiling (±.025 cap). ACP contains it as the case "no plan overlay, small δ". My fallback if the full flow is rejected. |
+| A2. Add style as one more term in the global score | Invisible or overriding (2–25× scale mismatch, E1/E4); unbounded cost; contaminates tactics. Rejected. |
+| A3. Temperature, noise, blind moves, weaker search | Excluded by R3 and the context. The `temperature` field stays 0. |
+| A4. Style inside the C++ `DeepSearch` leaf evaluation | Invasive; changes the baseline itself; the C++ search is material-only by design. Rejected. |
+| A5. Per-god new training or fine-tuning | Forbidden by the context. |
+
+### 13. Comparison with requirements
+
+| Req | Where met |
+|---|---|
+| R1 | §8.5 dossiers; §8.4 phase and mode transitions; §5 states |
+| R2 | §9 matrix; separate instruments and plan completions |
+| R3 | §3 orthogonal difficulty; no noise or blindness; no Elo parity claim; anchor-versus-Leto caveat |
+| R4 | §4 signals; §8 complete parameter tables; §11 code map; §10 pseudocode (decision and plan memory) |
+| R5 | §3 corridor, certificates, ledger, arbiter, protection scopes, S0 gates, confidence factor |
+| R6 | §7 menu; P-band; plan overlays; §9 examples labelled illustrative |
+| R7 | Evidence labels; Python/web separation; no invented effective config |
+| R8 | No tests, no measurement stages, no Test requests |
+
+Criteria order: 1 interesting, coherent personalities (§8, §9); 2 competitive quality (§3); 3 concrete distinction including bad states (§8.4, §9); 4 implementability (§10, §11).
+
+### 14. Risks
+
+- **R-1 Hidden deterioration.** Cumulative micro-concessions. Mitigation: ledger, arbiter, trace. Score-unit bound only.
+- **R-2 Inert style.** Corridor too small. Mitigation: wider N_s, δ in σ units; failure condition in §Refutation.
+- **R-3 σ misuse.** If value scaling is off, σ_t falls back to the measured spread, floored at 0.5×`value_spread_ref`. Whether the real distribution gives several corridor members is an assumption [E20].
+- **R-4 Opponent-model error.** TRP relies on `predict_logits` as an opponent model [E18]. The `wise_streak` fallback limits misuse.
+- **R-5 Tier-B gambits.** Real strength risk beyond the deeper horizon; g_d priors are unmeasured.
+- **R-6 Book menu quality.** `support ≥3` is a proxy for soundness; some branches may be weaker than the top move.
+- **R-7 Missing certificate.** If `exchange` hits its node limit (nets None) or `safety_weight` is 0, style is disabled.
+- **R-8 Config uncertainty.** Effective Python configuration unknown; all references to config values are attributed to web metadata.
+- **R-9 Web/Python divergence.** Two implementations, two baselines.
+- **R-10 Plan thrash or lock-in.** Hysteresis, dwell and timeout are priors.
+
+## Evidence and assumptions
+
+| Decisive claim | State | Provenance and passage | Phase | Scope |
+|---|---|---|---|---|
+| E1. Network spread σ≈0.0215; safety 1.76·tanh(net/3); king 0.0548; pawn 0.3·tanh; opening 0.15 `hold` 30 | `attributed` (values) / `supported` (formulas) | `evidence/*-configuration-metadata.json` `claudio_config`; `_choose` score assembly | packet | Web metadata, not Python effective config |
+| E2. `_choose` flow, early returns (tablebase, own mate, single move, book) | `supported` | `claudio_agent.py: _choose` | packet | Python reference |
+| E3. Book returns one move per key; first line wins | `supported` | `abertura._book` `setdefault`; `_choose` `repertoire_move` for ply<40 | packet | Python |
+| E4. Principle term magnitudes ±1.5 units × .15 | `supported` (units) / `attributed` (weight) | `abertura.principles_v1/v3`; metadata | packet | |
+| E5. Nezha selector requires `verified`; filled only by root status 1 and checked best | `supported` | `g16v2.ts` root-search loop, personality block | packet | Web only |
+| E6. Four axes reduce to forcing; tension constant .15 for non-captures; momentum constant at root | `supported` | `g16v2.ts` `signals` block | packet | Web only |
+| E7. Python has no personality code; web-only Nezha; site identity is visual only | `supported` | README, `g16v2.ts`, `pantheon.ts` header | packet | |
+| E8. `_replies` computes per-reply values and softmax(predict) over replies | `supported` | `claudio_agent.py: _replies` | packet | |
+| E9. `deep_after_moves` returns main lines; `_leaf` pushes `line` | `supported` | `claudio_fast.cpp`; `_leaf` | packet | |
+| E10. `_root` clamps beaten candidates to `best_score − 1e-9`; status 1 sets `known` | `supported` | `claudio_agent.py: _root`; `claudio_fast.cpp: root_search` | packet | |
+| E11. Fast-board API list | `supported` | `claudio_fast.cpp` bindings | packet | |
+| E12. `with_settings` and `reset` | `supported` | `claudio_agent.py` | packet | |
+| E13. `self.avoid` hook | `supported` | `_choose` | packet | |
+| E14. Horizons: exchange 5, scan 3, tactic 6 (top-10), mate_defence 2 | `attributed` | metadata | packet | |
+| E15. Web: 5 s timed search, per-game player in worker, iteration 0 tiny | `supported` | `letoTimedSearch.ts`, `leto.worker.ts`, `letoThinking.ts` | packet | |
+| E16. LINES carry multiple alternatives per key, including fringe branches | `supported` | `abertura.py` `LINES_V1`, `LINES_EXTENSIONS` | packet | |
+| E17. `SkillLibrary` exists but is not imported by `claudio_agent` | `supported` | `cognitive_memory.py`; `claudio_agent` imports | packet | |
+| E18. `predict_logits` approximates opponent replies | `assumption` | Docstring of `reply_mode="expect"` | design | If false, TRP loses value; wise_streak limits misuse |
+| E19. Head disagreement indicates uncertainty | `assumption` | `cognitive_memory.py` notes agreement alone is insufficient | design | |
+| E20. σ-unit corridors contain several candidates in non-forced positions | `assumption` | no measurement | design | Core viability premise |
+| E21. All numeric parameters (δ, g, weights, thresholds) are priors | `assumption` | this proposal | design | Not calibrated |
+
+## Risks and checks
+
+These are reasoning-level conditions answerable from the per-decision trace the design logs (anchor, chosen, cost, ledger, signals, plan, corridor size, certificate class). None is a Test request or a plan stage.
+
+- **Refutation: inert style.** If in non-forced middlegame positions the corridor usually has one member, the shortlist or δ is too tight, and the mechanism collapses to Leto. Remedy: widen N_s and δ, or add candidate sources (menu, tier B).
+- **Refutation: hidden deterioration.** If style choices are systematically worse than the anchor under the deeper arbiter, or the ledger saturates often, δ is too wide. Remedy: lower δ, shrink the cap.
+- **Refutation: identical bots.** If two gods' chosen moves and plans coincide in most comparable positions, their weight vectors or plan priorities are too close. Remedy: increase separation along the discriminating signals (§9).
+- **Refutation: menu failure.** If menu moves frequently fail the tactical certificate or P-band, the support filter is too permissive; raise the threshold.
+- **Scope reminder.** Learned-score guards do not establish Elo preservation; no result here is claimed from execution. Nothing above has been run.
+
+No Test requests are included.
+
+END-OF-CONTRIBUTION

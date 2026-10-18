@@ -1,0 +1,2073 @@
+        ranks.resize(moves.size());
+        for (size_t i = 0; i < moves.size(); ++i) ranks[i] = order(moves[i]);
+        for (size_t i = 1; i < moves.size(); ++i) {        // stable: same order as std::stable_sort
+            int m = moves[i];
+            double r = ranks[i];
+            size_t j = i;
+            while (j > 0 && r > ranks[j - 1]) { moves[j] = moves[j - 1]; ranks[j] = ranks[j - 1]; --j; }
+            moves[j] = m;
+            ranks[j] = r;
+        }
+        double best = -std::numeric_limits<double>::infinity(), start = alpha;
+        int best_move = moves[0];
+        for (size_t i = 0; i < moves.size(); ++i) {
+            int m = moves[i];
+            double gain = q.move_gain(p, m);
+            Pos next = p;
+            next.make(m);
+            bool quiet = gain == 0.0 && !mpromo(m);
+            int reduction = (!exact && depth >= 3 && i >= 3 && quiet && !check && !next.is_check()) ? 1 : 0;
+            double score;
+            if (i == 0) {
+                score = gain - search(next, depth - 1, gain - beta, gain - alpha, ply + 1, true);
+            } else {
+                score = gain - search(next, depth - 1 - reduction, gain - alpha - eps, gain - alpha, ply + 1, true);
+                if (!q.aborted && score > alpha && (reduction || score < beta))
+                    score = gain - search(next, depth - 1, gain - beta, gain - alpha, ply + 1, true);
+            }
+            if (q.aborted) return best > -1e300 ? best : 0.0;
+            if (score > best) { best = score; best_move = m; }
+            if (best > alpha) alpha = best;
+            if (alpha >= beta) {
+                if (quiet) {
+                    if (killers[k][0] != m) { killers[k][1] = killers[k][0]; killers[k][0] = m; }
+                    history[side][mfrom(m)][mto(m)] += depth * depth;
+                }
+                break;
+            }
+        }
+        e.key = key;
+        e.value = best;
+        e.depth = depth;
+        e.move = best_move;
+        e.flag = best <= start ? UPPER : best >= beta ? LOWER : EXACT;
+        return best;
+    }
+
+    // The main line from `p`, read back from the table.
+    std::vector<int> line(Pos p, int max_len) {
+        std::vector<int> out;
+        std::vector<int> legal;
+        for (int i = 0; i < max_len; ++i) {
+            Entry& e = slot(key_of(p).hash());
+            if (e.key != key_of(p).hash() || !e.move) break;
+            p.legal_moves(legal);
+            if (std::find(legal.begin(), legal.end(), e.move) == legal.end()) break;
+            out.push_back(e.move);
+            p.make(e.move);
+        }
+        return out;
+    }
+};
+
+// ------------------------------------------------------------------ board
+
+class Board {
+public:
+    Board(U64 pawns, U64 knights, U64 bishops, U64 rooks, U64 queens, U64 kings, U64 white, U64 black, bool turn,
+          U64 castling, int ep, int halfmove, int fullmove) {
+        pos.bb[PAWN] = pawns;
+        pos.bb[KNIGHT] = knights;
+        pos.bb[BISHOP] = bishops;
+        pos.bb[ROOK] = rooks;
+        pos.bb[QUEEN] = queens;
+        pos.bb[KING] = kings;
+        pos.occ[WHITE] = white;
+        pos.occ[BLACK] = black;
+        pos.turn = turn ? WHITE : BLACK;
+        pos.castling = castling;
+        pos.ep = ep;
+        pos.halfmove = halfmove;
+        pos.fullmove = fullmove;
+    }
+
+    void push(int m) {
+        states.push_back(pos);
+        moves.push_back(m);
+        keys.emplace_back();
+        key_ready.push_back(false);
+        pos.make(m);
+    }
+    void push_many(const std::vector<int>& ms) {
+        for (int m : ms) push(m);
+    }
+    void push_many_checked(const std::vector<int>& ms) {
+        for (int m : ms) {
+            std::vector<int> legal;
+            pos.legal_moves(legal);
+            if (std::find(legal.begin(), legal.end(), m) == legal.end())
+                throw std::invalid_argument("illegal move in replay history");
+            push(m);
+        }
+    }
+    // Complete standard FEN with the raw EP square (python-chess fen's
+    // en_passant="fen" option). Used for move enumeration, never for history.
+    std::string fen() const {
+        static const char symbols[2][7] = {{' ', 'p', 'n', 'b', 'r', 'q', 'k'},
+                                           {' ', 'P', 'N', 'B', 'R', 'Q', 'K'}};
+        std::string out;
+        for (int rank = 7; rank >= 0; --rank) {
+            int empty = 0;
+            for (int file = 0; file < 8; ++file) {
+                int sq = rank * 8 + file, type = pos.type_at(sq);
+                if (type == NO_PIECE) { ++empty; continue; }
+                if (empty) { out += char('0' + empty); empty = 0; }
+                out += symbols[pos.color_at(sq)][type];
+            }
+            if (empty) out += char('0' + empty);
+            if (rank) out += '/';
+        }
+        out += pos.turn == WHITE ? " w " : " b ";
+        U64 rights = pos.clean_castling();
+        if (!rights) out += '-';
+        if (rights & bit(7)) out += 'K';
+        if (rights & bit(0)) out += 'Q';
+        if (rights & bit(63)) out += 'k';
+        if (rights & bit(56)) out += 'q';
+        out += " " + (pos.ep < 0 ? std::string("-") : square_name(pos.ep));
+        out += " " + std::to_string(pos.halfmove) + " " + std::to_string(pos.fullmove);
+        return out;
+    }
+    std::vector<bool> checks_after(const std::vector<int>& ms) const {
+        std::vector<bool> result;
+        result.reserve(ms.size());
+        for (int m : ms) {
+            Pos next = pos;
+            next.make(m);
+            result.push_back(next.is_check());
+        }
+        return result;
+    }
+    void pop() {
+        if (states.empty()) throw std::runtime_error("pop from an empty board");
+        pos = states.back();
+        states.pop_back();
+        moves.pop_back();
+        keys.pop_back();
+        key_ready.pop_back();
+    }
+    bool turn() const { return pos.turn == WHITE; }
+    int ply() const { return int(moves.size()); }
+
+    // -1 none, 0 draw, 1 white wins, 2 black wins  (cognitive_agent.terminal_value)
+    int terminal() {
+        bool legal = pos.any_legal();
+        if (!legal && pos.is_check()) return pos.turn == WHITE ? 2 : 1;
+        if (pos.insufficient(WHITE) && pos.insufficient(BLACK)) return 0;
+        if (!legal) return 0;
+        if (pos.halfmove >= 150) return 0;
+        if (repetition(5)) return 0;
+        if (pos.halfmove >= 100) return 0;
+        if (pos.halfmove >= 99) {
+            std::vector<int> all;
+            pos.legal_moves(all);
+            for (int m : all)
+                if (!pos.is_zeroing(m)) {
+                    Pos next = pos;
+                    next.make(m);
+                    if (next.halfmove >= 100 && next.any_legal()) return 0;
+                }
+        }
+        if (std::min(pos.halfmove, int(moves.size())) >= 7 && duplicate() && claim_threefold()) return 0;
+        return -1;
+    }
+
+    // Owner's rule (strict repetition): a draw by repetition only once the
+    // position HAS occurred three times (the player chose to repeat); no
+    // "could claim" endings. Mate, stalemate, insufficient material, 5-fold
+    // and the move rules (100/150 half-moves) as in terminal().
+    int terminal_strict() {
+        bool legal = pos.any_legal();
+        if (!legal && pos.is_check()) return pos.turn == WHITE ? 2 : 1;
+        if (pos.insufficient(WHITE) && pos.insufficient(BLACK)) return 0;
+        if (!legal) return 0;
+        if (pos.halfmove >= 100) return 0;
+        if (repetition(3)) return 0;
+        return -1;
+    }
+
+    std::pair<double, double> king_risks() const {
+        auto rows = king_senses(pos);
+        return {rows[WHITE].risk, rows[BLACK].risk};
+    }
+    py::dict king_detail() const {
+        auto rows = king_senses(pos);
+        py::dict out;
+        for (int colour : {WHITE, BLACK}) {
+            const KingRow& r = rows[colour];
+            py::dict d;
+            d["square"] = r.square;
+            d["risk"] = r.risk;
+            d["shelter"] = r.shelter;
+            d["force"] = r.force;
+            d["contacts"] = r.contacts;
+            d["open_rays"] = r.open_rays;
+            d["uncovered"] = r.uncovered;
+            d["in_check"] = r.in_check;
+            d["attackers"] = r.attackers;
+            d["defenders"] = r.defenders;
+            d["escapes"] = r.escapes;
+            out[colour == WHITE ? "w" : "b"] = d;
+        }
+        return out;
+    }
+    std::pair<double, double> piece_risks_py(const std::vector<double>& values, py::function promotion,
+                                             double tolerance, int depth) const {
+        Promotions table(std::move(promotion));
+        return piece_risks(pos, values, table, tolerance, depth);
+    }
+    // captures.track + capture_targets, retaining identity through EP, castling
+    // and promotion. Integer targets are exactly the Python uint8 result.
+    py::array_t<std::uint8_t> capture_targets(const std::vector<int>& ms, bool self_colour) const {
+        Pos work = pos;
+        std::array<int, 64> ids;
+        ids.fill(-1);
+        int next_id = 0;
+        for (int s = 0; s < 64; ++s) if (work.occupied() & bit(s)) ids[s] = next_id++;
+        std::vector<std::array<int, 64>> snapshots{ids};
+        std::vector<int> capturers;
+        snapshots.reserve(ms.size() + 1);
+        capturers.reserve(ms.size());
+        for (int m : ms) {
+            std::vector<int> legal;
+            work.legal_moves(legal);
+            if (std::find(legal.begin(), legal.end(), m) == legal.end())
+                throw std::invalid_argument("illegal move in capture history");
+            int from = mfrom(m), to = mto(m), mover = ids[from];
+            int target = work.captured_square(m);
+            bool capture = (work.occ[work.turn ^ 1] & bit(target)) != 0;
+            capturers.push_back(capture ? mover : -1);
+            bool castle = work.type_at(from) == KING && std::abs(file_of(to) - file_of(from)) == 2;
+            ids[from] = -1;
+            if (capture) ids[target] = -1;
+            if (castle) {
+                int base = rank_of(from) * 8;
+                int rook_from = base + (file_of(to) == 6 ? 7 : 0);
+                int rook_to = base + (file_of(to) == 6 ? 5 : 3);
+                ids[rook_to] = ids[rook_from]; ids[rook_from] = -1;
+            }
+            ids[to] = mover;
+            work.make(m);
+            snapshots.push_back(ids);
+        }
+        int n = int(snapshots.size());
+        py::array_t<std::uint8_t> out({n, 64});
+        auto r = out.mutable_unchecked<2>();
+        std::array<int, 64> future{};
+        for (int k = n - 1; k >= 0; --k) {
+            for (int sq = 0; sq < 64; ++sq) {
+                int id = snapshots[k][sq];
+                r(k, self_colour ? sq : sq ^ 56) = id < 0 ? 0 : std::min(255, future[id]);
+            }
+            if (k > 0 && capturers[k - 1] >= 0) ++future[capturers[k - 1]];
+        }
+        return out;
+    }
+
+    // captures.activity: integer measurements, including the original rule
+    // that castling alone does not count as the rook's first individual move.
+    py::dict activity(const std::vector<int>& ms) const {
+        Pos work = pos;
+        U64 moved = 0;
+        std::array<std::array<std::array<int, 7>, 6>, 2> totals{};
+        for (int m : ms) {
+            std::vector<int> legal;
+            work.legal_moves(legal);
+            if (std::find(legal.begin(), legal.end(), m) == legal.end())
+                throw std::invalid_argument("illegal move in activity history");
+            std::array<int, 64> destinations{};
+            for (int action : legal) ++destinations[mfrom(action)];
+            int turn = work.turn;
+            U64 enemy = work.occ[turn ^ 1] & ~work.bb[KING];
+            for (U64 own = work.occ[turn] & ~work.bb[KING]; own; own &= own - 1) {
+                int sq = lsb(own), kind = work.type_at(sq);
+                bool active = (moved & bit(sq)) != 0;
+                if (active) {
+                    totals[turn][0][kind] += destinations[sq];
+                    ++totals[turn][1][kind];
+                }
+                int threats = 0;
+                for (U64 targets = work.attacks_mask(sq) & enemy; targets; targets &= targets - 1)
+                    if (work.attackers(turn ^ 1, lsb(targets), work.occupied())) ++threats;
+                totals[turn][2][kind] += threats;
+                ++totals[turn][3][kind];
+                if (active) {
+                    totals[turn][4][kind] += threats;
+                    ++totals[turn][5][kind];
+                }
+            }
+            int from = mfrom(m), to = mto(m), captured = work.captured_square(m);
+            if (work.type_at(from) == KING && std::abs(file_of(to) - file_of(from)) == 2) {
+                int base = rank_of(from) * 8;
+                int rook_from = base + (file_of(to) == 6 ? 7 : 0);
+                int rook_to = base + (file_of(to) == 6 ? 5 : 3);
+                bool rook_moved = (moved & bit(rook_from)) != 0;
+                moved &= ~(bit(rook_from) | bit(rook_to));
+                if (rook_moved) moved |= bit(rook_to);
+            }
+            moved &= ~(bit(from) | bit(captured));
+            moved |= bit(to);
+            work.make(m);
+        }
+        static const char* names[] = {"mobility", "mobility_n", "threats", "threats_n", "threats_active",
+                                      "threats_active_n"};
+        py::dict out;
+        for (int colour : {WHITE, BLACK}) {
+            py::dict row;
+            for (int metric = 0; metric < 6; ++metric) {
+                py::dict values;
+                int samples = metric < 2 ? 1 : metric < 4 ? 3 : 5;
+                for (int kind = PAWN; kind <= QUEEN; ++kind)
+                    if (totals[colour][samples][kind])
+                        values[py::int_(kind)] = totals[colour][metric][kind];
+                row[names[metric]] = values;
+            }
+            out[py::bool_(colour == WHITE)] = row;
+        }
+        return out;
+    }
+
+    // King safety (v4): (found, proven, nodes). found = n if the attacker forces
+    // mate within n of its moves (smallest n), else 0. proven = the largest n
+    // searched completely without finding mate (an exact upper bound on
+    // vulnerability). A node limit stops the search early (then proven < max).
+    std::tuple<int, int, long long> forced_mate(bool attacker_white, int max_moves, long long node_limit,
+                                                int pawn_reach = 0) const {
+        int attacker = attacker_white ? WHITE : BLACK;
+        long long used = 0;
+        int found = 0, proven = 0;
+        for (int n = 1; n <= max_moves; ++n) {
+            MateSearch search(node_limit - used, pawn_reach);
+            bool mate = pos.turn == attacker ? search.attack(pos, n) : search.defend(pos, n);
+            used += search.nodes;
+            if (search.aborted) break;
+            if (mate) {
+                found = n;
+                break;
+            }
+            proven = n;
+        }
+        return {found, proven, used};
+    }
+    std::tuple<double, bool, long long> exchange_gain(const std::vector<double>& values, int max_depth,
+                                                        long long node_limit) const {
+        if (values.size() != 6 || max_depth < 0 || node_limit < 0)
+            throw std::invalid_argument("exchange_gain requires six values and non-negative limits");
+        ExchangeSearch search(values, node_limit);
+        double gain = search.search(pos, max_depth, -std::numeric_limits<double>::infinity(),
+                                    std::numeric_limits<double>::infinity());
+        return {search.aborted ? 0.0 : gain, !search.aborted, search.nodes};
+    }
+    std::vector<double> exchange_after_moves(const std::vector<int>& codes, const std::vector<double>& values,
+                                              int max_depth, long long node_limit) const {
+        if (values.size() != 6 || max_depth < 0 || node_limit < 0)
+            throw std::invalid_argument("exchange_after_moves requires six values and non-negative limits");
+        std::vector<int> legal;
+        pos.legal_moves(legal);
+        std::vector<double> out;
+        out.reserve(codes.size());
+        for (int m : codes) {
+            if (std::find(legal.begin(), legal.end(), m) == legal.end())
+                throw std::invalid_argument("illegal move in exchange_after_moves");
+            Pos next = pos;
+            next.make(m);
+            ExchangeSearch search(values, node_limit);
+            double gain = search.search(next, max_depth, -std::numeric_limits<double>::infinity(),
+                                        std::numeric_limits<double>::infinity());
+            if (search.aborted) throw std::runtime_error("exchange_after_moves exceeded node_limit");
+            out.push_back(gain);
+        }
+        return out;
+    }
+    // Per candidate: what the opponent wins by force with ONE move of its own
+    // (a fork, a double attack, a piece left undefended...) when we then reply
+    // as well as we can, captures settled by the exact exchange search. At
+    // least the capture-only result of exchange_after_moves; that value alone
+    // when the node budget runs out. Rules only, no evaluation.
+    std::vector<double> tactic_after_moves(const std::vector<int>& codes, const std::vector<double>& values,
+                                           int max_depth, long long node_limit) const {
+        if (values.size() != 6 || max_depth < 0 || node_limit < 0)
+            throw std::invalid_argument("tactic_after_moves requires six values and non-negative limits");
+        std::vector<int> legal;
+        pos.legal_moves(legal);
+        std::vector<double> out;
+        out.reserve(codes.size());
+        for (int m : codes) {
+            if (std::find(legal.begin(), legal.end(), m) == legal.end())
+                throw std::invalid_argument("illegal move in tactic_after_moves");
+            Pos after = pos;
+            after.make(m);
+            ExchangeSearch search(values, node_limit);
+            const double inf = std::numeric_limits<double>::infinity();
+            double worst = search.search(after, max_depth, -inf, inf);   // captures only
+            if (search.aborted) throw std::runtime_error("tactic_after_moves exceeded node_limit");
+            std::vector<int> replies;
+            after.legal_moves(replies);
+            for (int r : replies) {
+                if (after.occ[after.turn ^ 1] & bit(after.captured_square(r))) continue;   // captures: done above
+                Pos threat = after;
+                threat.make(r);
+                std::vector<int> answers;
+                threat.legal_moves(answers);
+                double ours;
+                if (answers.empty()) {
+                    ours = threat.is_check() ? -ExchangeSearch::MATE : 0.0;
+                } else {
+                    // Captures first: the answers most likely to hold.
+                    std::stable_sort(answers.begin(), answers.end(), [&](int a, int b) {
+                        return search.move_gain(threat, a) > search.move_gain(threat, b);
+                    });
+                    ours = -inf;
+                    for (int s : answers) {
+                        double gain = search.move_gain(threat, s);
+                        Pos next = threat;
+                        next.make(s);
+                        double value = gain - search.search(next, max_depth, -inf, inf);
+                        if (search.aborted) break;
+                        if (value > ours) ours = value;
+                        if (ours >= -worst) break;           // this threat cannot beat the worst found
+                    }
+                }
+                if (search.aborted) break;
+                if (-ours > worst) worst = -ours;
+            }
+            out.push_back(worst);
+        }
+        return out;
+    }
+    // Per candidate: what the opponent wins by force, searching every move for
+    // `plies` half-moves after ours (captures then settled exactly). NaN when
+    // the node budget runs out for that candidate.
+    std::vector<double> search_after_moves(const std::vector<int>& codes, const std::vector<double>& values,
+                                           int plies, int max_depth, long long node_limit) const {
+        if (values.size() != 6 || plies < 0 || max_depth < 0 || node_limit < 0)
+            throw std::invalid_argument("search_after_moves requires six values and non-negative limits");
+        std::vector<int> legal;
+        pos.legal_moves(legal);
+        std::vector<double> out;
+        out.reserve(codes.size());
+        const double inf = std::numeric_limits<double>::infinity();
+        for (int m : codes) {
+            if (std::find(legal.begin(), legal.end(), m) == legal.end())
+                throw std::invalid_argument("illegal move in search_after_moves");
+            Pos after = pos;
+            after.make(m);
+            ExchangeSearch q(values, node_limit);
+            double value = material_search(after, plies, -inf, inf, q, max_depth);
+            out.push_back(q.aborted ? std::numeric_limits<double>::quiet_NaN() : value);
+        }
+        return out;
+    }
+    // Per candidate: (what the opponent wins by force within `plies`
+    // half-moves after ours, with prunings; the main line after our move).
+    // NaN and an empty line when the node budget runs out.
+    std::vector<std::pair<double, std::vector<int>>> deep_after_moves(
+            const std::vector<int>& codes, const std::vector<double>& values, int plies, int max_depth,
+            long long node_limit, bool exact = false) const {
+        if (values.size() != 6 || plies < 0 || max_depth < 0 || node_limit < 0)
+            throw std::invalid_argument("deep_after_moves requires six values and non-negative limits");
+        std::vector<int> legal;
+        pos.legal_moves(legal);
+        std::vector<std::pair<double, std::vector<int>>> out;
+        out.reserve(codes.size());
+        const double inf = std::numeric_limits<double>::infinity();
+        DeepSearch search(values, node_limit, max_depth, exact);   // one table for every candidate
+        for (int m : codes) {
+            if (std::find(legal.begin(), legal.end(), m) == legal.end())
+                throw std::invalid_argument("illegal move in deep_after_moves");
+            Pos after = pos;
+            after.make(m);
+            search.q.nodes = 0;
+            search.q.aborted = false;
+            double value = 0.0;
+            // Exact mode goes straight to the full depth: at small depths the
+            // iterations cost more than the move ordering they buy.
+            for (int depth = exact ? plies : 1; depth <= plies && !search.q.aborted; ++depth) {
+                double found = search.search(after, depth, -inf, inf, 1, true);
+                if (!search.q.aborted) value = found;
+            }
+            if (search.q.aborted && plies > 0) {
+                out.push_back({std::numeric_limits<double>::quiet_NaN(), {}});
+                continue;
+            }
+            out.push_back({value, search.line(after, plies)});
+        }
+        return out;
+    }
+    int ks_status_py(bool defender_white) const { return ks_status(pos, defender_white ? WHITE : BLACK); }
+
+    // King safety (v4) exploration: for every legal move of the side to move
+    // (the attacker), in legal_moves() order: (move, threat, check). threat = n
+    // when, were the defender allowed to pass, the attacker would force mate
+    // within n moves (0 = no such threat within max_moves); check = the move
+    // attacks the king now (a pass is then illegal, so no threat is computed).
+    // Only the rules and checkmate - no notion of where pieces "should" go.
+    std::tuple<std::vector<int>, std::vector<int>, std::vector<bool>> threats(int max_moves, long long node_limit) const {
+        std::vector<int> moves, threat;
+        std::vector<bool> check;
+        pos.legal_moves(moves);
+        for (int m : moves) {
+            Pos q = pos;
+            q.make(m);
+            bool checking = q.is_check();
+            check.push_back(checking);
+            int found = 0;
+            if (!checking) {
+                Pos passed = q;                    // the defender passes: the attacker moves again
+                passed.turn ^= 1;
+                passed.ep = -1;
+                for (int n = 1; n <= max_moves && !found; ++n) {
+                    MateSearch search(node_limit);
+                    if (search.attack(passed, n)) found = n;
+                    if (search.aborted) break;
+                }
+            }
+            threat.push_back(found);
+        }
+        return {moves, threat, check};
+    }
+
+    // King safety (v4): every legal continuation two plies deep, for `defender`.
+    // Returns (first_status[i], leaf_parent[j], leaf_status[j], leaf_row[j],
+    // rows): statuses as in ks_status; leaf_row is the row of `rows` (the leaf
+    // encoded from the defender's side) or -1 for a finished leaf.
+    py::tuple expand2(bool defender_white) const {
+        int defender = defender_white ? WHITE : BLACK;
+        std::vector<int> first;
+        first.reserve(64);
+        pos.legal_moves(first);
+        std::vector<int8_t> first_status;
+        std::vector<int32_t> leaf_parent, leaf_row;
+        std::vector<int8_t> leaf_status;
+        std::vector<Pos> open;
+        for (size_t i = 0; i < first.size(); ++i) {
+            Pos q = pos;
+            q.make(first[i]);
+            int status = ks_status(q, defender);
+            first_status.push_back(int8_t(status));
+            if (status) continue;
+            std::vector<int> replies;
+            q.legal_moves(replies);
+            for (int r : replies) {
+                Pos leaf = q;
+                leaf.make(r);
+                int ls = ks_status(leaf, defender);
+                leaf_parent.push_back(int32_t(i));
+                leaf_status.push_back(int8_t(ls));
+                leaf_row.push_back(ls ? -1 : int32_t(open.size()));
+                if (!ls) open.push_back(leaf);
+            }
+        }
+        py::array_t<float> rows({std::max<py::ssize_t>(1, py::ssize_t(open.size())), py::ssize_t(782)});
+        auto r = rows.mutable_unchecked<2>();
+        std::fill(r.mutable_data(0, 0), r.mutable_data(0, 0) + rows.size(), 0.0f);
+        for (size_t k = 0; k < open.size(); ++k) encode_row(open[k], defender, r.mutable_data(py::ssize_t(k), 0));
+        auto as_array = [](auto& v) { return py::array(py::cast(v)); };
+        return py::make_tuple(as_array(first_status), as_array(leaf_parent), as_array(leaf_status),
+                              as_array(leaf_row), rows, int(open.size()));
+    }
+    // The current position encoded from one side (encoding.encode).
+    py::array_t<float> encode_here(bool self_colour) const {
+        py::array_t<float> out({py::ssize_t(782)});
+        auto r = out.mutable_unchecked<1>();
+        std::fill(r.mutable_data(0), r.mutable_data(0) + 782, 0.0f);
+        encode_row(pos, self_colour ? WHITE : BLACK, r.mutable_data(0));
+        return out;
+    }
+
+    // encoding.encode_after_moves: the position after each move, from self_color's side.
+    py::array_t<float> encode_after(const std::vector<int>& ms, bool self_colour) const {
+        int self = self_colour ? WHITE : BLACK, n = int(ms.size());
+        py::array_t<float> out({std::max(n, 1), 782});
+        auto r = out.mutable_unchecked<2>();
+        for (int i = 0; i < std::max(n, 1); ++i)
+            for (int j = 0; j < 782; ++j) r(i, j) = 0.0f;
+        for (int i = 0; i < n; ++i) {
+            Pos b = pos;
+            b.make(ms[i]);
+            int plane = 0;
+            for (int colour : {self, self ^ 1})
+                for (int type = PAWN; type <= KING; ++type, ++plane)
+                    for (U64 m = b.bb[type] & b.occ[colour]; m; m &= m - 1) {
+                        int sq = lsb(m);
+                        r(i, plane * 64 + (self == WHITE ? sq : sq ^ 56)) = 1.0f;
+                    }
+            r(i, 768) = b.turn == self ? 1.0f : 0.0f;
+            r(i, 769) = b.castling_side(self, true) ? 1.0f : 0.0f;
+            r(i, 770) = b.castling_side(self, false) ? 1.0f : 0.0f;
+            r(i, 771) = b.castling_side(self ^ 1, true) ? 1.0f : 0.0f;
+            r(i, 772) = b.castling_side(self ^ 1, false) ? 1.0f : 0.0f;
+            if (b.ep >= 0) r(i, 773 + file_of(b.ep)) = 1.0f;
+            r(i, 781) = float(double(std::min(b.halfmove, 100)) / 100.0);
+        }
+        if (n == 0) return out;
+        return out;
+    }
+    // (square, piece type, colour) in square order, like sorted(board.piece_map().items()).
+    std::vector<std::tuple<int, int, bool>> pieces() const {
+        std::vector<std::tuple<int, int, bool>> out;
+        for (U64 b = pos.occupied(); b; b &= b - 1) {
+            int sq = lsb(b);
+            out.emplace_back(sq, pos.type_at(sq), pos.color_at(sq) == WHITE);
+        }
+        return out;
+    }
+    // Every promotion value a piece_risks call on this position could need.
+    std::vector<std::tuple<int, int, int>> promotion_keys() const {
+        std::vector<std::tuple<int, int, int>> out;
+        for (int colour : {WHITE, BLACK}) {
+            U64 seventh = colour == WHITE ? (0xFFULL << 48) : (0xFFULL << 8);
+            U64 targets = 0;
+            for (U64 pawns = pos.bb[PAWN] & pos.occ[colour] & seventh; pawns; pawns &= pawns - 1)
+                targets |= T.pawn[colour][lsb(pawns)];
+            for (; targets; targets &= targets - 1)
+                for (int type : {KNIGHT, BISHOP, ROOK, QUEEN}) out.emplace_back(colour, type, lsb(targets));
+        }
+        return out;
+    }
+    std::vector<int> legal_moves() const {
+        std::vector<int> out;
+        pos.legal_moves(out);
+        return out;
+    }
+
+private:
+    Pos pos;
+    std::vector<Pos> states;  // the position BEFORE each move
+    std::vector<int> moves;
+    std::vector<Key> keys;    // cached transposition key of states[i]
+    std::vector<bool> key_ready;
+
+    const Key& state_key(size_t i) {
+        if (!key_ready[i]) {
+            keys[i] = key_of(states[i]);
+            key_ready[i] = true;
+        }
+        return keys[i];
+    }
+    bool irreversible(size_t i) const {
+        const Pos& before = states[i];
+        int m = moves[i];
+        return before.is_zeroing(m) || before.reduces_castling(m) || before.has_legal_ep();
+    }
+    // python-chess is_repetition(count)
+    bool repetition(int count) {
+        int maybe = 1;
+        for (size_t i = states.size(); i-- > 0;)
+            if (states[i].occupied() == pos.occupied() && ++maybe >= count) break;
+        if (maybe < count) return false;
+        Key current = key_of(pos);
+        for (long long i = (long long)moves.size() - 1;; --i) {
+            if (count <= 1) return true;
+            if (i + 1 < count - 1) break;
+            if (irreversible(size_t(i))) break;
+            if (state_key(size_t(i)) == current) --count;
+        }
+        return false;
+    }
+    // Does any position in the whole history occur twice? (terminal_value's gate)
+    bool duplicate() {
+        std::vector<std::pair<U64, int>> hashes;
+        hashes.reserve(states.size() + 1);
+        Key current = key_of(pos);
+        hashes.emplace_back(current.hash(), -1);
+        for (size_t i = 0; i < states.size(); ++i) hashes.emplace_back(state_key(i).hash(), int(i));
+        std::sort(hashes.begin(), hashes.end());
+        for (size_t a = 0; a + 1 < hashes.size(); ++a)
+            for (size_t b = a + 1; b < hashes.size() && hashes[b].first == hashes[a].first; ++b) {
+                const Key& x = hashes[a].second < 0 ? current : keys[hashes[a].second];
+                const Key& y = hashes[b].second < 0 ? current : keys[hashes[b].second];
+                if (x == y) return true;
+            }
+        return false;
+    }
+    // python-chess can_claim_threefold_repetition
+    bool claim_threefold() {
+        Key current = key_of(pos);
+        std::vector<Key> seen{current};
+        for (size_t i = moves.size(); i-- > 0;) {
+            if (irreversible(i)) break;
+            seen.push_back(state_key(i));
+        }
+        if (std::count(seen.begin(), seen.end(), current) >= 3) return true;
+        std::vector<int> all;
+        pos.legal_moves(all);
+        for (int m : all) {
+            Pos next = pos;
+            next.make(m);
+            Key k = key_of(next);
+            if (std::count(seen.begin(), seen.end(), k) >= 2) return true;
+        }
+        return false;
+    }
+};
+
+}  // namespace
+
+PYBIND11_MODULE(tonkai_fast, m) {
+    m.doc() = "C++ ports of the V3 agent's chess rules; results identical to the Python references.";
+    py::class_<Board>(m, "Board")
+        .def(py::init<U64, U64, U64, U64, U64, U64, U64, U64, bool, U64, int, int, int>())
+        .def("push", &Board::push)
+        .def("push_many", &Board::push_many)
+        .def("push_many_checked", &Board::push_many_checked)
+        .def("fen", &Board::fen)
+        .def("checks_after", &Board::checks_after)
+        .def("pop", &Board::pop)
+        .def("copy", [](const Board& board) { return board; })
+        .def_property_readonly("turn", &Board::turn)
+        .def_property_readonly("ply", &Board::ply)
+        .def("terminal", &Board::terminal)
+        .def("terminal_strict", &Board::terminal_strict)
+        .def("king_risks", &Board::king_risks)
+        .def("king_detail", &Board::king_detail)
+        .def("piece_risks", &Board::piece_risks_py, py::arg("values"), py::arg("promotion"), py::arg("tolerance"),
+             py::arg("depth"))
+        .def("encode_after", &Board::encode_after, py::arg("moves"), py::arg("self_color"))
+        .def("encode_here", &Board::encode_here, py::arg("self_color"))
+        .def("forced_mate", &Board::forced_mate, py::arg("attacker_white"), py::arg("max_moves"),
+             py::arg("node_limit"), py::arg("pawn_reach") = 0)
+        .def("exchange_gain", &Board::exchange_gain, py::arg("values"), py::arg("max_depth"),
+             py::arg("node_limit"))
+        .def("exchange_after_moves", &Board::exchange_after_moves, py::arg("codes"), py::arg("values"),
+             py::arg("max_depth"), py::arg("node_limit"))
+        .def("deep_after_moves", &Board::deep_after_moves, py::arg("codes"), py::arg("values"),
+             py::arg("plies"), py::arg("max_depth"), py::arg("node_limit"), py::arg("exact") = false)
+        .def("search_after_moves", &Board::search_after_moves, py::arg("codes"), py::arg("values"),
+             py::arg("plies"), py::arg("max_depth"), py::arg("node_limit"))
+        .def("tactic_after_moves", &Board::tactic_after_moves, py::arg("codes"), py::arg("values"),
+             py::arg("max_depth"), py::arg("node_limit"))
+        .def("ks_status", &Board::ks_status_py, py::arg("defender_white"))
+        .def("threats", &Board::threats, py::arg("max_moves"), py::arg("node_limit"))
+        .def("expand2", &Board::expand2, py::arg("defender_white"))
+        .def("capture_targets", &Board::capture_targets, py::arg("moves"), py::arg("self_color"))
+        .def("activity", &Board::activity, py::arg("moves"))
+        .def("pieces", &Board::pieces)
+        .def("promotion_keys", &Board::promotion_keys)
+        .def("legal_moves", &Board::legal_moves);
+}
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/base/tonkai/temporal_model.py
+
+````text
+"""Explicit recurrent state and learned prediction heads for survival training.
+
+Memory belongs to the caller: observing an actual position advances it, while
+scoring candidates returns independent hypothetical states. No game history is
+stored on the module. The legacy encoder and auxiliary head names are retained
+so a checkpoint can seed them without importing its W/D/L value head.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Mapping
+
+import torch
+from torch import nn
+from torch.nn import functional as F
+
+from .config import Config
+from .model import TonkAINet
+
+
+class SurvivalNet(nn.Module):
+    def __init__(self, cfg=None):
+        super().__init__()
+        architecture = Config()
+        for field in (
+            "hidden_size", "latent_size", "head_hidden", "piece_hidden",
+            "type_embed", "square_embed", "side_embed",
+        ):
+            setattr(architecture, field, getattr(cfg, field, getattr(architecture, field)))
+
+        legacy = TonkAINet(architecture)
+        for name in (
+            "encoder", "predict_head", "piece_head",
+            "type_embed", "square_embed", "side_embed",
+        ):
+            setattr(self, name, getattr(legacy, name))
+
+        self.latent_size = architecture.latent_size
+        self.memory_size = getattr(cfg, "memory_size", 64)
+        self.ensemble_size = getattr(cfg, "ensemble_size", 5)
+        self.future_horizons = tuple(getattr(cfg, "future_horizons", (1, 2, 4, 8)))
+        if self.memory_size < 1 or self.ensemble_size < 1:
+            raise ValueError("memory_size and ensemble_size must be positive")
+        if (not self.future_horizons
+                or any(not isinstance(h, int) or h < 1 for h in self.future_horizons)
+                or len(set(self.future_horizons)) != len(self.future_horizons)):
+            raise ValueError("future_horizons must contain distinct positive integers")
+
+        d = self.latent_size
+        h = architecture.head_hidden
+        self.memory_cell = nn.GRUCell(d, self.memory_size)
+        self.fusion = nn.Sequential(nn.Linear(d + self.memory_size, d), nn.SiLU())
+        self.survival_heads = nn.ModuleList([
+            self._head(d, h, 2) for _ in range(self.ensemble_size)
+        ])
+        self.future_heads = nn.ModuleList([
+            self._head(d, h, d) for _ in self.future_horizons
+        ])
+        self.rnd_target = self._head(d, h, 32)
+        self.rnd_predictor = self._head(d, h, 32)
+        self.rnd_target.requires_grad_(False)
+        self.rnd_target.eval()
+        # Optional V3 auxiliary output: future captures of a piece, read from the
+        # piece head's hidden layer. Created LAST and only when requested, so
+        # V2 and older checkpoints keep exactly the same parameters and order.
+        if float(getattr(cfg, "capture_target_weight", 0.0) or 0.0) > 0:
+            self.capture_out = nn.Linear(architecture.piece_hidden, 1)
+
+    @staticmethod
+    def _head(inputs: int, hidden: int, outputs: int) -> nn.Sequential:
+        return nn.Sequential(nn.Linear(inputs, hidden), nn.SiLU(), nn.Linear(hidden, outputs))
+
+    def train(self, mode: bool = True):
+        super().train(mode)
+        # Keep the fixed random target immutable even when the parent is trained.
+        self.rnd_target.eval()
+        return self
+
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        return self.encoder(x)
+
+    def initial_memory(self, batch: int, device=None) -> torch.Tensor:
+        """A fresh zero state on the model's dtype/device unless overridden."""
+        if batch < 0:
+            raise ValueError("batch must be nonnegative")
+        reference = next(self.encoder.parameters())
+        return torch.zeros(batch, self.memory_size,
+                           device=reference.device if device is None else device,
+                           dtype=reference.dtype)
+
+    def _memory_for_batch(self, memory: torch.Tensor, batch: int) -> torch.Tensor:
+        if memory.ndim != 2 or memory.shape[1] != self.memory_size:
+            raise ValueError(f"memory must have shape (batch, {self.memory_size})")
+        if memory.shape[0] == batch:
+            return memory
+        if memory.shape[0] == 1:
+            return memory.expand(batch, -1)
+        raise ValueError("memory batch must match the positions or contain one shared state")
+
+    def context_from_latent(self, latent: torch.Tensor,
+                            memory_next: torch.Tensor) -> torch.Tensor:
+        """Fuse an existing encoding with an already advanced memory state."""
+        memory = self._memory_for_batch(memory_next, latent.shape[0])
+        return self.fusion(torch.cat((latent, memory), dim=-1))
+
+    def observe(self, x: torch.Tensor, memory: torch.Tensor):
+        """Encode once, advance explicit history, and return (context, next state)."""
+        latent = self.encode(x)
+        memory_next = self.memory_cell(latent, self._memory_for_batch(memory, x.shape[0]))
+        return self.context_from_latent(latent, memory_next), memory_next
+
+    def candidates(self, x: torch.Tensor, memory_before_candidate: torch.Tensor):
+        """Score hypothetical positions in parallel without committing any state.
+
+        A (1, memory_size) state is shared by all candidates; a matching batch
+        supplies one distinct prefix history per row. Neither input is mutated.
+        """
+        return self.observe(x, memory_before_candidate)
+
+    def survival(self, context: torch.Tensor):
+        """Independent means and aleatoric log variances, each shaped (B, H)."""
+        # Same parameters and maths as stacking each head(context); two batched
+        # matmuls instead of 2 x ensemble_size small ones (last-bit float
+        # differences only). Gradients reach every head's own weights.
+        heads = self.survival_heads
+        first = torch.cat([head[0].weight for head in heads])            # (E*H, D)
+        hidden = F.silu(F.linear(context, first, torch.cat([head[0].bias for head in heads])))
+        hidden = hidden.view(len(context), len(heads), -1)                # (B, E, H)
+        second = torch.stack([head[2].weight for head in heads])          # (E, 2, H)
+        raw = torch.einsum("beh,eoh->beo", hidden, second) + torch.stack([head[2].bias for head in heads])
+        return torch.sigmoid(raw[..., 0]), raw[..., 1].clamp(-8.0, 2.0)
+
+    def future(self, context: torch.Tensor) -> torch.Tensor:
+        """One latent predictor per horizon, ordered as future_horizons: (B, K, D)."""
+        return torch.stack([head(context) for head in self.future_heads], dim=1)
+
+    def novelty_error(self, context: torch.Tensor) -> torch.Tensor:
+        """Unnormalized RND error per position. Normalization belongs to the trainer."""
+        with torch.no_grad():
+            target = self.rnd_target(context)
+        return F.mse_loss(self.rnd_predictor(context), target, reduction="none").mean(dim=-1)
+
+    def piece_values(self, context: torch.Tensor, piece_type: torch.Tensor,
+                     square: torch.Tensor, side: torch.Tensor) -> torch.Tensor:
+        features = torch.cat((context, self.type_embed(piece_type),
+                              self.square_embed(square), self.side_embed(side)), dim=-1)
+        return self.piece_head(features).squeeze(-1)
+
+    @property
+    def has_capture_head(self) -> bool:
+        return hasattr(self, "capture_out")
+
+    def piece_values_and_captures(self, context: torch.Tensor, piece_type: torch.Tensor,
+                                  square: torch.Tensor, side: torch.Tensor):
+        """Contextual value and predicted future captures, from one shared layer.
+
+        The value path is the same three modules ``piece_values`` applies, in the
+        same order, so its output is unchanged by the extra head.
+        """
+        features = torch.cat((context, self.type_embed(piece_type),
+                              self.square_embed(square), self.side_embed(side)), dim=-1)
+        hidden = self.piece_head[1](self.piece_head[0](features))
+        return self.piece_head[2](hidden).squeeze(-1), self.capture_out(hidden).squeeze(-1)
+
+    def predict_logits(self, context: torch.Tensor) -> torch.Tensor:
+        return self.predict_head(context).squeeze(-1)
+
+    def n_parameters(self) -> int:
+        return sum(parameter.numel() for parameter in self.parameters())
+
+    def load_legacy(self, payload: Mapping) -> dict[str, list[str]]:
+        """Copy compatible shared weights only; report all supplied source keys.
+
+        Accept a raw state_dict or a checkpoint containing ``model`` (or
+        ``state_dict``). Recurrent, survival, future and RND weights stay new.
+        """
+        if not isinstance(payload, Mapping):
+            raise TypeError("legacy weights must be a state_dict or checkpoint mapping")
+        source = payload.get("model", payload.get("state_dict", payload))
+        if not isinstance(source, Mapping):
+            raise TypeError("legacy checkpoint does not contain a state_dict")
+        prefixes = ("encoder.", "predict_head.", "piece_head.",
+                    "type_embed.", "square_embed.", "side_embed.")
+        current = self.state_dict()
+        compatible = {}
+        skipped = []
+        for key, value in source.items():
+            if (isinstance(key, str) and key.startswith(prefixes)
+                    and key in current and isinstance(value, torch.Tensor)
+                    and value.shape == current[key].shape):
+                compatible[key] = value
+            else:
+                skipped.append(str(key))
+        self.load_state_dict(compatible, strict=False)
+        return {"loaded": sorted(compatible), "skipped": sorted(skipped)}
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/base/tonkai/king_safety_model.py
+
+````text
+"""Emergent King Safety (v4): a learned KS(position, king) in [0, 1].
+
+Only the CONSEQUENCE is defined - vulnerability to checkmate - never what a
+safe king looks like. With n = the number of moves the attacker needs to FORCE
+checkmate against the best defence:
+
+    U(position, king) = gamma ** (n - 1)      (1 = mated or unavoidably mated,
+                                               0 = no mating attack at all)
+    KS(position, king) = 1 - U
+
+The input is the same raw encoding TonkAI uses everywhere (piece planes, side
+to move, castling, en passant), seen from the side of the king being judged.
+No pawn shields, attackers, defenders, open files, patterns or material: what
+makes a king resist the strongest attack is for the network to discover
+(tonkai/king_safety_training.py grounds it in exact mates and adversarial
+attack/defence search).
+"""
+from __future__ import annotations
+
+from pathlib import Path
+
+import chess
+import numpy as np
+import torch
+from torch import nn
+
+from .encoding import INPUT_SIZE, encode
+
+FORMAT = "tonkai-king-safety-v1"
+
+
+class KingSafetyNet(nn.Module):
+    """encoding (782, from the king owner's side) -> logit of KS."""
+
+    def __init__(self, hidden: int = 256):
+        super().__init__()
+        self.hidden = hidden
+        self.body = nn.Sequential(nn.Linear(INPUT_SIZE, hidden), nn.SiLU(),
+                                  nn.Linear(hidden, hidden), nn.SiLU(),
+                                  nn.Linear(hidden, 1))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.body(x).squeeze(-1)                     # logit; sigmoid = KS
+
+
+class KingSafetyModel:
+    """KS for any position and king; inspectable, saved on its own."""
+
+    def __init__(self, net: KingSafetyNet | None = None, meta: dict | None = None):
+        self.net = (net or KingSafetyNet()).eval()
+        self.meta = dict(meta or {})
+
+    # ---------------------------------------------------------------- values
+    @torch.inference_mode()
+    def ks_rows(self, rows) -> np.ndarray:
+        """KS for encoded rows (each already from its king owner's side)."""
+        x = torch.as_tensor(np.asarray(rows, dtype=np.float32))
+        if x.ndim == 1:
+            x = x[None]
+        if not len(x):
+            return np.zeros(0, dtype=np.float32)
+        return torch.sigmoid(self.net(x)).numpy()
+
+    def ks(self, board: chess.Board, colour: bool) -> float:
+        """KS(position, king of `colour`)."""
+        return float(self.ks_rows(encode(board, colour))[0])
+
+    def ks_both(self, board: chess.Board) -> tuple[float, float]:
+        """(KS of the white king, KS of the black king)."""
+        values = self.ks_rows(np.stack([encode(board, chess.WHITE), encode(board, chess.BLACK)]))
+        return float(values[0]), float(values[1])
+
+    def series(self, moves, initial_fen=None) -> list:
+        """[KS white, KS black] after every ply of a game (as play_episode logs
+        it), computed afterwards in one batch."""
+        board = chess.Board(initial_fen or chess.STARTING_FEN)
+        rows = [encode(board, chess.WHITE), encode(board, chess.BLACK)]
+        for move in moves:
+            board.push(move if isinstance(move, chess.Move) else chess.Move.from_uci(move))
+            rows += [encode(board, chess.WHITE), encode(board, chess.BLACK)]
+        values = self.ks_rows(np.stack(rows))
+        return [[round(float(values[i]), 4), round(float(values[i + 1]), 4)] for i in range(0, len(values), 2)]
+
+    def advantage(self, board: chess.Board, colour: bool) -> float:
+        """KS_self - KS_enemy for `colour`, in [-1, 1]."""
+        white, black = self.ks_both(board)
+        return white - black if colour else black - white
+
+    # ------------------------------------------------------------------ files
+    def save(self, path, **extra) -> None:
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_suffix(path.suffix + ".tmp")
+        torch.save({"format": FORMAT, "hidden": self.net.hidden, "state_dict": self.net.state_dict(),
+                    "meta": {**self.meta, **extra}}, temporary)
+        temporary.replace(path)
+
+    @classmethod
+    def load(cls, path) -> "KingSafetyModel":
+        data = torch.load(path, map_location="cpu", weights_only=False)
+        if data.get("format") != FORMAT:
+            raise ValueError(f"{path} is not a {FORMAT} file")
+        net = KingSafetyNet(data["hidden"])
+        net.load_state_dict(data["state_dict"])
+        return cls(net, data.get("meta"))
+
+
+_CACHE: dict[str, KingSafetyModel] = {}
+
+
+def load_cached(path) -> KingSafetyModel:
+    """One copy per process (actors load it once)."""
+    key = str(Path(path).resolve())
+    if key not in _CACHE:
+        _CACHE[key] = KingSafetyModel.load(key)
+    return _CACHE[key]
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/base/tonkai/king_safety.py
+
+````text
+"""Bounded, geometric king-pressure prior; no material or mate evaluation.
+
+Pinned pieces only contribute along their pin. Escape squares use raw attacks:
+even a pinned enemy piece forbids a king move under chess rules.
+"""
+import chess
+
+
+DIRECTIONS = ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1))
+
+# Geometry is immutable; occupancy and attacks are always recomputed.
+OPEN_RAYS = []
+SHELTER = {True: [], False: []}
+for king in chess.SQUARES:
+    kfile, krank = chess.square_file(king), chess.square_rank(king)
+    rays = []
+    for dx, dy in DIRECTIONS:
+        if 0 <= kfile + 2 * dx < 8 and 0 <= krank + 2 * dy < 8:
+            rays.append(chess.BB_SQUARES[chess.square(kfile + dx, krank + dy)]
+                        | chess.BB_SQUARES[chess.square(kfile + 2 * dx, krank + 2 * dy)])
+    OPEN_RAYS.append(tuple(rays))
+    for colour in (True, False):
+        columns = []
+        for file in range(max(0, kfile - 1), min(8, kfile + 2)):
+            column = []
+            for distance in (1, 2):
+                rank = krank + (distance if colour else -distance)
+                column.append(chess.BB_SQUARES[chess.square(file, rank)] if 0 <= rank < 8 else 0)
+            columns.append(tuple(column))
+        SHELTER[colour].append(tuple(columns))
+
+
+def king_senses(board):
+    kings = {colour: board.king(colour) for colour in (True, False)}
+    if None in kings.values():
+        raise ValueError("King safety requires both kings")
+    zones = {colour: chess.BB_KING_ATTACKS[sq] | chess.BB_SQUARES[sq] for colour, sq in kings.items()}
+    relevant = zones[True] | zones[False]
+    effective = {}
+    for sq in chess.scan_reversed(board.occupied & ~board.kings):
+        mask = board.attacks_mask(sq)
+        if mask & relevant:
+            colour = bool(board.occupied_co[True] & chess.BB_SQUARES[sq])
+            effective[sq] = (mask & board.pin_mask(colour, sq), colour)
+    result = {}
+    for colour in (chess.WHITE, chess.BLACK):
+        king = kings[colour]
+        ring = chess.BB_KING_ATTACKS[king]
+        zone = ring | chess.BB_SQUARES[king]
+        attackers = [sq for sq, (mask, side) in effective.items() if side != colour and mask & zone]
+        defenders = [sq for sq, (mask, side) in effective.items() if side == colour and mask & zone]
+        hostile, friendly, contacts = 0, 0, 0
+        for sq in attackers:
+            hostile |= effective[sq][0] & zone
+            contacts += (effective[sq][0] & zone).bit_count()
+        for sq in defenders:
+            friendly |= effective[sq][0] & zone
+        threatened = hostile & ring
+        uncovered = (threatened & ~friendly).bit_count() / max(1, threatened.bit_count())
+        pawn_mask = board.pawns & board.occupied_co[colour]
+        columns = SHELTER[colour][king]
+        shelter = sum(1. if pawn_mask & first else .5 if pawn_mask & second else 0.
+                      for first, second in columns) / len(columns)
+        open_rays = sum(not (board.occupied & ray) for ray in OPEN_RAYS[king])
+        # Removing the king reveals x-rays behind its original square. The
+        # potential captured piece cannot attack its own square.
+        occupancy = board.occupied & ~chess.BB_SQUARES[king]
+        escapes = [sq for sq in chess.scan_forward(ring & ~board.occupied_co[colour])
+                   if sq != kings[not colour]
+                   and not board.attackers_mask(not colour, sq, occupancy)]
+        enemy = board.occupied_co[not colour]
+        force = min(1., (4 * (board.queens & enemy).bit_count() + 2 * (board.rooks & enemy).bit_count()
+                        + ((board.bishops | board.knights) & enemy).bit_count()) / 8)
+        pressure = min(1., contacts / 12)
+        coordination = min(1., max(0, len(attackers) - 1) / 3)
+        gate = min(1., len(attackers) / 2) * (.35 + .65 * force)
+        checked = board.is_attacked_by(not colour, king)
+        risk = min(1., gate * (.25 * pressure + .15 * coordination + .18 * (1 - shelter) * force
+                              + .12 * open_rays / 8 + .18 * uncovered
+                              + .12 * (1 - min(1., len(escapes) / 3))) + .15 * checked)
+        result['w' if colour else 'b'] = dict(square=chess.square_name(king), risk=risk,
+            shelter=shelter, force=force, contacts=contacts, open_rays=open_rays,
+            uncovered=uncovered, in_check=checked,
+            attackers=sorted(chess.square_name(sq) for sq in attackers),
+            defenders=sorted(chess.square_name(sq) for sq in defenders),
+            escapes=sorted(chess.square_name(sq) for sq in escapes))
+    return result
+
+
+def king_balance(senses, colour):
+    own, enemy = ('w', 'b') if colour else ('b', 'w')
+    return senses[enemy]['risk'] - senses[own]['risk']
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/base/tonkai/fast_rules.py
+
+````text
+"""Bridge to ``tonkai_fast``, the C++ port of the V3 agent's chess rules.
+
+Each call returns exactly what the Python reference returns; the references
+stay in ``king_safety``, ``piece_safety`` and ``cognitive_agent.terminal_value``
+and tests/test_fast_rules.py holds the two against each other. When the
+extension is not built, ``AVAILABLE`` is False and the agent uses Python.
+"""
+from __future__ import annotations
+
+import chess
+import os
+
+try:
+    import tonkai_fast
+except ImportError:  # extension not built: python setup.py build_ext --inplace
+    tonkai_fast = None
+
+AVAILABLE = tonkai_fast is not None
+REQUESTED_BACKEND = os.environ.get("TONKAI_RULES_BACKEND", "auto").lower()
+if REQUESTED_BACKEND not in ("auto", "python", "cpp"):
+    raise ValueError("TONKAI_RULES_BACKEND must be auto, python or cpp")
+if REQUESTED_BACKEND == "cpp" and not AVAILABLE:
+    raise RuntimeError("C++ rules requested but tonkai_fast is unavailable. Run python setup.py build_ext --inplace")
+ENABLED = AVAILABLE and REQUESTED_BACKEND != "python"
+BACKEND = "cpp" if ENABLED else "python"
+NONE, DRAW, WHITE_WINS, BLACK_WINS = -1, 0, 1, 2
+PIECES = {(kind, colour): chess.Piece(kind, colour) for kind in range(1, 7) for colour in (True, False)}
+
+
+def code(move: chess.Move) -> int:
+    return move.from_square | move.to_square << 6 | (move.promotion or 0) << 12
+
+
+def board(position: chess.Board):
+    """A C++ board with the same root position and complete move history."""
+    if position.chess960:
+        raise ValueError("tonkai_fast supports standard chess only")
+    root = position.root()
+    fast = tonkai_fast.Board(root.pawns, root.knights, root.bishops, root.rooks, root.queens, root.kings,
+                             root.occupied_co[chess.WHITE], root.occupied_co[chess.BLACK], root.turn,
+                             root.castling_rights, -1 if root.ep_square is None else root.ep_square,
+                             root.halfmove_clock, root.fullmove_number)
+    fast.push_many([code(move) for move in position.move_stack])
+    return fast
+
+
+def terminal_value(fast, colour, objective="survival", weight=0.5, draw=None, strict=False):
+    """cognitive_agent.terminal_value on a C++ board (strict: repetition only
+    once the position has occurred three times, see terminal_strict)."""
+    result = fast.terminal_strict() if strict else fast.terminal()
+    if result == NONE:
+        return None
+    if result == DRAW:
+        if draw is not None:
+            return float(draw)
+        return .5 if objective == "victory" else 1.0 - weight / 2 if objective == "shaped" else 1.0
+    return float((result == WHITE_WINS) == colour)
+
+
+def king_balance(fast, colour):
+    """king_safety.king_balance(king_senses(board), colour) on a C++ board."""
+    white, black = fast.king_risks()
+    return black - white if colour else white - black
+
+
+def items(fast):
+    """sorted(board.piece_map().items()) of a C++ board."""
+    return [(square, PIECES[kind, colour]) for square, kind, colour in fast.pieces()]
+
+
+def piece_risks(fast, value, pieces, *, tolerance, depth):
+    """(position_risk(white), position_risk(black)) of piece_senses(board, value)."""
+    values = [0.0] * 64
+    for square, piece in pieces:
+        values[square] = value(piece, square)
+    return fast.piece_risks(values, lambda colour, kind, square: value(PIECES[kind, bool(colour)], square),
+                            tolerance, depth)
+
+
+def encode_after_moves(fast, codes, self_color):
+    """encoding.encode_after_moves for the C++ board's position (bit-identical)."""
+    return fast.encode_after(codes, self_color)[:len(codes)]
+
+````
+
+# SOURCE FILE: evidence/web-export-configuration-metadata.json
+
+````text
+{
+  "description": "Existing WEB export configuration metadata, not authoritative effective Python checkpoint configuration. Extracted as text; checkpoint not opened or deserialized.",
+  "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-nezha\\web\\public\\tonkai\\nezha.json",
+  "source_sha256": "a68255981d6d5a75ceb81d04cbdec188b916cc73f871379875241be378e40e33",
+  "model_name": "G4 Nezha",
+  "base_model": {
+    "name": "G4 Leto",
+    "revision": "bc095e95431517242f3b0b7cd7b3bf00245a2655c8d0dceb9966375d7bfe834a",
+    "sha256": "d8f9edad5a5352ec86ef50048794dbe22d2b0b6ab354d8366ff38f6190df5c3f",
+    "learned_weights_unchanged": true
+  },
+  "architecture": {
+    "hidden_size": 512,
+    "latent_size": 128,
+    "head_hidden": 64,
+    "piece_hidden": 64,
+    "type_embed": 16,
+    "square_embed": 16,
+    "side_embed": 8,
+    "memory_size": 64,
+    "ensemble_size": 5,
+    "future_horizons": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "capture_target_weight": 0.05,
+    "residuals": 1,
+    "residual_hidden": 512
+  },
+  "config": {
+    "hidden_size": 512,
+    "latent_size": 128,
+    "head_hidden": 64,
+    "piece_hidden": 64,
+    "type_embed": 16,
+    "square_embed": 16,
+    "side_embed": 8,
+    "memory_size": 64,
+    "ensemble_size": 5,
+    "future_horizons": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "capture_target_weight": 0.05,
+    "residuals": 1,
+    "residual_hidden": 512,
+    "objective": "victory",
+    "king_safety_weight": 0.0548
+  },
+  "claudio_config": {
+    "safety_weight": 1.76,
+    "exchange_depth": 5,
+    "exchange_nodes": 69277,
+    "exchange_dynamic": false,
+    "tactic_depth": 6,
+    "tactic_top": 10,
+    "root_pvs": true,
+    "tactic_rounds": 3,
+    "tactic_nodes": 559745,
+    "shared_table": false,
+    "quiesce_promotions": true,
+    "quiesce_checks": false,
+    "check_extension": 0,
+    "leaf_weight": 0,
+    "reply_top": 4,
+    "reply_weight": 0.36,
+    "reply_mode": "expect",
+    "reply_depth": 2,
+    "reply_branch": 2,
+    "mate_defence": 2,
+    "mate_attack": 2,
+    "mate_gate": 0.28,
+    "mate_nodes": 9241,
+    "pawn_reach": 0,
+    "king_weight": 0.0548,
+    "scan_depth": 3,
+    "ahead_draws": true,
+    "ahead_value": 0.635,
+    "draw_ahead": -1,
+    "ahead_material": 0.5,
+    "critical_depth": 0,
+    "critical_gap": 0,
+    "critical_spread": 0,
+    "endgame_pieces": 0,
+    "endgame_mate": 0,
+    "endgame_depth": 0,
+    "endgame_nodes": 400000,
+    "fifty_horizon": 10,
+    "phase_values": "",
+    "phase_opening": 20,
+    "phase_ending": 12,
+    "book": "",
+    "book_weight": 0,
+    "book_min": 8,
+    "book_plies": 16,
+    "simplify_weight": 0.049,
+    "simplify_margin": 0.57,
+    "repeat_as_draw": true,
+    "memory": true,
+    "value_scaling": true,
+    "value_spread_ref": 0.0215,
+    "value_spread_decay": 0.98,
+    "head": "mean",
+    "temperature": 0,
+    "draw_value": 0.408655,
+    "pawn_weight": 0.3,
+    "pawn_convert": 0.5,
+    "pawn_v2": false,
+    "opening_book": true,
+    "opening_weight": 0.15,
+    "opening_plies": 30,
+    "opening_book_version": 2,
+    "opening_principles_version": 3,
+    "opening_v3_scale": 1,
+    "opening_fade": "hold",
+    "syzygy": "",
+    "pawn_version": 3
+  },
+  "options": {
+    "learned_policy": false,
+    "opening_book": false,
+    "opening_fast": false,
+    "finish_planner": false,
+    "finish_pieces": 0,
+    "finish_moves": 0,
+    "finish_nodes": 0
+  },
+  "personality": {
+    "version": 1,
+    "id": "nezha",
+    "name": "Nezha",
+    "axes": {
+      "king_safety_bias": 0.85,
+      "eval_optimism": 0.4,
+      "prophylaxis_vs_initiative": 1,
+      "tension_preference": 0.65,
+      "pawn_style": 0.75,
+      "gru_momentum_trigger": 0.8,
+      "resilience_and_contempt": 0.55
+    },
+    "safety": {
+      "max_utility_loss": 0.02,
+      "max_bonus": 0.025,
+      "max_king_safety_drop": 0.05
+    }
+  }
+}
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-nezha/web/src/tonkai/leto.worker.ts
+
+````text
+import { Chess } from 'chess.js';
+import { Network } from './network';
+import { G16Network, loadG16Rules, type G16Manifest } from './g16v2';
+import { loadPawnProofs } from './pawnProofs';
+import { clearPawnCache } from './pawnomicsV3';
+import { searchLetoUntil } from './letoTimedSearch';
+import type { LetoWorkerRequest, LetoWorkerReply } from './letoThinkingProtocol';
+
+const scope = globalThis as unknown as { onmessage: ((event: { data: LetoWorkerRequest }) => void) | null;
+  postMessage: (reply: LetoWorkerReply) => void };
+let network: Network | null = null, player: Network | null = null, board: Chess | null = null;
+let gameId = '', root = '', self = '';
+scope.onmessage = event => { void handle(event.data); };
+async function handle(request: LetoWorkerRequest) {
+  try {
+    if (request.type === 'init') {
+      const { manifest, binary, repertoire } = request.seed;
+      const model = manifest as G16Manifest;
+      if (!['G4 Leto', 'G4 Nezha'].includes(model.model_name)
+        || model.model_name === 'G4 Nezha' && model.personality?.id !== 'nezha') throw new Error('Invalid G4 personality model.');
+      if (manifest.pawn_proofs) await loadPawnProofs(manifest.pawn_proofs);
+      const rules = await loadG16Rules(manifest as G16Manifest);
+      network = new Network(manifest, binary, rules, repertoire);
+      clearPawnCache(); player = null; board = null;
+      scope.postMessage({ type: 'ready' }); return;
+    }
+    if (!network) throw new Error('G4 Leto is not ready.');
+    const history = board?.history({ verbose: true }).map(move => move.from + move.to + (move.promotion ?? '')) ?? [];
+    if (!board || gameId !== request.gameId || root !== request.root || self !== request.self
+      || history.length > request.moves.length || !history.every((move, index) => move === request.moves[index])) {
+      board = new Chess(request.root); player = network.createPlayer();
+      gameId = request.gameId; root = request.root; self = request.self;
+    }
+    for (const uci of request.moves.slice(board.history().length)) {
+      board.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] });
+    }
+    if (board.fen() !== request.fen || board.turn() !== request.self || !player) throw new Error('Stale G4 position.');
+    if (request.spread !== undefined && player.temporal instanceof G16Network) player.temporal.restoreSearchCalibration(request.spread);
+    const result = searchLetoUntil(player, board, request.self, request.remainingMs,
+      (best, proved) => scope.postMessage({ type: 'best', id: request.id, fen: request.fen, best, proved }));
+    if (result.best) scope.postMessage({ type: 'done', id: request.id, fen: request.fen, best: result.best, proved: result.proved });
+  } catch (error) {
+    scope.postMessage({ type: 'error', id: request.type === 'think' ? request.id : undefined, message: String(error) });
+  }
+}
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-nezha/web/src/tonkai/letoThinkingProtocol.ts
+
+````text
+import type { Color } from 'chess.js';
+import type { LetoWorkerSeed } from './network';
+
+export const MAX_LETO_THINK_MS = 5000;
+export type LetoBest = { uci: string; depth: number; iterations: number; score: number; spread?: number };
+export type LetoThinkRequest = { type: 'think'; id: number; gameId: string; root: string; moves: string[];
+  fen: string; self: Color; remainingMs: number; spread?: number };
+export type LetoWorkerRequest = { type: 'init'; seed: LetoWorkerSeed } | LetoThinkRequest;
+export type LetoWorkerReply = { type: 'ready' } | { type: 'error'; id?: number; message: string }
+  | { type: 'best' | 'done'; id: number; fen: string; best: LetoBest; proved: boolean };
+export type LetoThinkingResult = LetoBest & { elapsedMs: number; reason: 'proved' | 'budget' | 'deadline'; fallback: boolean };
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-nezha/web/src/tonkai/temporal.ts
+
+````text
+import { Chess, type Color, type Move } from 'chess.js';
+import { encode, softmax } from './encoding';
+import { pieceSenses, positionRisk, type PieceValuer } from './pieceSafety';
+import { kingSenses, kingBalance } from './kingSafety';
+import { forcedMate, rankLast } from './mateSearch';
+import { exchangeAfterMoves } from './exchangeSearch';
+
+type Tensor = { data: Float32Array; shape: number[] };
+type Entry = { key: number[]; target: number; game: number; trust: number; own_turn: boolean | null };
+type Skill = { key: number[]; actions: string[]; value: number; trust: number; games: number[] };
+export interface TemporalManifest {
+  model_kind?: string;
+  config?: { [key: string]: number | string | boolean | undefined; objective?: string };
+  kd_values?: Record<string, number>;
+  king_safety_model?: boolean;
+  knowledge?: { entries: Entry[]; skills: Skill[]; calibration: { count: number[]; square_error: number[] } };
+}
+type State = { memory: Float64Array; context: Float64Array; root: string; history: string[]; self: Color;
+  plan: string[]; prefix: string[] };
+const sigmoid = (v: number) => 1 / (1 + Math.exp(-v));
+const uci = (m: Move) => m.from + m.to + (m.promotion ?? '');
+const dot = (a: ArrayLike<number>, b: ArrayLike<number>) => {
+  let sum = 0; for (let i = 0; i < a.length; i++) sum += a[i] * b[i]; return sum;
+};
+const normalize = (a: number[]) => { const n = Math.max(1e-8, Math.sqrt(dot(a, a))); return a.map(v => v / n); };
+const moveUci = (b: Chess, s: string) => b.move({ from: s.slice(0, 2), to: s.slice(2, 4), promotion: s[4] });
+const square = (s: string) => (Number(s[1]) - 1) * 8 + s.charCodeAt(0) - 97;
+
+// Preserve Python's deterministic tie ordering, including promotions and castling.
+export function pythonMoves(b: Chess): Move[] {
+  const inCheck = b.isCheck();
+  const key = (m: Move): number[] => {
+    const from = square(m.from), to = square(m.to);
+    if (inCheck && m.piece === 'k') return [-1, -from, -to, 0];
+    if (m.isKingsideCastle() || m.isQueensideCastle()) return [1, 0, -to, 0];
+    if (m.piece !== 'p') return [0, -from, -to, 0];
+    const promotion = m.promotion ? 'qrbn'.indexOf(m.promotion) : 0;
+    if (m.isEnPassant()) return [5, -from, -to, 0];
+    if (m.isCapture()) return [2, -from, -to, promotion];
+    return [m.isBigPawn() ? 4 : 3, -to, 0, promotion];
+  };
+  return b.moves({ verbose: true }).sort((a, b) => {
+    const x = key(a), y = key(b);
+    for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i];
+    return 0;
+  });
+}
+
+export function encodedFen(b: Chess, last?: Move): string {
+  const fields = b.fen({ forceEnpassantSquare: true }).split(' ');
+  if (last) fields[3] = last.isBigPawn() ? last.from[0] + String((Number(last.from[1]) + Number(last.to[1])) / 2) : '-';
+  return fields.join(' ');
+}
+
+/** Same draw-claim convention used by the Python training actor. */
+export function terminal(b: Chess, self: Color, objective = 'survival', weight = .5): number | null {
+  const draw = objective === 'victory' ? .5 : objective === 'shaped' ? 1 - weight / 2 : 1;
+  if (b.isCheckmate()) return b.turn() === self ? 0 : 1;
+  if (b.isDraw()) return draw;
+  const half = Number(b.fen().split(' ')[4]);
+  const history = b.history({ verbose: true });
+  const position = (fen: string) => fen.split(' ').slice(0, 4).join(' ');
+  const keys = history.map(m => position(m.before)); keys.push(position(b.fen()));
+  const repeated = half >= 7 && new Set(keys).size < keys.length;
+  if (half >= 99 || repeated) {
+    for (const move of b.moves({ verbose: true })) {
+      b.move(move);
+      const draw = !b.isCheckmate() && (b.isDrawByFiftyMoves() || (repeated && b.isThreefoldRepetition()));
+      b.undo();
+      if (draw) return objective === 'victory' ? .5 : objective === 'shaped' ? 1 - weight / 2 : 1;
+    }
+  }
+  return null;
+}
+
+const positionKey = (fen: string) => fen.split(' ').slice(0, 4).join(' ');
+/** How many times the current position has occurred (python-chess is_repetition counting). */
+export function repetitions(b: Chess) {
+  const current = positionKey(b.fen());
+  return b.history({ verbose: true }).filter(m => positionKey(m.before) === current).length + 1;
+}
+/** python-chess can_claim_threefold_repetition: now, or by a move that repeats a position a third time. */
+export function canClaimThreefold(b: Chess) {
+  if (repetitions(b) >= 3) return true;
+  for (const move of b.moves({ verbose: true })) {
+    b.move(move);
+    try { if (repetitions(b) >= 3) return true; } finally { b.undo(); }
+  }
+  return false;
+}
+
+export class TemporalNetwork {
+  private states = new WeakMap<Chess, State>();
+  private cfg: Record<string, number>;
+  private manifest: TemporalManifest;
+  private tensors: Map<string, Tensor>;
+  private exchangeEvaluations = new WeakMap<Chess, Record<string, number> | null>();
+  constructor(manifest: TemporalManifest, tensors: Map<string, Tensor>) {
+    this.manifest = manifest; this.tensors = tensors;
+    this.cfg = Object.fromEntries(Object.entries(manifest.config ?? {}).filter(([, v]) => typeof v === 'number')) as Record<string, number>;
+    if (!this.cfg || !tensors.has('net.memory_cell.weight_ih')) throw new Error('Missing temporal model state');
+  }
+  private affine(x: Float64Array, weightName: string, biasName: string): Float64Array {
+    const weight = this.tensors.get(weightName), bias = this.tensors.get(biasName);
+    if (!weight || !bias || weight.shape[1] !== x.length) throw new Error(`Invalid tensor ${weightName}`);
+    const [rows, cols] = weight.shape;
+    return Float64Array.from({ length: rows }, (_, r) => {
+      let v = bias.data[r]; for (let c = 0; c < cols; c++) v += weight.data[r * cols + c] * x[c]; return v;
+    });
+  }
+  protected linear(x: Float64Array, name: string, activation = false) {
+    const y = this.affine(x, `${name}.weight`, `${name}.bias`);
+    return activation ? y.map(v => v * sigmoid(v)) : y;
+  }
+  protected encoder(x: Float64Array, name = 'net.encoder') {
+    let latent = this.linear(this.linear(x, `${name}.0`, true), `${name}.2`, true);
+    for (let i = 4; this.tensors.has(`${name}.${i}.fc1.weight`); i++) {
+      const residual = this.linear(this.linear(latent, `${name}.${i}.fc1`, true), `${name}.${i}.fc2`);
+      latent = latent.map((v, j) => v + residual[j]);
+    }
+    return latent;
+  }
+  protected step(fen: string, self: Color, previous: Float64Array) {
+    const latent = this.encoder(encode(fen, self));
+    const ih = this.affine(latent, 'net.memory_cell.weight_ih', 'net.memory_cell.bias_ih');
+    const hh = this.affine(previous, 'net.memory_cell.weight_hh', 'net.memory_cell.bias_hh');
+    const n = previous.length;
+    const memory = previous.map((old, i) => {
+      const reset = sigmoid(ih[i] + hh[i]), update = sigmoid(ih[n + i] + hh[n + i]);
+      const next = Math.tanh(ih[2 * n + i] + reset * hh[2 * n + i]);
+      return (1 - update) * next + update * old;
+    });
+    const joined = new Float64Array(latent.length + n); joined.set(latent); joined.set(memory, latent.length);
+    return { memory, context: this.linear(joined, 'net.fusion.0', true) };
+  }
+  protected value(context: Float64Array) {
+    const heads = Array.from({ length: this.cfg.ensemble_size }, (_, i) =>
+      sigmoid(this.linear(this.linear(context, `net.survival_heads.${i}.0`, true), `net.survival_heads.${i}.2`)[0]));
+    const mean = heads.reduce((a, b) => a + b, 0) / heads.length;
+    const deviation = Math.sqrt(heads.reduce((a, b) => a + (b - mean) ** 2, 0) / heads.length);
+    const predictLogit = this.linear(this.linear(context, 'net.predict_head.0', true), 'net.predict_head.2')[0];
+    return { mean, deviation, predictLogit, heads };
+  }
+  observe(board: Chess, self: Color) {
+    const moves = board.history({ verbose: true }), history = moves.map(uci);
+    const root = moves[0]?.before ?? board.fen({ forceEnpassantSquare: true });
+    let state = this.states.get(board);
+    if (state && state.self === self && state.root === root && state.history.length === history.length
+      && state.history.every((m, i) => m === history[i])) return state;
+    const incremental = state && state.self === self && state.root === root
+      && state.history.length <= history.length && state.history.every((m, i) => m === history[i]);
+    if (!incremental) {
+      state = { ...this.step(root, self, new Float64Array(this.cfg.memory_size)), root, history: [], self, plan: [], prefix: [] };
+    }
+    state = state!;
+    const replay = new Chess(root);
+    for (let i = 0; i < moves.length; i++) {
+      const last = moveUci(replay, history[i]);
+      if (i >= state.history.length) Object.assign(state, this.step(encodedFen(replay, last), self, state.memory));
+    }
+    state.history = history; this.states.set(board, state); return state;
+  }
+  snapshot(board: Chess, self: Color) {
+    const s = this.observe(board, self); return { memory: Array.from(s.memory), value: this.value(s.context).mean };
+  }
+  kingSafety(board: Chess, owner: Color, last?: Move) {
+    if (!this.manifest.king_safety_model) return 1 - kingSenses(board)[owner].risk;
+    const x = encode(encodedFen(board, last), owner);
+    return sigmoid(this.linear(this.linear(this.linear(x, 'king_safety.body.0', true),
+      'king_safety.body.2', true), 'king_safety.body.4')[0]);
+  }
+  private kingBalance(board: Chess, self: Color, last?: Move) {
+    return this.manifest.king_safety_model
+      ? this.kingSafety(board, self, last) - this.kingSafety(board, self === 'w' ? 'b' : 'w', last)
+      : kingBalance(kingSenses(board), self);
+  }
+  private ending(board: Chess, self: Color) {
+    return terminal(board, self, this.manifest.config?.objective, this.cfg.victory_weight ?? .5);
+  }
+  private continuation(value: number) {
+    const objective = this.manifest.config?.objective;
+    const survival = 1 - this.cfg.survival_gamma + this.cfg.survival_gamma * value;
+    const weight = this.cfg.victory_weight ?? .5;
+    return objective === 'victory' ? value : objective === 'shaped' ? (1 - weight) * survival + weight * value : survival;
+  }
+  private mateEvaluations = new WeakMap<Chess, { forced_mate: number; allows_mate: Record<string, number> }>();
+  mateDiagnostics(board: Chess) { return this.mateEvaluations.get(board); }
+  private exchangeValues(): number[] | null {
+    if (!(this.cfg.exchange_depth > 0) || !this.manifest.kd_values) return null;
+    const values = [0, ...Array.from({ length: 5 }, (_, i) => this.manifest.kd_values![String(i + 1)])];
+    return values.every(Number.isFinite) ? values : null;
+  }
+  /** Python _exchange_nets: immediate capture/promotion minus the opponent's forced gain. */
+  exchangeNets(board: Chess, moves = pythonMoves(board)): Record<string, number> | null {
+    const values = this.exchangeValues();
+    if (!values) return null;
+    try {
+      const losses = exchangeAfterMoves(board, moves, values, this.cfg.exchange_depth,
+        this.cfg.exchange_node_limit ?? 200000);
+      return Object.fromEntries(moves.map((move, i) => {
+        const victim = move.isEnPassant() ? 1 : move.captured ? ' pnbrqk'.indexOf(move.captured) : 0;
+        const gain = victim ? values[victim] : 0;
+        const promotion = move.promotion ? values[' pnbrqk'.indexOf(move.promotion)] - values[1] : 0;
+        return [uci(move), gain + promotion - losses[i]];
+      }));
+    } catch (error) {
+      if (error instanceof RangeError && error.message.includes('node_limit')) return null;
+      throw error;
+    }
+  }
+  exchangeDiagnostics(board: Chess) { return this.exchangeEvaluations.get(board); }
+  private key(fen: string, self: Color) {
+    const x = encode(fen, self), pooled: number[] = [];
+    for (let p = 0; p < 12; p++) for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+      const k = p * 64 + r * 16 + c * 2;
+      pooled.push((x[k] + x[k + 1] + x[k + 8] + x[k + 9]) / 4);
+    }
+    const latent = normalize(Array.from(this.encoder(x, 'knowledge_encoder'))).map(v => v * .5);
+    return normalize([...normalize(pooled), ...Array.from(x.slice(768)).map(v => v * .5), ...latent]);
+  }
+  private remembered(key: number[]) {
+    const entries = this.manifest.knowledge?.entries ?? [];
+    const nearest = entries.map((e, i) => ({ e, i, sim: e.own_turn === true ? -1 : dot(e.key, key) }))
+      .sort((a, b) => b.sim - a.sim || b.i - a.i).slice(0, this.cfg.memory_neighbors)
+      .filter(item => item.sim >= this.cfg.memory_similarity);
+    if (!nearest.length) return { strength: 0, value: 0 };
+    const weights = nearest.map(({ e, sim }) => Math.max(.01, sim - this.cfg.memory_similarity + .01) * e.trust);
+    const sum = weights.reduce((a, b) => a + b, 0);
+    const value = nearest.reduce((a, { e }, i) => a + e.target * weights[i], 0) / sum;
+    const trust = nearest.reduce((a, { e }, i) => a + e.trust * weights[i], 0) / sum;
+    const support = new Set(nearest.map(({ e }) => e.game)).size;
+    return { value, strength: this.cfg.memory_weight * trust * nearest[0].sim * support / (support + 2) };
+  }
+  private candidates(board: Chess, self: Color) {
+    const state = this.observe(board, self);
+    return pythonMoves(board).map(move => {
+      board.move(move);
+      try {
+        const fen = encodedFen(board, move), step = this.step(fen, self, state.memory);
+        const value = this.value(step.context);
+        return { move, fen, ...step, ...value, uci: uci(move), san: move.san, utility: value.mean, logits: [] as number[], wdl: [] as number[] };
+      } finally { board.undo(); }
+    });
+  }
+  sensePieces(board: Chess, self: Color, context?: Float64Array) {
+    return pieceSenses(board, this.pieceValuer(board, self, context), this.cfg.piece_exchange_tolerance, this.cfg.piece_exchange_depth);
+  }
+  /** Python CognitiveAgent.piece_valuer: learned values in pawn units, blended with kd_values. */
+  pieceValuer(board: Chess, self: Color, context?: Float64Array): PieceValuer {
+    const current = context ?? this.observe(board, self).context;
+    // Python _piece_index: with symmetric_piece_values an enemy piece is read as its owner sees it.
+    const symmetric = Boolean(this.manifest.config?.symmetric_piece_values);
+    const rawValue: PieceValuer = (piece, location) => {
+      const enemy = piece.color !== self;
+      const side = enemy && !symmetric ? 1 : 0;
+      const relative = square(location) ^ (self === 'w' ? 0 : 56);
+      const parts = [['net.type_embed.weight', 'pnbrqk'.indexOf(piece.type)],
+        ['net.square_embed.weight', enemy && symmetric ? relative ^ 56 : relative], ['net.side_embed.weight', side]] as const;
+      const embeddings = parts.map(([name, index]) => {
+        const tensor = this.tensors.get(name)!; return tensor.data.slice(index * tensor.shape[1], (index + 1) * tensor.shape[1]);
+      });
+      const input = new Float64Array(current.length + embeddings.reduce((n, e) => n + e.length, 0));
+      input.set(current); let offset = current.length;
+      for (const embedding of embeddings) { input.set(embedding, offset); offset += embedding.length; }
+      return this.linear(this.linear(input, 'net.piece_head.0', true), 'net.piece_head.2')[0];
+    };
+    const pieces = board.board().flat().filter(p => p !== null), raw = pieces.map(p => rawValue(p, p.square));
+    const pawns = pieces.flatMap((p, i) => p.type === 'p' ? [Math.abs(raw[i])] : []).sort((a, b) => a - b);
+    const unit = pawns.length ? Math.max(.001, (pawns[Math.floor(pawns.length / 2)] + pawns[Math.floor((pawns.length - 1) / 2)]) / 2) : .001;
+    const key = (piece: { color: Color; type: string }, sq: string) => piece.color + piece.type + sq;
+    const normalize = (v: number, piece: { color: Color; type: string }) => {
+      const sign = piece.color === self ? 1 : -1;
+      const learned = Math.max(-12, Math.min(12, v * sign / unit));
+      const kd = this.manifest.kd_values?.[String('pnbrqk'.indexOf(piece.type) + 1)], weight = this.cfg.kd_weight ?? 0;
+      return weight > 0 && kd !== undefined && piece.type !== 'k' ? weight * sign * kd + (1 - weight) * learned : learned;
+    };
+    const values = new Map(pieces.map((p, i) => [key(p, p.square), normalize(raw[i], p)]));
+    const value: PieceValuer = (piece, sq) => {
+      if (piece.type === 'k') return 10000;
+      const id = key(piece, sq);
+      if (!values.has(id)) values.set(id, normalize(rawValue(piece, sq), piece));
+      return values.get(id)!;
+    };
+    return value;
+  }
+  /** Python _avoid_repetition_when_ahead: ahead by `margin` pawns, a repetition draw is nearly worthless. */
+  private avoidRepetitionWhenAhead(board: Chess, self: Color, choices: { move: Move; uci: string; utility: number }[],
+                                   endings: Map<string, number | null>) {
+    const margin = Number(this.manifest.config?.avoid_repetition_margin ?? 0);
+    if (!(margin > 0)) return;
+    const objective = this.manifest.config?.objective ?? 'survival', weight = this.cfg.victory_weight ?? .5;
+    const drawValue = objective === 'victory' ? .5 : objective === 'shaped' ? 1 - weight / 2 : 1;
+    const repeated = choices.filter(c => {
+      if (endings.get(c.uci) !== drawValue) return false;
+      board.move(c.move);
+      try { return canClaimThreefold(board) || repetitions(board) >= 5; } finally { board.undo(); }
+    });
+    if (!repeated.length) return;
+    const value = this.pieceValuer(board, self);
+    let balance = 0;
+    for (const piece of board.board().flat()) if (piece && piece.type !== 'k') balance += value(piece, piece.square);
+    if (balance >= margin) for (const c of repeated) c.utility = Math.min(c.utility, .05);
+  }
+  predict(board: Chess, self: Color) {
+    const choices = this.candidates(board, self), probabilities = softmax(choices.map(c => c.predictLogit));
+    return choices.map((c, i) => ({ uci: c.uci, san: c.san, p: probabilities[i] })).sort((a, b) => b.p - a.p);
+  }
+  rank(board: Chess, self: Color) {
+    const choices = this.candidates(board, self), cfg = this.cfg, knowledge = this.manifest.knowledge;
+    if (!knowledge) return choices.sort((a, b) => b.utility - a.utility);
+    const kingBonuses = new Map<string, number>();
+    const kingPressure = new Set<string>();
+    const nets = cfg.piece_safety_weight ? this.exchangeNets(board, choices.map(c => c.move)) : null;
+    this.exchangeEvaluations.set(board, nets);
+    for (const c of choices) {
+      const recall = this.remembered(this.key(c.fen, self));
+      c.utility = (1 - recall.strength) * c.mean + recall.strength * recall.value;
+      if (cfg.piece_safety_weight) {
+        if (nets) c.utility += cfg.piece_safety_weight * Math.tanh(nets[c.uci] / 3);
+        else {
+          board.move(c.move);
+          try {
+            const senses = this.sensePieces(board, self, c.context);
+            c.utility += cfg.piece_safety_weight * (positionRisk(senses, self === 'w' ? 'b' : 'w') - positionRisk(senses, self));
+          } finally { board.undo(); }
+        }
+      }
+      if (cfg.king_safety_weight) {
+        board.move(c.move);
+        try {
+          const bonus = cfg.king_safety_weight * this.kingBalance(board, self, c.move);
+          kingBonuses.set(c.uci, bonus); c.utility += bonus;
+          if (1 - this.kingSafety(board, 'w', c.move) > .1 || 1 - this.kingSafety(board, 'b', c.move) > .1) kingPressure.add(c.uci);
+        } finally { board.undo(); }
+      }
+    }
+    const diagnostics = { forced_mate: 0, allows_mate: {} as Record<string, number> };
+    this.mateEvaluations.set(board, diagnostics);
+    const limit = cfg.mate_node_limit ?? 20000;
+    if (cfg.mate_defense_moves > 0) for (const c of choices) {
+      board.move(c.move);
+      try {
+        if (this.ending(board, self) === null) {
+          const found = forcedMate(board, self === 'w' ? 'b' : 'w', cfg.mate_defense_moves, limit).found;
+          if (found) diagnostics.allows_mate[c.uci] = found;
+        }
+      } finally { board.undo(); }
+    }
+    rankLast(choices, diagnostics.allows_mate);
+    const order = choices.map((c, i) => ({ c, i })).sort((a, b) => b.c.utility - a.c.utility || b.i - a.i);
+    const top = order[0].c, gap = order.length > 1 ? top.utility - order[1].c.utility : 1;
+    const calibration = knowledge.calibration, bin = Math.min(calibration.count.length - 1, Math.floor(top.mean * calibration.count.length));
+    let uncertainty = Math.max(top.deviation, Math.sqrt((calibration.square_error[bin] + .25) / (calibration.count[bin] + 1)));
+    if (calibration.count[bin] < cfg.calibration_min_samples) uncertainty = Math.max(uncertainty, cfg.planning_uncertainty);
+    if (top.mean < .35 || board.isCheck() || uncertainty >= cfg.planning_uncertainty || gap <= cfg.planning_gap || kingPressure.has(top.uci)) {
+      const roots = order.slice(0, cfg.planning_candidates), revised = new Set<number>(); let used = 0;
+      for (let ordinal = 0; ordinal < roots.length; ordinal++) {
+        const { c, i } = roots[ordinal]; board.move(c.move);
+        try {
+          const ending = this.ending(board, self);
+          if (ending !== null) { c.utility += ending - c.mean - (kingBonuses.get(c.uci) ?? 0); revised.add(i); continue; }
+          const available = Math.floor((cfg.planning_nodes - used) / (roots.length - ordinal));
+          if (available < 1) break;
+          let replies = pythonMoves(board);
+          if (replies.length > available) replies = replies.sort((a, b) =>
+            Number(!/[+#]/.test(a.san)) - Number(!/[+#]/.test(b.san)) ||
+            Number(!a.isCapture() && !a.isEnPassant()) - Number(!b.isCapture() && !b.isEnPassant()) || uci(a).localeCompare(uci(b))).slice(0, available);
+          const previews = replies.map(reply => {
+            board.move(reply);
+            try {
+              const step = this.step(encodedFen(board, reply), self, c.memory), v = this.value(step.context);
+              const ending = this.ending(board, self);
+              const bonus = ending === null && cfg.king_safety_weight ? cfg.king_safety_weight * this.kingBalance(board, self, reply) : 0;
+              return { value: ending ?? v.mean + bonus, logit: v.predictLogit };
+            } finally { board.undo(); }
+          });
+          used += replies.length;
+          const p = softmax(previews.map(v => v.logit));
+          const selected = p.map((q, j) => ({ q, j })).sort((a, b) => b.q - a.q || b.j - a.j)
+            .slice(0, Math.max(1, cfg.planning_replies - 1)).map(v => v.j);
+          const worst = previews.reduce((best, v, j) => v.value < previews[best].value ? j : best, 0);
+          if (!selected.includes(worst)) selected.push(worst);
+          const sum = selected.reduce((a, j) => a + p[j] + 1e-8, 0);
+          const expected = selected.reduce((a, j) => a + previews[j].value * (p[j] + 1e-8), 0) / sum;
+          const continuation = (1 - cfg.robust_weight) * expected + cfg.robust_weight * Math.min(...selected.map(j => previews[j].value));
+          c.utility += this.continuation(continuation) - c.mean - (kingBonuses.get(c.uci) ?? 0); revised.add(i);
+        } finally { board.undo(); }
+      }
+      if (revised.size) choices.forEach((c, i) => { if (!revised.has(i)) c.utility = -1e9; });
+    }
+    const endings = new Map<string, number | null>();
+    for (const c of choices) {
+      if (cfg.piece_safety_weight || cfg.king_safety_weight || ['victory', 'shaped'].includes(this.manifest.config?.objective ?? '')) c.utility = Math.min(c.utility, .999999);
+      board.move(c.move); const ending = this.ending(board, self); board.undo();
+      if (ending !== null) c.utility = ending;
+      endings.set(c.uci, ending);
+    }
+    this.avoidRepetitionWhenAhead(board, self, choices, endings);
+    rankLast(choices, diagnostics.allows_mate);
+    const state = this.observe(board, self), history = state.history;
+    const expected = [...state.prefix, ...state.plan], consumed = history.length - state.prefix.length;
+    if (!state.plan.length || consumed < 0 || consumed >= state.plan.length || !history.every((m, i) => m === expected[i])) {
+      const key = this.key(encodedFen(board, board.history({ verbose: true }).at(-1)), self);
+      const mirror = (s: string) => self === 'w' ? s : s[0] + (9 - Number(s[1])) + s[2] + (9 - Number(s[3])) + s.slice(4);
+      const candidates = knowledge.skills.map(s => ({ s, sim: dot(s.key, key) }))
+        .filter(({ s, sim }) => s.games.length >= cfg.skill_min_support && sim >= cfg.memory_similarity && s.trust >= .5)
+        .sort((a, b) => b.sim * b.s.value * b.s.trust - a.sim * a.s.value * a.s.trust);
+      state.plan = []; state.prefix = [...history];
+      for (const { s } of candidates) {
+        const actions = s.actions.map(mirror); let pushed = 0, legal = true;
+        try {
+          for (const action of actions) {
+            if (terminal(board, board.turn()) !== null || !pythonMoves(board).some(m => uci(m) === action)) { legal = false; break; }
+            moveUci(board, action); pushed++;
+          }
+        } finally { while (pushed-- > 0) board.undo(); }
+        if (legal) { state.plan = actions; break; }
+      }
+    }
+    if (state.plan.length) {
+      const suggested = state.plan[history.length - state.prefix.length];
+      const choice = choices.find(c => c.uci === suggested);
+      if (choice && choice.utility >= Math.max(...choices.map(c => c.utility)) - cfg.skill_bonus) choice.utility += cfg.skill_bonus;
+      else state.plan = [];
+    }
+    let winning = choices.filter(c => {
+      if (!['victory', 'shaped'].includes(this.manifest.config?.objective ?? '')) return false;
+      board.move(c.move);
+      try { return terminal(board, self, 'victory') === 1; } finally { board.undo(); }
+    });
+    if (!winning.length && cfg.mate_search_moves > 0) {
+      const found = forcedMate(board, self, cfg.mate_search_moves, limit).found;
+      if (found) winning = choices.filter(c => {
+        board.move(c.move);
+        try {
+          const ending = terminal(board, self, 'victory');
+          return ending === 1 || (ending === null && found > 1 && forcedMate(board, self, found - 1, limit).found > 0);
+        } finally { board.undo(); }
+      });
+      if (winning.length) diagnostics.forced_mate = found;
+    }
+    const chosen = winning[0];
+    return choices.sort((a, b) => Number(b === chosen) - Number(a === chosen) || b.utility - a.utility);
+  }
+}
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-nezha/web/native/g4-rules.cpp
+
+````text
+#include <emscripten/bind.h>
+#include <unordered_set>
+#include <unordered_map>
+#include <sstream>
+#include <memory>
+// tonkai_fast - the V3 agent's hand-written chess rules, in C++.
+//
+// Every function here is a line-by-line port of a Python reference and must
+// return EXACTLY what the reference returns (tests/test_fast_rules.py checks
+// them against each other on many positions):
+//
+//   king_risks / king_detail  <- tonkai/king_safety.py  king_senses
+//   piece_risks               <- tonkai/piece_safety.py piece_senses + position_risk
+//   terminal                  <- tonkai/cognitive_agent.py terminal_value
+//                                (python-chess outcome / fifty-move / threefold)
+//
+// Squares and bitboards follow python-chess (a1 = 0 .. h8 = 63). Legal moves
+// are pseudo-legal moves that do not leave the mover's king attacked, which is
+// the same set python-chess produces; move ORDER never matters to any result
+// here. Floating point follows the Python expressions operation by operation.
+// Python never fuses a*b+c; neither may we, or results differ in the last bit.
+#ifdef _MSC_VER
+#pragma fp_contract(off)
+#endif
+
+#include <algorithm>
+#include <array>
+#include <bit>
+#include <cmath>
+#include <cstdint>
+#include <limits>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <deque>
+#include <vector>
+
+
+using U64 = std::uint64_t;
+
+// The small functions every search node calls, always inlined (the compiler's choice changes as
+// the file grows; their results do not depend on it).
+#if defined(_MSC_VER)
+#define HOT __forceinline
+#else
+#define HOT inline __attribute__((always_inline))
+#endif
+
+namespace {
+
+constexpr int BLACK = 0, WHITE = 1;
+enum { NO_PIECE = 0, PAWN = 1, KNIGHT, BISHOP, ROOK, QUEEN, KING };
+constexpr U64 RANK1 = 0xFFULL, RANK8 = 0xFF00000000000000ULL;
+constexpr U64 DARK = 0xAA55AA55AA55AA55ULL, LIGHT = 0x55AA55AA55AA55AAULL;
+constexpr U64 ALL = ~0ULL;
+
+inline U64 bit(int sq) { return U64(1) << sq; }
+inline int lsb(U64 b) { return std::countr_zero(b); }
+inline int msb(U64 b) { return 63 - std::countl_zero(b); }
+inline int popcnt(U64 b) { return std::popcount(b); }
+inline int file_of(int s) { return s & 7; }
+inline int rank_of(int s) { return s >> 3; }
+
+// Directions 0..3 increase the square index, 4..7 decrease it.
+constexpr int DF[8] = {0, 1, 1, -1, 0, -1, -1, 1};
+constexpr int DR[8] = {1, 0, 1, 1, -1, 0, -1, -1};
+inline int opposite(int d) { return (d + 4) & 7; }
+
+struct Tables {
+    U64 knight[64], king[64], pawn[2][64], ray[8][64];
+    U64 line[64][64], between[64][64];
+    U64 file_line[64], rank_line[64], diag_line[64];
+    std::vector<U64> open_rays[64];
+    std::vector<std::pair<U64, U64>> shelter[2][64];
+
+    Tables() {
+        static const int KN[8][2] = {{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}};
+        auto on = [](int f, int r) { return f >= 0 && f < 8 && r >= 0 && r < 8; };
+        for (int s = 0; s < 64; ++s) {
+            int f = file_of(s), r = rank_of(s);
+            knight[s] = king[s] = pawn[0][s] = pawn[1][s] = 0;
+            for (auto& d : KN)
+                if (on(f + d[0], r + d[1])) knight[s] |= bit((r + d[1]) * 8 + f + d[0]);
+            for (int a = -1; a <= 1; ++a)
+                for (int b = -1; b <= 1; ++b)
+                    if ((a || b) && on(f + a, r + b)) king[s] |= bit((r + b) * 8 + f + a);
+            for (int a : {-1, 1}) {
+                if (on(f + a, r + 1)) pawn[WHITE][s] |= bit((r + 1) * 8 + f + a);
+                if (on(f + a, r - 1)) pawn[BLACK][s] |= bit((r - 1) * 8 + f + a);
+            }
+            for (int d = 0; d < 8; ++d) {
+                ray[d][s] = 0;
+                for (int ff = f + DF[d], rr = r + DR[d]; on(ff, rr); ff += DF[d], rr += DR[d])
+                    ray[d][s] |= bit(rr * 8 + ff);
+            }
+            file_line[s] = ray[0][s] | ray[4][s];
+            rank_line[s] = ray[1][s] | ray[5][s];
+            diag_line[s] = ray[2][s] | ray[3][s] | ray[6][s] | ray[7][s];
+            // king_safety.OPEN_RAYS: two squares in each direction that has both.
+            static const int KD[8][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+            for (auto& d : KD)
+                if (on(f + 2 * d[0], r + 2 * d[1]))
+                    open_rays[s].push_back(bit((r + d[1]) * 8 + f + d[0]) | bit((r + 2 * d[1]) * 8 + f + 2 * d[0]));
+            // king_safety.SHELTER: per file around the king, rank +1/+2 (white) or -1/-2.
+            for (int colour : {WHITE, BLACK})
+                for (int file = std::max(0, f - 1); file < std::min(8, f + 2); ++file) {
+                    U64 cells[2] = {0, 0};
+                    for (int distance = 1; distance <= 2; ++distance) {
+                        int rank = r + (colour == WHITE ? distance : -distance);
+                        if (rank >= 0 && rank < 8) cells[distance - 1] = bit(rank * 8 + file);
+                    }
+                    shelter[colour][s].push_back({cells[0], cells[1]});
+                }
+        }
+        for (int a = 0; a < 64; ++a)
+            for (int b = 0; b < 64; ++b) {
+                line[a][b] = between[a][b] = 0;
+                for (int d = 0; d < 8; ++d)
+                    if (ray[d][a] & bit(b)) {
+                        line[a][b] = ray[d][a] | ray[opposite(d)][a] | bit(a);
+                        between[a][b] = ray[d][a] & ray[opposite(d)][b];
+                    }
+            }
+    }
+};
+
+const Tables T;
+
+HOT U64 ray_attacks(int d, int s, U64 occupied) {
+    U64 r = T.ray[d][s], blockers = r & occupied;
+    if (blockers) r ^= T.ray[d][d < 4 ? lsb(blockers) : msb(blockers)];
+    return r;
+}
+HOT U64 rook_attacks(int s, U64 occ) {

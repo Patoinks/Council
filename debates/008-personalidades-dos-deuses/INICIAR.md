@@ -7,3 +7,5 @@ O [contexto](CONTEXTO.md) define os dez perfis e os requisitos de qualidade. O [
 Estado inicial: preparação local; ainda não se afirma que os conselheiros receberam o pedido.
 
 Atualização de lançamento: consulta da Lei 7 concluída, fontes adicionais fornecidos e pacote comum PACOTE-PROPOSTA-v1.md congelado. Propostas enviadas a Normal, Astra, Sol, Sonnet e Argon em conversas/execuções novas. A fase está aberta; respostas permanecem no staging externo até ao fecho.
+
+Atualização: propostas fechadas com Astra, Sol, Normal e Sonnet; Argon skip por falha de interface após entrega truncada e reenvio perdido. Os quatro originais completos estão em proposals/. Segue revisão cruzada em conversas/execuções novas, com o mesmo conjunto fechado e todas as fontes.

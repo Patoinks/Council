@@ -1,0 +1,306 @@
+121 text NONE (packet truncated by interface at tonkai/releases/g4-leto/python/claudio/base/tonkai_fast/fast. cpp) | Missing sections:  tail of tonkai/releases/g4-leto/python/claudio/base/tonkai_fast/fast. cpp; source files 21–31 (temporal_model. py,  king_safety_model. py,  king_safety. py,  fast_rules. py,  web-export-configuration-metadata. json,  leto. worker. ts,  letoThinkingProtocol. ts,  temporal. ts,  g4-rules. cpp,  tablebase. py,  leto-web-export-configuration-metadata. json); phase prompt; binding task clarification; end marker
+								122 heading Proposal — argon, Value: 1
+									123 text Proposal — argon
+								124 content list
+									125 container
+										126 text Participant:  argon
+									127 container
+										128 text Visible model:  Gemini 4 Argon Alto (declared in 
+										129 text ; model label not directly inspectable from prompt runtime)
+									130 container
+										131 text Date:  2026-10-18
+									132 container
+										133 text Phase and round:  Proposals / Round 1
+									134 container
+										135 text Context version:  v1
+									136 container
+										137 text Reference commit:
+										138 text  (Council HEAD recorded in 
+										139 text )
+									140 container
+										141 text Files received and read:  Received and read in full: 
+										142 text , 
+										143 text , 
+										144 text , 
+										145 text , 
+										146 text , 
+										147 text , 
+										148 text , and source files 1–19 (
+										149 text , 
+										150 text , 
+										151 text , 
+										152 text , 
+										153 text , 
+										154 text , 
+										155 text , 
+										156 text , 
+										157 text , 
+										158 text , 
+										159 text , 
+										160 text , 
+										161 text , 
+										162 text , 
+										163 text , 
+										164 text , 
+										165 text , 
+										166 text , 
+										167 text ) . Partially received and read up to truncation: file 20 (
+										168 text , truncated at 
+										169 text ) . Unread (cut by attachment transport limit): files 21–31 (
+										170 text , 
+										171 text , 
+										172 text , 
+										173 text , 
+										174 text , 
+										175 text , 
+										176 text , 
+										177 text , 
+										178 text , 
+										179 text , 
+										180 text ), phase prompt, binding task clarification, and packet end marker .
+									181 container
+										182 text Tools used:  none
+									183 container
+										184 text Cross-conversation memory:  none used
+									185 container
+										186 text Prior exposure:  none
+									187 container
+										188 text New conversation:  Yes
+									189 container
+										190 text Access limits:  Attachment 
+										191 text  was truncated by the web interface inside source file 20 (
+										192 text ); no filesystem, shell, or execution tools were used, in compliance with 
+										193 text .
+								194 heading Brief — up to 300 words, Value: 2
+									195 text Brief — up to 300 words
+								196 container
+									197 text We recommend a  Two-Stage Tactical-Gated Personality Architecture with Stateful Plan Memory (
+									198 text ) and Multi-Branch Opening Theory  that preserves G4 Leto's weights and tactical strength while giving all ten Pantheon deities unmistakable, coherent chess identities from move 1 to the endgame (R1–R8, U1–U4) .
+								199 container
+									200 text Code inspection reveals three structural reasons why the existing web Nezha selector (
+									201 text  / 
+									202 text ) rarely alters moves and why ten profiles would collapse into identical play :
+								203 content list
+									204 container
+										205 text The PVS 
+										206 text  Bug (
+										207 text  + 
+										208 text ):  In 
+										209 text , Principal Variation Search assigns 
+										210 text  (
+										211 text )  only  to candidates that beat the running 
+										212 text ; any near-tie candidate that fails the null window gets 
+										213 text  and is excluded from 
+										214 text , leaving 
+										215 text  empty whenever candidate 0 is sound
+										216 text .
+									217 container
+										218 text Deterministic Book & Pre-Filter Lockout (
+										219 text  + 
+										220 text ):
+										221 text  uses 
+										222 text  (first line wins) and returns before evaluation for 40 plies, while 
+										223 text /
+										224 text  pre-select candidates purely by baseline score before style is consulted
+										225 text .
+									226 container
+										227 text Memoryless, Defective Signals:  In 
+										228 text , 
+										229 text  is strictly positive 
+										230 text , 
+										231 text  assigns a flat 
+										232 text  to all quiet moves, and no multi-ply plan state exists
+										233 text .
+								234 container
+									235 text Our design replaces this with:  (a)  multi-branch book candidate extraction  from  LINES  scored by deity style; (b)  10 orthogonal bipolar signals 
+									236 text  coupled to a decaying 6-intent 
+									237 text  state machine; (c)  exact tactical recount (
+									238 text  + 
+									239 text  + 
+									240 text )  on both the baseline and top style candidates before final selection; and (d)  state-conditional regime modulation  (winning,  equal,  losing,  under attack).  The main alternative—post-hoc tie-breaking over 7 static axes—fails whenever PVS prunes near-ties or multi-move plans require turn-to-turn hysteresis.
+								241 heading Analysis, Value: 2
+									242 text Analysis
+								243 heading Value: 3, 1. Code Diagnosis: Why Existing Selection Fails to Produce Distinct, Strong Personalities (R5, R6, R7, U1, U2)
+									244 text 1. Code Diagnosis: Why Existing Selection Fails to Produce Distinct, Strong Personalities (R5, R6, R7, U1, U2)
+								245 container
+									246 text Direct inspection of 
+									247 text , 
+									248 text , 
+									249 text , 
+									250 text , and 
+									251 text  establishes four concrete mechanisms that suppress style or distort evaluation :
+								252 content list
+									253 container
+										254 text PVS Null-Window Pruning Starves 
+										255 text  (
+										256 text  + 
+										257 text ):
+										258 content list
+											259 container
+												260 text In 
+												261 text  (
+												262 text ), candidate 
+												263 text  is searched with full window 
+												264 text  and receives 
+												265 text . Every subsequent candidate 
+												266 text  in 
+												267 text  with 
+												268 text  is first tested with a null window 
+												269 text  where 
+												270 text  is the opponent forced material loss required for candidate 
+												271 text  to beat 
+												272 text .
+											273 container
+												274 text If candidate 
+												275 text  is tactically sound (
+												276 text ) and has the highest pre-tactic score, then for any quiet candidate 
+												277 text  with 
+												278 text  and 
+												279 text  (well inside 
+												280 text ), 
+												281 text , so 
+												282 text  triggers 
+												283 text  ("proven not better than the best")
+												284 text .
+											285 container
+												286 text In 
+												287 text , only 
+												288 text  calls 
+												289 text . Moves with 
+												290 text  are clamped to 
+												291 text  and  excluded from 
+												292 text . When the personality block filters 
+												293 text , 
+												294 text  contains  only 
+												295 text  whenever candidate 0 does not blunder during 
+												296 text !
+									297 container
+										298 text First-Line-Wins Opening Book Lockout (
+										299 text  + 
+										300 text  + 
+										301 text ):
+										302 content list
+											303 container
+												304 text In 
+												305 text , 
+												306 text  parses 
+												307 text  using 
+												308 text . Even though 
+												309 text  contains rich repertoire branches (e.g., Ruy Lopez, Italian, Scotch, Four Knights, Vienna, King's Gambit; Najdorf, Dragon, Classical, Sveshnikov, Kalashnikov, Kan; QGD, Nimzo-Indian, Catalan, London, English, Reti), 
+												310 text  discards every branch after the first line that visits a position key
+												311 text .
+											312 container
+												313 text In 
+												314 text  (
+												315 text ) and 
+												316 text  (
+												317 text ), the engine returns immediately before network evaluation or personality scoring
+												318 text . All ten gods therefore play identical moves throughout the opening
+												319 text .
+									320 container
+										321 text Signal Defects in 
+										322 text  (U2):
+										323 content list
+											324 container
+												325 text  is computed as 
+												326 text . Because this expression is strictly positive 
+												327 text , a negative profile weight does not reward prophylactic moves (reducing own king/piece risk or neutralizing enemy threats); it merely penalizes checks and low opponent mobility
+												328 text .
+											329 container
+												330 text  assigns 
+												331 text  to captures and a constant 
+												332 text  to  every  non-capture
+												333 text . It cannot distinguish a pawn lever or contact-creating move from a passive retreat that avoids contact
+												334 text .
+											335 container
+												336 text  is 
+												337 text . It vanishes on quiet moves (
+												338 text  small), depends only on scalar value delta over the last 2 plies, and carries zero spatial or strategic memory of  what plan  the engine was pursuing
+												339 text .
+									340 container
+										341 text Candidate Starvation Before 
+										342 text  and 
+										343 text :
+										344 content list
+											345 container
+												346 text In 
+												347 text , 
+												348 text  only evaluates the top 
+												349 text  candidates sorted by baseline 
+												350 text , and notes:  "Only the order of these candidates among themselves changes: their mean level is kept"
+												351 text . If a deity's thematic move sits at rank 
+												352 text  by 0.004 utility before 
+												353 text , it never receives 2-ply/3-ply reply evaluation or tactical verification
+												354 text .
+								355 heading Value: 3, 2. Theoretical Architecture: Two-Stage Selection, Tactical Verification & Safety Gates (R3, R4, R5, U1, U4)
+									356 text 2. Theoretical Architecture: Two-Stage Selection, Tactical Verification & Safety Gates (R3, R4, R5, U1, U4)
+								357 container
+									358 text To achieve visible,  multi-move personality without arbitrary weakening,  we split style application into  Pre-Search Candidate Shaping (Stage 1)  and  Verified Tactical Selection (Stage 2) ,  governed by  Orthogonal Safety Gates .
+								359 heading 2.1 Why a Bound on Network Utility Alone Does Not Bound Real Strength Loss (R5), Value: 4
+									360 text 2.1 Why a Bound on Network Utility Alone Does Not Bound Real Strength Loss (R5)
+								361 container
+									362 text In  claudio_agent.py ,  the score of move 
+									363 text  before deep tactical verification is:
+								364 container
+									365 text 
+where 
+									366 text  is normalized to 
+									367 text .
+A bound 
+									368 text  is  insufficient by itself  to bound real strength loss for three reasons:
+								369 content list
+									370 container
+										371 text Horizon Blindness of Static Exchange:  Before 
+										372 text  runs, 
+										373 text  only sees capture sequences on the destination square (
+										374 text ), missing quiet 2–4 ply tactical refutations (forks, pins, trapped pieces, back-rank tactics) unless 
+										375 text  or 
+										376 text  evaluates 
+										377 text .
+									378 container
+										379 text Compression of Tactical Losses:  With default 
+										380 text , losing a full pawn (
+										381 text ) changes 
+										382 text  by 
+										383 text , while if 
+										384 text  happens to overestimate 
+										385 text  by 
+										386 text , the total score drop is only 
+										387 text —meaning a raw utility window of 
+										388 text  can accept a  forced 1-pawn blunder  when network intuition is overly optimistic about an unsound move
+										389 text !
+									390 container
+										391 text 2-Ply Positional Collapse Outside 
+										392 text :  If 
+										393 text  was outside 
+										394 text , 
+										395 text  lacks 
+										396 text , so 
+										397 text  can look within 
+										398 text  of 
+										399 text  at 1-ply while collapsing at 2-ply (
+										400 text )
+										401 text .
+								402 heading 2.2 Orthogonal Safety Gates (Exact Scope of Each Protection — R5), Value: 4
+									403 text 2.2 Orthogonal Safety Gates (Exact Scope of Each Protection — R5)
+								404 heading 3. Signal Architecture & Stateful Plan Memory ( PlanMemory ) (R4, R6, U2), Value: 3
+								405 heading 3.1 Evaluation of Existing 7 Nezha Axes vs Proposed 10 Orthogonal Signals (U2), Value: 4
+									406 text 3.1 Evaluation of Existing 7 Nezha Axes vs Proposed 10 Orthogonal Signals (U2)
+								407 container
+									408 text The 7 existing axes in 
+									409 text  suffer from three limitations: (1) 
+									410 text  and 
+									411 text  have broken implementations in 
+									412 text ; (2) 
+									413 text  conflates dynamic pawn storms (
+									414 text /
+									415 text ) with static pawn structure (
+									416 text /
+									417 text /
+									418 text ); and (3) there are no axes for  piece ecology  (knights vs bishops vs heavy pieces),  board sector  (center vs flank), or  endgame transition  (
+									419 text /
+									420 text ) .
+								421 container
+									422 text We define  10 orthogonal, dimensionless signals 
+									423 text  computed exclusively from existing C++/Python/TS primitives :
+								424 heading 3.2 Stateful Plan Memory ( PlanMemory ) — Maintaining Intention Across Plies (R4, R6), Value: 4

@@ -1,0 +1,1082 @@
+END-OF-COUNCIL-008-PROPOSTA-v1 | Missing sections: none
+
+# Proposal — sol
+
+- **Participant:** sol.
+- **Visible model:** Codex; exact underlying model label not visible.
+- **Date:** 2026-10-18.
+- **Phase and round:** Independent proposal / round 1.
+- **Context version:** Council 008, proposal packet v1.
+- **Reference commit:** `99e22e7`, attributed to the manifest as the Council’s initial HEAD. No source checkout commit was independently verified.
+- **Files received and read:** All packet sections, the source inventory, and all 31 embedded evidence files:
+  - Leto `README.md`; `claudio_agent.py`, `claudio_load.py`, `claudio_net.py`, `pawnomics.py`, `abertura.py`, `uci.py`.
+  - Frozen Python modules `encoding.py`, `cognitive_memory.py`, `temporal_model.py`, `king_safety_model.py`, `king_safety.py`, `fast_rules.py`, `tablebase.py`.
+  - Both Python native sources, `fast/claudio_fast.cpp` and `base/tonkai_fast/fast.cpp`.
+  - Nezha’s personality JSON; `personality.ts`, `g16v2.ts`, `letoThinking.ts`, `letoTimedSearch.ts`, `kingSafety.ts`, `network.ts`, `leto.worker.ts`, `letoThinkingProtocol.ts`, `temporal.ts`; native `g4-rules.cpp`.
+  - Site `pantheon.ts`, `campaign.ts`; both configuration metadata extracts.
+  - No partial or unread supplied file.
+- **Tools used:** None.
+- **Cross-conversation memory:** An injected memory summary concerning Council operations and earlier TonkAI work was available. I did not consult memory files or use remembered opinions or technical claims as evidence.
+- **Prior exposure:** No earlier contribution to Council 008 was supplied. General historical context was present in the injected memory summary and is disclosed above.
+- **New conversation:** Yes for this proposal; absence of cross-conversation context is not claimed.
+- **Access limits:** Analysis uses only the packet. Effective Python configuration, checkpoint contents, omitted dependencies and runtime behavior were not independently established.
+
+## Brief — up to 300 words
+
+I recommend one unchanged learned core, one shared quality evaluator, and ten persistent goal-selection policies. The gods should differ principally in **what advantage they try to construct**, rather than in how much danger they tolerate.
+
+Their primary intentions would be: Nezha—gain forcing tempi; Loki—create two problems with one move; Wukong—reroute pieces while preserving options; Susanoo—transform the pawn structure; Tsukuyomi—restrict useful enemy moves; Anúbis—liquidate into controllable positions; Amaterasu—make the whole army cooperate; Rá—accumulate supported space; Hades—fix and exploit enduring weaknesses; Zeus—concentrate force against the king.
+
+The existing Nezha layer is a useful integration precedent, but its candidate supply is structurally restrictive. Root PVS often establishes only that an alternative cannot beat the baseline. Such alternatives are excluded from `verified`, although some could be suitable style choices within a small utility band. Several existing axes also measure overlapping forms of forcing play rather than independent intentions.
+
+The proposed replacement explicitly completes comparable evaluations for potential alternatives, uses a common robust reply forecast, and selects style only within a shared quality envelope. A separate goal memory sustains plans across real moves and abandons them when their justification disappears.
+
+The main alternative is ten static bonus vectors attached to the existing selector. It is simpler but cannot reliably solve candidate starvation, correlated signals or inconsistent plans.
+
+The recommendation fails if its goal policies remain indistinguishable in positions with several admitted alternatives, or if its safeguards confuse bounded calculations with game-theoretic proof. Those are conceptual refutation conditions, not required experiments or implementation gates.
+
+## Analysis
+
+### 1. Objective and decision boundaries
+
+The objective is ten interesting, coherent chess opponents across the whole game, subject to competitive rationality and reuse of Leto’s learned weights.
+
+The following distinctions govern my proposal:
+
+1. **Weights are preserved; decisions may change.** Neither unchanged weights nor bounded score differences establish unchanged Elo.
+2. **Difficulty is shared configuration.** Search depth, budgets, tactical protections, learned piece values and draw policy do not vary by deity.
+3. **Style is constrained intent.** A god chooses among credible ways to play the position and then follows the chosen objective while it remains justified.
+4. **Exact information has priority.** Style cannot overturn an applicable result established under the actual game rules.
+5. **The design is complete in theory.** Implementation steps below produce specified components. No experiment, benchmark or measurement is a stage or prerequisite.
+
+The open questions resolve as follows:
+
+| Question | Proposed answer |
+|---|---|
+| U1 | Shared learned utility and tactical evaluation, broad candidate admission, robust reply forecasts, explicit goal memory. |
+| U2 | Replace the seven axes with observable chess features and target-specific goals. Keep GRU history unchanged; do not interpret it as a named plan. |
+| U3 | Make repertoire advisory, interpolate phase priorities, and retain distinct defensive and endgame intentions. Forced choices remain shared. |
+| U4 | Use complete initial parameters with shared confidence-dependent score bands. Treat every numeric setting as a proposed starting value, not a calibrated strength guarantee. |
+
+### 2. What the supplied code establishes
+
+#### 2.1 The primary target is the original Python/C++ player
+
+`Claudio._choose` already combines learned candidate values with configurable opening, pawn, king-safety, material, reply and tactical calculations. Its recurrent history advances through `_catch_up`; hypothetical candidate states remain separate.
+
+This supplies the core interfaces needed for personalities. It does **not** supply ten existing local personalities.
+
+`claudio_load.py` establishes that configuration comes from the checkpoint and accepts overrides. The supplied web metadata does not establish the Python configuration currently used.
+
+#### 2.2 The existing selector can starve style of alternatives
+
+The decisive issue is the interaction between:
+
+- native `root_search`;
+- `g16v2.ts`’s `verified` set;
+- `personalityAlternatives`.
+
+Native status `1` supplies a completed scalar result. Statuses `0` and `2` establish that a candidate cannot beat the current best under the calculation’s objective; they do not supply its exact score.
+
+The web caller clamps those candidates below the best and does not add them to `verified`. The personality layer then admits only verified candidates.
+
+Thus a move that is inferior by a very small amount can be excluded before style sees it. A selector designed to establish the single best move is not automatically a selector that supplies several adequately evaluated alternatives.
+
+**Proposed correction:** preserve PVS for ordinary selection, but give personality admission a separate completion path. A bound that rejects “better than best” must not be presented as a completed near-tie score.
+
+#### 2.3 The current seven axes do not represent seven independent intentions
+
+| Existing axis | Limitation visible in the implementation |
+|---|---|
+| `king_safety_bias` | Combines enemy exposure with own exposure, conflating attack and self-protection. |
+| `eval_optimism` | Uses head extrema relative to their mean. This primarily responds to disagreement, not a chess plan. |
+| `prophylaxis_vs_initiative` | Its signal measures check and reply count; it does not explicitly measure prevention of enemy plans. |
+| `tension_preference` | Mostly distinguishes captures from quiet moves; it does not identify the tension retained or resolved. |
+| `pawn_style` | Combines Pawnomics change and pawn advance. These can describe very different strategic actions. |
+| `gru_momentum_trigger` | Multiplies a position-wide value change by forcing. It neither identifies a GRU concept nor stores an intention. |
+| `resilience_and_contempt` | Its history-return branch has little opportunity within a candidate set already excluding repeated positions; the remaining term again rewards forcing. |
+
+This creates correlated signals and thin behavioral identities. Raising their bonuses would magnify those limitations.
+
+#### 2.4 Early returns bypass personality
+
+The Python repertoire and the web theoretical repertoire can return one move before ordinary ranking. The supplied web configuration has `claudio_config.opening_book: true`; `options.opening_book: false` controls a different experience-book path.
+
+Consequently, disabling the latter does not establish that the theoretical repertoire stops forcing common opening choices.
+
+#### 2.5 “Exact” needs narrower labels
+
+A completed native material search is exact **for its bounded material-search objective**, subject to its implementation and options. It is not a solved chess position.
+
+Additional limits matter:
+
+- `forced_mate` exposes `found`, `proven` and node usage; checking only `found == 0` can conceal an incomplete search.
+- With attacker pawn filtering, failure to find a mate cannot establish its absence over all legal attacking moves.
+- The supplied `MateSearch` does not itself track the complete repetition history or adjudicate the move clock throughout its tree.
+- Native tactical transposition keys omit the move clock and repetition history. They must not be reused as full game-result certificates.
+- Learned king safety and geometric pressure are different estimators, neither an oracle.
+
+These observations determine the proposed evidence contracts below.
+
+### 3. Recommended architecture
+
+All functionality in this section is **proposed**, unless explicitly identified as existing.
+
+```text
+Unchanged Leto weights and learned values
+                  │
+      Real-history GRU observation
+                  │
+        Shared neutral evaluator
+                  │
+     Typed results + quality envelope
+                  │
+    Goal policies + persistent plan state
+                  │
+       Deterministic style selection
+                  │
+   Commit intention only after actual play
+```
+
+#### Components and responsibilities
+
+| Component | Responsibility | Existing foundation |
+|---|---|---|
+| `NeutralEvaluator` | Produce comparable, style-free candidate scores and forecasts. | `Claudio._choose`, `_recount`, `_replies`, `_own_answers`, native searches. |
+| `ResultEvidence` | Separate terminal results, tablebase information, mate certificates, bounded calculations and incomplete work. | Existing native return values and terminal/tablebase interfaces. |
+| `StyleFeatures` | Compute the defined chess signals without inventing learned concepts. | Board rules, `king_detail`, Pawnomics, opening geometry. |
+| `GoalPlanner` | Enumerate meaningful objectives, score progress and retain an intention. | New functionality. |
+| `PersonalityProfile` | Supply each deity’s complete preference vector and persistence parameters. | New versioned profile schema. |
+| `PlanState` | Store actual-game objectives independently of GRU state. | New functionality; does not activate `ExperienceMemory` or `SkillLibrary`. |
+| `DecisionTrace` | Explain candidate admission, selection and plan changes for internal inspection. | Extends existing personality diagnostics. |
+
+No new training, episodic learning, weight changes or checkpoint writes are required.
+
+### 4. Shared quality envelope and candidate supply
+
+#### 4.1 Shared strength configuration
+
+Every deity uses the same effective base configuration and learned values.
+
+Personality mode applies these common behavioral choices:
+
+- `head = "mean"`;
+- `temperature = 0`;
+- recurrent history enabled;
+- repertoire treated as advice;
+- no deity-specific reduction in search or protection;
+- no deity-specific terminal draw value or contempt.
+
+These are proposed common settings, not claims about the effective Python configuration.
+
+Existing configured tactical depths, critical-depth behavior and ending extensions remain available. For personality verification, the material depth is:
+
+\[
+d=\max(3,\ \text{applicable configured tactical depth})
+\]
+
+The applicable depth includes an enabled critical or endgame extension. Existing node limits remain explicit configuration inputs. Exhaustion produces incomplete evidence, not approval.
+
+#### 4.2 Candidate records
+
+Replace the overloaded idea of `known` or `verified` with a record containing:
+
+```text
+move
+neutral_score
+raw_network_mean
+raw_head_deviation
+robust_reply_value
+terminal_result
+oracle_result_and_scope
+mate_search: found, completed_horizon, filtered, rule_scope
+material_search: value, complete, depth, options, values_revision
+score_bound: lower, upper, or completed_scalar
+king_safety_source_and_values
+features
+exclusion_reasons
+```
+
+A completed material score and a terminal result occupy different fields.
+
+#### 4.3 Admission begins with every legal move
+
+Every legal root move is considered. No permanent top-k list, repertoire choice or policy ranking defines which styles are allowed to exist.
+
+For each root candidate:
+
+1. Obtain the common learned and positional terms.
+2. Obtain the applicable native material calculation.
+3. Complete a scalar evaluation when PVS supplied only a bound.
+4. Obtain the common reply forecast described next.
+5. Apply terminal and mate protections.
+
+Ordering can use existing information. Eligibility depends on the result, not ordering.
+
+An incomplete alternative is excluded. If the ordinary Leto choice cannot itself be compared with completed evidence, personality selection falls back to that ordinary choice.
+
+This is a defined fallback, not a promise that all alternatives always finish.
+
+#### 4.4 Comparable neutral utility
+
+Let:
+
+- \(U_1(m)\) be the common one-move score, including the applicable original components and a completed tactical material correction;
+- \(\mu_1(m)\) be its unscaled mean network output.
+
+The proposed evaluator replaces the uneven, top-subset reply correction with a uniform correction for completed root candidates.
+
+For every legal opponent reply \(r\), construct our next-move set \(A(m,r)\). This set contains completed, tactically admissible answers within:
+
+- `0.020` of that position’s neutral one-move best score;
+- `0.020` below that best answer’s raw network mean.
+
+The neutral best answer belongs to its own set. This answer-set construction does not recursively invoke the three-ply forecast.
+
+Define:
+
+\[
+R(m)=\min_r\max_{a\in A(m,r)}\mu_3(m,r,a)
+\]
+
+All legal replies are considered. Actual terminal branches retain separate result tags; for this numerical forecast only, use the explicit design convention win `1`, loss `0`, draw `cfg.draw_value`.
+
+A proved losing reply cannot be softened by averaging its numerical value.
+
+The shared root score is:
+
+\[
+Q(m)=U_1(m)+0.35
+\left[
+(R(m)-\overline R)-(\mu_1(m)-\overline{\mu_1})
+\right]
+\]
+
+Means are over the same completed, ongoing root set. This follows the existing code’s level-preserving reply-correction idea, while making coverage common.
+
+The coefficient `0.35` is a proposed initial value. This evaluator can change the common neutral choice; it does not promise to reproduce the original lazy selection exactly.
+
+#### 4.5 Confidence is a conservative control signal
+
+For candidate \(m\), define:
+
+\[
+h_m=\left|(R(m)-\overline R)-
+(\mu_1(m)-\overline{\mu_1})\right|
+\]
+
+\[
+c_m=\frac{1}
+{1+(\sigma_m/0.040)^2+(h_m/0.060)^2}
+\]
+
+Here \(\sigma_m\) is raw ensemble standard deviation. The horizon discrepancy and head disagreement are uncertainty proxies, not calibrated error probabilities.
+
+Let \(b=\arg\max Q(m)\) among the common admissible candidates. For comparison with \(b\):
+
+\[
+c_{bm}=\sqrt{c_b c_m}
+\]
+
+\[
+\epsilon_Q=0.020\,c_{bm}f,\qquad
+\epsilon_R=0.025\,c_{bm}f
+\]
+
+where:
+
+- \(f=0.5\) under the attack condition defined in §7; otherwise `1`;
+- additionally multiply \(f\) by `0.65` when ending share \(e\ge0.75\).
+
+Candidate \(m\) is style-eligible only when:
+
+\[
+Q(b)-Q(m)\le\epsilon_Q
+\]
+
+\[
+R(b)-R(m)\le\epsilon_R
+\]
+
+These limits are in the respective learned-score scales. They are **not** centipawns, winning probabilities or Elo bounds.
+
+Confidence shrinks freedom; scarcity never automatically widens it.
+
+#### 4.6 King-exposure guard
+
+Compare the candidate with the neutral baseline, rather than forbidding every decrease relative to the current board.
+
+Let \(K\) be own king safety after a move. Use:
+
+- the learned model when actually available, with threshold `0.050`;
+- otherwise `1 − geometric risk`, with threshold `0.080`.
+
+Do not combine their values as though they were calibrated equivalents.
+
+Require:
+
+\[
+(0.25+0.75F_{\rm enemy})
+\max(0,K(b)-K(m))\le \theta_K
+\]
+
+\(F_{\rm enemy}\) is the geometric enemy-force factor already defined by `king_senses`.
+
+This retains an explicit exposure limit while allowing the necessary exposure already accepted by the common baseline. It also reduces the inappropriate suppression of king activity in sparse endings.
+
+The guard remains a heuristic. Its thresholds are proposed values.
+
+#### 4.7 Results, mates, repetitions and endings
+
+The result ordering is shared by all ten:
+
+1. A valid immediate win or applicable winning certificate has priority.
+2. An exact route selected by the common oracle resolver is retained.
+3. A candidate with a certified forced loss is excluded when a non-refuted alternative exists.
+4. When all moves are proved losing, the common resolver chooses resistance; style does not manufacture a different result.
+5. An exact baseline draw is retained. Personality does not refuse it through deity-specific contempt.
+6. Ordinary ongoing positions use the quality envelope.
+
+**Proposed mate certificate:** a separate rule-aware AND/OR wrapper must carry the actual move clock and canonical repetition history, apply the player’s established strict-draw convention, enumerate all legal defenses, and distinguish interruption from completion. An unfiltered negative certificate is required before claiming “no mate within this horizon.”
+
+Existing mate searches remain useful tactical protection and move-ordering information. Their raw output alone is not promoted to a stronger certificate.
+
+For tablebases:
+
+- retain enabled interfaces;
+- distinguish WDL classes, including cursed wins and blessed losses;
+- account for the current clock and available DTZ information;
+- keep an opaque or incompletely interpreted existing oracle choice as a fallback, rather than allowing style to overrule it.
+
+For repetition:
+
+- retain the common neutral player’s draw preferences;
+- distinguish actual terminal repetition from the conservative `repeat_as_draw` return score;
+- use a canonical rule-position key, including only legally relevant en passant;
+- never penalize a necessary repetition merely because a profile prefers persistence.
+
+Native table entries must not cross incompatible values, options or evaluation modes. Full result certificates require clock/history-sensitive keys beyond the supplied material-search key.
+
+### 5. Computable style signals
+
+#### 5.1 Definitions common to all features
+
+All features below are **proposed geometric or calculated signals**. None is claimed to be a learned semantic head.
+
+Definitions:
+
+- **Effective attack:** a piece’s attack mask restricted by its absolute pin mask.
+- **Usable destinations:** effective non-king destinations excluding own occupancy and enemy pawn attacks.
+- **Mobility:** number of usable destinations.
+- **Pressure target:** an enemy non-king piece under effective attack where at least one attacker’s inherited value is no greater than the victim’s, or the victim has no effective defender.
+- **Pawn link:** one pawn defending another pawn.
+- **Central region:** files `c–f`, ranks `3–6`.
+- **Advanced central region:** files `c–f`, relative ranks `4–6`.
+- **Mutual contact:** an opposing non-king piece pair whose effective attacks reach each other.
+
+When computing geometry for the side not on turn, clear en passant in that geometric view. This is not a legal pass, a searched continuation or proof.
+
+For position potentials \(g_j\in[0,1]\), use:
+
+\[
+s_j=\operatorname{clip}
+\left(
+0.6\frac{g_j(P_{\rm leaf})-g_j(P_{\rm root})}{0.25}
++0.4(2g_j(P_{\rm leaf})-1),-1,1
+\right)
+\]
+
+Thus progress has the main weight, while a useful achieved configuration retains value. Each feature’s scale is fixed, rather than normalized against the current candidate spread.
+
+`TM`, `BR` and `LC` use the direct definitions below.
+
+#### 5.2 Feature specification
+
+| Code | Positive meaning | Computation and normalization |
+|---|---|---|
+| **KA** | Concentrate pressure on the enemy king | \(g=.5(1-K_{\rm enemy})+.25\min(contacts/12,1)+.25\min(attackers/4,1)\). Record whether \(K\) is learned or geometric. |
+| **TM** | Force a useful response | For root move \(m\), let \(n_s\) count replies with \(r_m(r)\le R(m)+0.0215\), where \(r_m(r)=\max_{a\in A}\mu_3\). Set \(g=.25I(check)+.75[1-\min(n_s/8,1)]\); direct signal \(s=2g-1\). Few legal moves alone do not establish tactical soundness. |
+| **BR** | Transform the structure through pawn breaks | Along the preview, sum over our pawn moves: change in our usable bishop/rook/queen destinations minus the enemy’s, divided by `8`, plus enemy pawn links destroyed minus own links destroyed, divided by `4`. Clip to `[-1,1]`. |
+| **DL** | Create simultaneous problems | \(g=\min(\max(n_{\rm pressure\ targets}-1,0)/3,1)\). Targeted plan scoring distinguishes the victims. The robust reply aggregation prevents an easily extinguished motif from receiving unconditional credit. |
+| **FL** | Preserve useful rerouting options | For each own non-pawn, non-king piece, count advanced-central squares reachable in at most two geometric moves through usable destinations. Cap each count at `16`; \(g\) is the average divided by `16`. Proposed per-piece extension of the existing reach calculation. |
+| **RE** | Restrict the opponent’s pieces | \(g=1-\min(\text{mean enemy non-pawn, non-king mobility}/12,1)\). If no such pieces remain, use `0`; liquidation is scored separately. |
+| **PF** | Reduce enemy counterplay | \(g=.6K_{\rm own}+.4[1-\min(n_{\rm own\ pressure\ targets}/4,1)]\). Targeted versions protect a particular piece or king. |
+| **CO** | Coordinate the army | \(g=.4D+.3\min(M_{\min}/6,1)+.3S\). \(D\): fraction of surviving original minors that have made an individual move; \(M_{\min}\): minimum mobility among own non-pawn, non-king pieces; \(S\): fraction of those pieces defended by another own piece. Empty fractions use `0`. |
+| **SP** | Gain supported central space | \(g\): fraction of the 12 advanced-central squares occupied or effectively controlled by us and not attacked by an enemy pawn. |
+| **WK** | Fix and pressure lasting pawn weaknesses | A pawn qualifies if isolated, doubled, or blocked directly by our pawn. For each qualifying enemy pawn, credit \(.5+.25\min(our\ effective\ attackers,2)\). Sum and divide by `3`, capped at `1`. |
+| **LC** | Reduce the number of fighting pieces | Direct signal: number of non-pawn, non-king pieces captured along the preview divided by `4`, capped at `1`. Quality and result guards decide whether the liquidation is acceptable. |
+| **PC** | Advance conversion through pawns and king activity | \(g=.7[.5+.5\tanh(B/(4v_P))]+.3[.5+.5A_K]\). \(B\): supplied Python Pawnomics balance using the actual inherited values and configured v1/v2 semantics; \(v_P>0\): inherited pawn unit. \(A_K\in[-1,1]\): own-minus-enemy king activity defined below. |
+| **TN** | Retain meaningful tension | \(g=\min(n_{\rm mutual\ contacts}/6,1)\). Capturing is not automatically “low tension”; the resulting contacts decide. |
+
+For `PC`, king activity is the mean of:
+
+1. centrality: \(1-\min(d(k,\{d4,e4,d5,e5\})/3,1)\);
+2. proximity to pawns: \(1-\min(d(k,\text{nearest pawn})/7,1)\).
+
+Take own minus enemy. If no pawns remain, the second term is `0` for both sides. Distance is Chebyshev distance.
+
+For `CO`, an imported position without the relevant history uses the declared initialization convention: a minor on an orthodox original square is initially unmoved; others are initially moved. This is a deterministic approximation, not historical knowledge.
+
+The generic feature for root move \(m\) is:
+
+\[
+S_j(m)=
+\min_{r\in R_{\rm plausible}(m)}
+\max_{a\in A(m,r)}
+s_j(m,r,a)
+\]
+
+where:
+
+\[
+R_{\rm plausible}(m)=
+\{r:r_m(r)\le R(m)+0.0215\}
+\]
+
+Safety examines all replies. This narrower set is used only to predict style and plan continuity. A worse opponent reply can invalidate a plan in actual play and trigger reassessment.
+
+### 6. The ten personalities and complete initial parameters
+
+All profile numbers are **proposed initial values**. They are not fitted measurements.
+
+#### 6.1 Preference matrix
+
+Positive weights prefer a signal; negative weights express an aversion within the quality envelope. Zero means no direct preference.
+
+| Deity | KA | TM | BR | DL | FL | RE | PF | CO | SP | WK | LC | PC | TN |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Nezha | 2 | 5 | 1 | 2 | 1 | 0 | 1 | 1 | 0 | 0 | -2 | 1 | 0 |
+| Loki | 1 | 1 | 0 | 5 | 2 | 1 | 1 | 0 | 0 | 2 | -1 | 1 | 2 |
+| Wukong | 0 | 1 | 1 | 2 | 5 | 1 | 1 | 2 | 1 | 0 | -1 | 2 | 1 |
+| Susanoo | 2 | 2 | 5 | 1 | 0 | 0 | 1 | 1 | 2 | 0 | 0 | 2 | -1 |
+| Tsukuyomi | 0 | 0 | 0 | 1 | 1 | 5 | 3 | 1 | 1 | 1 | 0 | 2 | 2 |
+| Anúbis | 0 | 0 | 0 | 0 | 0 | 1 | 2 | 1 | 0 | 1 | 5 | 3 | -2 |
+| Amaterasu | 1 | 0 | 0 | 1 | 2 | 0 | 2 | 5 | 1 | 0 | 1 | 2 | 0 |
+| Rá | 1 | 1 | 2 | 0 | 1 | 2 | 1 | 2 | 5 | 1 | 0 | 3 | 1 |
+| Hades | 0 | 0 | 0 | 1 | 1 | 3 | 1 | 1 | 1 | 5 | -2 | 2 | 3 |
+| Zeus | 5 | 2 | 1 | 1 | 1 | 1 | 1 | 3 | 1 | 1 | 0 | 1 | 0 |
+
+#### 6.2 Persistence parameters
+
+| Deity | Planning horizon, own decisions \(L\) | Switching margin \(h\) | Primary goal |
+|---|---:|---:|---|
+| Nezha | 2 | 0.08 | Force a useful response. |
+| Loki | 4 | 0.12 | Attack two distinct targets. |
+| Wukong | 3 | 0.10 | Route a piece to a useful outpost. |
+| Susanoo | 4 | 0.12 | Execute a supported structural break. |
+| Tsukuyomi | 5 | 0.16 | Restrict a particular enemy piece. |
+| Anúbis | 4 | 0.12 | Complete a favorable liquidation. |
+| Amaterasu | 3 | 0.10 | Activate the least cooperative piece. |
+| Rá | 5 | 0.15 | Expand a supported territorial front. |
+| Hades | 6 | 0.18 | Fix and exploit one or two pawn targets. |
+| Zeus | 4 | 0.14 | Assemble pressure on the king zone. |
+
+Common parameters:
+
+```text
+schema_version                  = 2
+reply_correction_weight         = 0.35
+answer_score_band               = 0.020
+answer_raw_value_band           = 0.020
+root_score_band                 = 0.020
+root_robust_value_band           = 0.025
+plausible_reply_band             = 0.0215
+head_disagreement_scale          = 0.040
+horizon_discrepancy_scale        = 0.060
+learned_king_exposure_threshold  = 0.050
+geometric_exposure_threshold     = 0.080
+feature_progress_scale          = 0.25
+plan_progress_epsilon           = 0.020
+stall_limit                     = 2 own decisions
+switch_confirmation             = 2 actual decisions
+style_weight_with_plan          = 0.55
+plan_weight                     = 0.45
+regret_penalty                  = 0.20
+tie_order                       = higher Q, then lexicographic UCI
+```
+
+There are no omitted per-deity search, draw, confidence or safety overrides.
+
+#### 6.3 Game identities
+
+| Deity | Intention, preferred decisions and aversions | Phase transitions | Ahead, behind and under attack |
+|---|---|---|---|
+| **Nezha** | Take the next useful tempo and keep the opponent answering. Prefers forcing development, threats with tempo and active recaptures. Dislikes exchanges that extinguish initiative without another benefit. | Opening: develop with threats. Middlegame: maintain forcing sequences. Ending: active rook, king and pawn threats replace speculative king attacks. | Ahead: turn initiative into conversion. Behind: seek sound forcing counterplay. Under attack: prefer active evasions and counterthreats when admitted; accept quiet defense when required. |
+| **Loki** | Make one move serve two threats. Prefers interference, overloaded defenders, indirect pressure and quiet moves that leave the opponent choosing which problem to solve. Dislikes threats defeated by one obvious response. | Opening: flexible placements supporting several threats. Middlegame: target pairs. Ending: forks, domination and competing pawn threats. | Ahead: keep more than one route to conversion. Behind: construct genuine defensive dilemmas. Under attack: exchange or divert a key attacker while creating another obligation. |
+| **Wukong** | Make pieces difficult to contain. Prefers reroutes, useful retreats, outposts and the ability to switch wings. Dislikes committing the whole army before the position demands it. | Opening: flexible development. Middlegame: improve routes and change the point of pressure. Ending: active piece circuits, rook activity and king entry. | Ahead: activate before simplifying automatically. Behind: escape restriction and create mobile counterplay. Under attack: favor retreats that preserve future activity. |
+| **Susanoo** | Change the terrain. Prefers prepared pawn breaks that open useful lines or fracture chains. Dislikes retaining a static structure after a sound transformation becomes available. | Opening: prepare central levers. Middlegame: time the break and exploit opened lines. Ending: create passers or outside majorities. | Ahead: open a second front when sound. Behind: seek a liberating break. Under attack: prioritize a defensive central break over an irrelevant wing storm. |
+| **Tsukuyomi** | Remove useful enemy choices. Prefers blockade, prophylaxis and occupation of squares that restrict a specific piece. Dislikes allowing an easy freeing move. | Opening: control prospective breaks. Middlegame: restrict the opponent’s best piece. Ending: deny king entry and rook activity. | Ahead: suppress counterplay before collecting gains. Behind: build a compact, active blockade. Under attack: remove entry squares and attacking routes. |
+| **Anúbis** | Reduce the position to something controllable. Prefers exchanging the right fighting pieces, preserving a stable structure and entering defensible or favorable endings. Dislikes unnecessary residual tension. | Opening: develop toward favorable exchanges. Middlegame: identify what must remain after liquidation. Ending: convert or hold with clear pawn and king tasks. | Ahead: reduce counterplay and convert. Behind: seek a drawable structure, blockade or exchange of attacking material. Under attack: remove the relevant attacker; never trade indiscriminately. |
+| **Amaterasu** | Make every piece useful. Prefers improving the worst piece, completing development, maintaining support and bringing reserves into play. Dislikes attacks conducted by an isolated fraction of the army. | Opening: complete development and king readiness. Middlegame: coordinate the whole position. Ending: coordinate king, rook and pawns. | Ahead: improve the remaining weak piece before committing. Behind: repair coordination and restore activity. Under attack: bring defenders into useful positions without trapping them there. |
+| **Rá** | Accumulate supported space and make it durable. Prefers pawn-supported territory, central control and gradual expansion. Dislikes unsupported advances and surrendering useful space cheaply. | Opening: establish a supported center. Middlegame: expand behind the center. Ending: turn majorities and territorial king access into passers. | Ahead: expand a second sector. Behind: preserve a compact territorial base and challenge the opponent’s center. Under attack: maintain central influence or close an entry route. |
+| **Hades** | Create a weakness that cannot leave, then exploit it. Prefers fixing pawns, improving pressure and adding a second target. Dislikes releasing the target through an unhelpful exchange. | Opening: favor structures with durable targets. Middlegame: fixation and repeated pressure. Ending: blockade, invasion and conversion against fixed pawns. | Ahead: keep the opponent tied down while creating a second weakness. Behind: immobilize a passer or bind a stronger piece to defense. Under attack: close access and counterattack a fixed target. |
+| **Zeus** | Assemble enough coordinated force to strike the king. Prefers batteries, removal of defenders and concentration on entry squares. Dislikes checks that disperse the attack. | Opening: develop toward a coherent attacking sector. Middlegame: assemble before striking. Ending: heavy-piece mating nets where available; otherwise coordinated king and pawn conversion. | Ahead: retain a sound mating net or convert. Behind: concentrate surviving resources against a real king weakness. Under attack: preserve coordination and remove the decisive attacker before resuming concentration. |
+
+The behaviors above express priorities among admitted choices. They do not require a god to enact an unsuitable stereotype.
+
+### 7. Phase and score-dependent behavior
+
+#### 7.1 Phase shares
+
+Let:
+
+- \(u\): number of original unmoved minors on both sides;
+- \(n\): remaining non-pawn, non-king pieces;
+- `ply`: actual game ply.
+
+\[
+o=\operatorname{clip}(1-ply/24,0,1)\cdot u/8
+\]
+
+\[
+e=\operatorname{clip}((14-n)/14,0,1)
+\]
+
+Use phase shares:
+
+\[
+o,\quad (1-o)(1-e),\quad (1-o)e
+\]
+
+These are style interpolation variables, not replacements for the learned evaluator’s phase configuration.
+
+#### 7.2 Phase multipliers
+
+Interpolate each feature’s multiplier using those shares:
+
+| Feature | Opening | Middlegame | Ending |
+|---|---:|---:|---:|
+| KA | 0.7 | 1 | 0.35 |
+| TM | 0.8 | 1 | 0.7 |
+| BR | 0.8 | 1 | 0.6 |
+| DL | 0.7 | 1 | 0.8 |
+| FL | 1 | 1 | 0.8 |
+| RE | 0.7 | 1 | 1 |
+| PF | 1 | 1 | 0.6 |
+| CO | 1.5 | 1 | 0.5 |
+| SP | 1.3 | 1 | 0.7 |
+| WK | 0.5 | 1 | 1.3 |
+| LC | 0.5 | 1 | 1.2 |
+| PC | 0.3 | 1 | 2 |
+| TN | 1 | 1 | 0.4 |
+
+#### 7.3 Position state
+
+Use the explicit heuristic:
+
+\[
+a=.5(2v_{\rm root}-1)+
+.5\tanh(\text{material lead}/(3v_P))
+\]
+
+Classify:
+
+- favorable if \(a\ge0.25\);
+- unfavorable if \(a\le-0.25\);
+- otherwise balanced.
+
+This is the evaluator’s operational impression. It is not a calibrated statement that a position is winning.
+
+Apply these multipliers; unspecified entries remain `1`:
+
+| State | Multipliers |
+|---|---|
+| Favorable | `LC ×1.5`, `PC ×1.4`, `PF ×1.2`, `TM ×0.8`. |
+| Unfavorable | `LC ×0.25`, `PF ×1.2`, `DL ×1.3`, `FL ×1.2`, `BR ×1.2`, `PC ×1.1`. |
+| Under attack | `KA/TM/BR/SP ×0.5`, `PF ×2`, `RE ×1.25`. `LC ×1.25` if the preview removes an actual king-zone attacker; otherwise `LC ×0.5`. |
+
+“Under attack” means the root is in check, or own geometric king risk is at least `0.35`. This condition affects priorities and the common envelope width; it is not proof of a threat.
+
+The under-attack liquidation rule supersedes the favorable/unfavorable liquidation multiplier. Other applicable multipliers multiply.
+
+The gods retain different secondary preferences after emergency defense. None receives permission to ignore that defense.
+
+### 8. Persistent goals
+
+#### 8.1 State and target identity
+
+`PlanState` contains:
+
+```text
+profile_revision
+game_root_and_colour
+confirmed_history_prefix
+goal_family
+target_piece_ids_or_region
+goal_started_at_actual_own_decision
+age
+last_actual_potential
+stall_count
+challenger_goal
+challenger_confirmation_count
+pending_choice_and_plan_delta
+```
+
+Piece identities are assigned at the supplied game root and followed through actual moves. Captures remove an identity; promotion records its continuation and new type.
+
+State is scoped to a game root, side and history prefix. It does not depend on accounts or assume that two devices share state.
+
+#### 8.2 Target generation and progress
+
+Enumerate the following targets deterministically. Geometry is recomputed at each actual decision.
+
+| Family | Targets | Target potential \(g_p\in[0,1]\) and completion |
+|---|---|---|
+| KA | Enemy king zone | Half capped contact count `/12`, half capped attacker count `/4`. Reassess when the king moves or the attack resolves. |
+| TM | Enemy king or pressured piece | Half targeted pressure indicator, half `1 − min(sound replies/8,1)`. Completion is the useful forced response or target capture. |
+| BR | Each own pawn and its file | Half indicator that the selected pawn can vacate its blocking square by a legal push/capture, half indicator that an own slider stands behind that square with no other blocker. Opening a useful slider ray through that square completes the break. |
+| DL | Each pair of enemy non-king pieces | Fraction of the two under effective pressure. Creating the double obligation completes the construction; reassess after the response. |
+| FL | Each own non-pawn, non-king piece and usable advanced-central outpost | `clip(1 − geometric route distance/4,0,1)`. Routes use usable destinations and fixed current occupancy. Arrival completes the route. |
+| RE | Each enemy non-pawn, non-king piece | `1 − min(target mobility/12,1)`. Mobility at most `2` is a containment state. |
+| PF | Own king or each own pressured piece | King: own safety. Other piece: `1 − min(effective enemy attackers/2,1)`. Relief of the identified pressure completes the task. |
+| CO | Each own non-pawn, non-king piece | Half developed indicator, half capped usable mobility `/6`. Prefer the currently least cooperative target. Potential at least `0.8` completes activation. |
+| SP | Center, kingside or queenside | Fraction of region squares occupied or controlled by us and free from enemy pawn attack. Center is `c3–f6`; wings are `f3–h6` and `a3–c6`. `0.75` is an established front. |
+| WK | Each enemy pawn, or pair of pawns | Per pawn: half structural-weakness indicator, half capped attacker count `/2`; average for a pair. Capture completes exploitation. High potential can sustain pressure rather than complete it. |
+| LC | Piece pairs occurring in a legal capture/recapture preview | Fraction of the selected own/enemy identities removed. Both removed completes the exchange. |
+| PC | Each own pawn; own king and each central entry square if no useful runner exists | Pawn: `.7 × relative rank/7 + .3 × king proximity to its next square`. Promotion completes it. King entry uses `1 − distance/7`. |
+| TN | Each current mutual-contact pair | Fraction of selected contacts retained. This is a sustaining objective, never an instruction to repeat positions. |
+
+For `WK`, “structural weakness” uses the exact isolated/doubled/blocked definition in §5. For `PC`, a useful runner is one for which the supplied Pawnomics calculation assigns positive worth.
+
+Target scope matters. “Improve king attack somewhere” is not equivalent to retaining the same king-zone entry plan. “Find mobility” is not equivalent to keeping a route to the chosen outpost.
+
+#### 8.3 Goal evaluation
+
+For a target \(p\):
+
+\[
+P_p(m)=\min_{r\in R_{\rm plausible}}
+\max_{a\in A}
+\operatorname{clip}
+\left(
+0.7\frac{g_p(P_{\rm leaf})-g_p(P_{\rm root})}{0.25}
++0.3(2g_p(P_{\rm leaf})-1),-1,1
+\right)
+\]
+
+Only goal families with positive effective profile weight can be selected.
+
+A new goal requires:
+
+- predicted progress of at least `0.020` for some eligible root move; or
+- a sustaining `RE`, `WK` or `TN` state with predicted potential at least `0.8`.
+
+Let normalized score regret be:
+
+\[
+\rho(m)=\max\left(
+0,\frac{Q(b)-Q(m)}{\epsilon_Q},
+\frac{R(b)-R(m)}{\epsilon_R}
+\right)
+\]
+
+For admitted moves, \(\rho\le1\).
+
+Goal value is:
+
+\[
+V(p)=
+0.4\frac{w'_p}{\max_j w'_j}
++0.6\max_{m\in C}\left[P_p(m)-0.20\rho(m)\right]
+\]
+
+Here \(w'\) includes the defined phase and position-state multipliers.
+
+#### 8.4 Retention and abandonment
+
+Keep the current goal while it remains feasible and justified.
+
+Immediately abandon or suspend it when:
+
+- no admitted move supports it;
+- its target disappeared without completing the intended task;
+- a result, tactical emergency or new opposing threat invalidates its premise;
+- its relevant route or pawn break is no longer available;
+- actual history diverges from the stored prefix;
+- the profile or base configuration revision changes.
+
+Otherwise:
+
+- count progress only on actual positions;
+- reconsider after `L` own decisions;
+- reconsider after two own decisions without progress of `0.020`;
+- sustaining goals above `0.8` do not increment the stall counter merely for maintaining the bind;
+- switch early only when the same challenger exceeds the current goal by \(h\) on two actual decisions;
+- on horizon expiry, the same goal may be renewed if still best.
+
+A returned move is provisional. Search iterations, candidate evaluation and an unplayed suggestion never increase age or establish progress.
+
+### 9. Exact candidate-selection pseudocode
+
+The following is proposed control flow. Helper semantics are those specified above.
+
+```text
+CHOOSE(position, history, profile, base_config, committed_state):
+
+    state := synchronize_from_actual_history(committed_state, history)
+    # Consume a pending plan delta only if its proposed move was actually played.
+    # Advance the existing GRU only through newly observed real positions.
+
+    snapshot := immutable_root_snapshot(position, GRU_memory, state)
+
+    if position has no legal move:
+        return NO_MOVE
+
+    legacy := ordinary_Leto_choice_from_snapshot(snapshot, base_config)
+    # No personality state is committed while obtaining this reserve.
+
+    legal := all legal moves in canonical UCI order
+
+    result_choice := shared_result_resolver(snapshot, legal, base_config)
+    if result_choice settles the decision:
+        return provisional(result_choice.move,
+                           appropriately retained_or_cleared_plan,
+                           snapshot.history_token)
+
+    records := empty map
+
+    for m in legal:
+        record := neutral_one_move_evaluation(snapshot, m, base_config)
+
+        if record contains only a PVS bound:
+            record := complete_scalar_evaluation(record,
+                                                 full_window=true,
+                                                 exact_material_mode=true)
+
+        record := attach_rule_scoped_terminal_and_mate_evidence(record)
+
+        if record is ongoing and materially complete:
+            forecast := build_three_ply_forecast(
+                snapshot,
+                m,
+                all_opponent_replies=true,
+                own_answer_set=defined_nonrecursive_answer_set
+            )
+            attach forecast to record
+
+        records[m] := record
+
+    if records[legacy.move] lacks comparable completed evidence:
+        return provisional(legacy.move, no_new_style_commit,
+                           snapshot.history_token)
+
+    comparable := completed candidates not excluded by shared result resolver
+
+    if comparable is empty:
+        return provisional(legacy.move, no_new_style_commit,
+                           snapshot.history_token)
+
+    compute Q for comparable using the same centering set
+    b := maximum Q; break ties by canonical UCI
+
+    if b is an exact result choice:
+        return provisional(b.move, appropriately_retained_or_cleared_plan,
+                           snapshot.history_token)
+
+    C := {b}
+
+    for m in comparable excluding b:
+        if m is terminal or an incompatible exact result:
+            continue
+        if m has a certified forced loss while b is non-refuted:
+            continue
+        if m's native or reply evidence is incomplete:
+            continue
+
+        compute confidence, epsilon_Q, epsilon_R
+
+        if Q(b) - Q(m) > epsilon_Q:
+            continue
+        if R(b) - R(m) > epsilon_R:
+            continue
+        if differential_king_exposure_guard_fails(m, b):
+            continue
+
+        add m to C
+
+    if size(C) == 1:
+        return provisional(b.move, retain_or_suspend_existing_goal(state),
+                           snapshot.history_token)
+
+    effective_weights := profile.weights
+                         × phase_multipliers
+                         × position_state_multipliers
+
+    for m in C:
+        S[m] := robust_features_from_the_completed_forecast(m)
+
+    goals := enumerate_targeted_goals(snapshot, effective_weights)
+    evaluate every feasible goal over C
+    p := retain_or_select_goal(state, goals,
+                               horizon=profile.L,
+                               switching_margin=profile.h,
+                               confirmations=2,
+                               stall_limit=2)
+
+    for m in C:
+        Z[m] := sum_j(effective_weights[j] × S[m][j])
+                / sum_j(abs(effective_weights[j]))
+
+        if p exists:
+            J[m] := 0.55 × Z[m] + 0.45 × P_p(m) - 0.20 × regret(m)
+        else:
+            J[m] := Z[m] - 0.20 × regret(m)
+
+    selected := maximum J
+                then higher Q
+                then lexicographically smaller UCI
+
+    return provisional(selected.move,
+                       proposed_goal_delta(p),
+                       snapshot.history_token)
+```
+
+A new completed score that exceeds the current baseline triggers baseline recomputation. It is not rejected for being “too good” relative to a previously frozen choice.
+
+Style scores remain separate from `Q`. Diagnostics can report both without making a stylistic bonus look like improved learned utility.
+
+### 10. Pairwise separation and illustrative contrasts
+
+#### 10.1 Separation of the potentially confusing pairs
+
+| Pair or group | Concrete separating decision |
+|---|---|
+| Nezha / Susanoo | Nezha takes a sound forcing tempo without changing the structure; Susanoo prepares the structural break even when preparation is quiet. |
+| Nezha / Zeus | Nezha values the immediate useful response; Zeus values adding the final attacker or removing a defender before forcing play. |
+| Susanoo / Zeus | Susanoo opens useful lines through pawn transformation; Zeus concentrates force on king-zone entry squares and need not move a pawn. |
+| Loki / Wukong | Loki identifies two enemy targets; Wukong identifies one own piece and its future route. |
+| Loki / Nezha | Loki prefers a quiet double obligation; Nezha prefers a forcing sequence with a clear next response. |
+| Loki / Zeus | Loki distributes threats across targets; Zeus concentrates threats against the king. |
+| Tsukuyomi / Hades | Tsukuyomi restricts the opponent’s best piece; Hades fixes a pawn target and accumulates attackers against it. |
+| Tsukuyomi / Anúbis | Tsukuyomi preserves pieces when they sustain restriction; Anúbis exchanges the relevant pieces to reduce the position. |
+| Anúbis / Hades | Anúbis removes tension through liquidation; Hades retains a useful bind and the weakness it supports. |
+| Amaterasu / Rá | Amaterasu improves the least useful piece; Rá expands supported territory even if coordination is already satisfactory. |
+| Amaterasu / Wukong | Amaterasu repairs the army’s weakest contribution; Wukong preserves multiple routes for a mobile piece. |
+| Rá / Susanoo | Rá wants durable supported space; Susanoo accepts loss of the old territorial shape to obtain a sound transformation. |
+| Rá / Hades | Rá expands own territory; Hades immobilizes an enemy target and works against it. |
+| Amaterasu / Zeus | Amaterasu distributes useful work across the army; Zeus concentrates it in one attacking sector. |
+
+The remaining cross-family pairs separate through the same explicit primary objectives in §6: tempo, dual targets, routes, structural transformation, restriction, liquidation, coordination, territory, fixation and king concentration.
+
+For any pair, the theoretical separating situation is one where two admitted plans improve those different primary variables. The preference matrix and goal targets then give a defined reason to choose differently.
+
+Unique vectors alone do not prove human-recognizable play. Recognition is an intended consequence of distinct goals and their persistence, not an established result.
+
+#### 10.2 Same-situation middlegame contrast
+
+**Illustrative only; no engine calculation or asserted legal move list.** Consider the same schematic position: both kings castled, central pawn tension, an available knight outpost, an enemy pawn that could become fixed, and several similarly valued plans admitted by the common evaluator.
+
+| Deity | Preferred plan in that situation |
+|---|---|
+| Nezha | Develop or centralize with a threat that forces a useful reply. |
+| Loki | Make a quiet move attacking the pawn and a loose piece simultaneously. |
+| Wukong | Begin the knight reroute while retaining access to the other wing. |
+| Susanoo | Prepare and execute the central pawn break that opens the useful file. |
+| Tsukuyomi | Deny the opponent’s freeing square or central break. |
+| Anúbis | Exchange the active enemy piece and enter a manageable ending. |
+| Amaterasu | Improve the bishop or rook contributing least to the position. |
+| Rá | Gain supported central space and prepare expansion behind it. |
+| Hades | Fix the vulnerable pawn, occupy its blockading square and add pressure. |
+| Zeus | Add a heavy piece to the king-side battery or remove the key defender. |
+
+These are conditional plan contrasts. The proposal does not assert that a real position simultaneously admits all ten at equal quality.
+
+#### 10.3 Same defensive situation
+
+With the king under pressure and multiple adequate defenses:
+
+- Nezha favors a forcing counterthreat.
+- Loki favors a defense that creates a second obligation.
+- Wukong favors a useful retreat retaining mobility.
+- Susanoo favors a sound liberating central break.
+- Tsukuyomi closes the attacker’s entry route.
+- Anúbis exchanges the relevant attacking piece.
+- Amaterasu brings an inactive defender into cooperation.
+- Rá preserves a compact center that denies attacking space.
+- Hades binds an attacker to defending a fixed weakness.
+- Zeus preserves a coordinated defensive group capable of concentrating again.
+
+If only one adequate defense survives the envelope, every god plays it.
+
+#### 10.4 Same ending
+
+In an illustrative rook-and-pawn ending with several credible plans:
+
+- Nezha seeks active rook threats.
+- Loki creates competing pawn or mating obligations.
+- Wukong keeps the rook mobile between fronts.
+- Susanoo seeks the decisive pawn break.
+- Tsukuyomi restricts the enemy king or rook.
+- Anúbis seeks favorable rook exchange and pawn conversion.
+- Amaterasu coordinates king, rook and passer.
+- Rá advances a supported majority.
+- Hades fixes a pawn and invades against it.
+- Zeus coordinates rook and king for a mating net when sound.
+
+Applicable exact results override these preferences.
+
+### 11. Opening freedom without an invented repertoire
+
+The supplied Python repertoire contains one returned move per key. It does not expose ten independently justified opening repertoires.
+
+The proposed personality mode therefore:
+
+1. keeps the existing repertoire move as a candidate and fallback;
+2. removes its unconditional early return from the personality decision path;
+3. evaluates all legal alternatives through the common mechanism;
+4. allows the profile and plan to act from the opening;
+5. retains common opening principles as neutral evaluation terms.
+
+No unavailable book data is required. No opening is assigned to a god merely because its name sounds appropriate.
+
+The theoretical benefit is freedom to choose different good developments and structures. The risk is that leaving a fixed repertoire can change strength. That risk cannot be described away by preserving weights.
+
+### 12. Local implementation responsibilities and web transport
+
+#### 12.1 Python/C++ execution order
+
+These are design deliverables, not experimental stages.
+
+| Order | Proposed work | Observable artifact |
+|---|---|---|
+| 1 | Define immutable base configuration, profile schema and evidence types. | A complete contract separating strength, style and result scope. |
+| 2 | Refactor candidate evaluation from `_choose` into reusable style-free evaluation. Preserve ordinary selection as the reserve. | Neutral records available without committing hypothetical GRU or plan state. |
+| 3 | Add the full-scalar alternative completion path and uniform reply forecast. | Candidates carry completed scores or explicit incomplete/bound states. |
+| 4 | Implement feature and target calculations plus all ten profiles. | The exact matrices, normalization rules and target definitions above. |
+| 5 | Implement goal retention, abandonment and actual-history commitment. | A separate `PlanState` with deterministic transitions. |
+| 6 | Integrate the selector, advisory repertoire and internal decision trace. | Every selected move has a baseline, admission reasons, objective and score decomposition. |
+| 7 | Provide the separate web adaptation. | Matching profile semantics and state-transfer contracts, with web-specific differences stated. |
+
+Suggested new local modules:
+
+```text
+claudio/personality_profiles.py
+claudio/personality_features.py
+claudio/personality_plans.py
+claudio/personality_selector.py
+claudio/decision_evidence.py
+```
+
+Integration points:
+
+- `Claudio.reset`: reset explicit plan state.
+- `_catch_up`: commit only actual-game updates.
+- `_choose`: invoke the neutral frame and selector.
+- `_root` / native `root_search`: expose bound status rather than converting it into an apparent scalar.
+- `_deep_lines`: preserve completion information.
+- `_replies` / `_own_answers`: provide reusable branch evaluation with correct hypothetical memory.
+- `abertura.repertoire_move`: remain advisory in personality mode.
+- Native bindings: expose canonical repetition identity and any new rule-aware certificate interface.
+
+Do not reinterpret `cognitive_memory.py` as an already integrated personality planner. The proposal does not require its archive, calibration or skill-learning mechanisms.
+
+#### 12.2 Web adaptation is separate work
+
+The web engine has different existing Pawnomics, optional proofs, recurrent implementation and search lifecycle. Port the **contracts and profiles**, not an assumption of byte-identical behavior.
+
+Required proposed changes:
+
+- Generalize the worker’s current Leto/Nezha model validation to the ten explicit deity IDs.
+- Keep model revision, profile revision and game history in the player identity.
+- Transfer explicit plan state in `letoThinkingProtocol.ts`.
+- Include a provisional plan delta with a completed search result.
+- Commit that delta only after the move appears in actual history.
+- Carry confirmed plan state through worker termination and recreation.
+- Ensure repeated iterative-deepening passes read the same committed plan state.
+- Return the last completed selected move together with its matching provisional plan delta.
+- Retain existing web proof paths with their own typed provenance.
+- Keep Python Pawnomics v1/v2 and web Pawnomics v3 explicitly versioned. They are not silently interchangeable.
+
+`ranked.length === 1` must no longer serve as a generic proof label. A repertoire choice, an only-legal move and an exact winning result require different reasons.
+
+The existing legal reserve for a first-pass timeout remains an emergency fallback. It is not a personality choice or evidence of full competitive behavior.
+
+### 13. Plausible alternatives
+
+| Alternative | Advantage | Why it is not preferred |
+|---|---|---|
+| Ten vectors on the existing Nezha selector | Small integration surface. | Leaves candidate starvation, overlapping signals and absent plan memory substantially intact. |
+| Ten separate checkpoints or retraining | Could embed deeper stylistic differences. | Conflicts with the present no-training requirement and makes strength/style separation harder. |
+| Ten hand-built opening repertoires | Immediate visible opening diversity. | Requires additional justified repertoire data and does not supply middlegame, defense or ending personalities. |
+| Change piece values or tactical risk settings per deity | Strong behavioral differences. | Alters the shared tactical judgment and entangles style with strength or blindness. |
+| **Shared quality envelope plus persistent goals** | Defines distinct intentions while retaining common safeguards and weights. | More implementation work and no theoretical guarantee of unchanged playing strength. |
+
+### 14. Comparison against requirements and criteria
+
+| Requirement | Coverage |
+|---|---|
+| R1 | Ten identities include intentions, decisions, aversions, phase transitions and reactions to favorable, unfavorable and attacked positions. |
+| R2 | Distinct primary objectives, complete vectors, targeted plans and explicit confusing-pair contrasts. |
+| R3 | Unchanged weights; shared search and draw configuration; deterministic selection; no intentional errors or strength-preservation claim. |
+| R4 | Signal formulas, signs, scales, complete parameters, code locations, interfaces and selection/memory pseudocode supplied. |
+| R5 | Explicit candidate completion, confidence, robust replies, result priority, tactical scope, repetition, endings and fallback. |
+| R6 | All legal roots considered, repertoire advisory, no permanent top-k bottleneck, persistent targets and illustrative contrasts. |
+| R7 | Existing and proposed functions separated; Python/web differences explicit; no invented calibration, execution result or effective Python setting. |
+| R8 | Complete theoretical design and implementation order; no experimental gate or Laboratory request. |
+
+Against the ordered criteria:
+
+1. Goal persistence gives the strongest theoretical basis for recognizable full-game behavior.
+2. A shared envelope and explicit evidence types protect tactical rationality without claiming perfect safety.
+3. Distinct defensive and endgame objectives prevent the identities from collapsing into opening decoration.
+4. The design uses the supplied recurrent and native interfaces while stating the extensions it requires.
+
+## Evidence and assumptions
+
+All sources below were consulted in this proposal phase as embedded packet text.
+
+| Decisive claim | State | Provenance and passage | Phase | Scope |
+|---|---|---|---|---|
+| The target preserves original weights and starts with local Python/C++. | supported | `CONTEXTO.md`, “Base e limites”; R3 and R7. | Proposal 1 | Binding task requirement, not an observed runtime property. |
+| Python and later web improvements differ. | supported | Leto `README.md`, paragraph distinguishing Python reference from web Pawnomics v3 and timing improvements. | Proposal 1 | Establishes the documented implementation boundary. |
+| Local candidate scores combine network and configurable additional terms. | supported | `claudio_agent.py`, `_choose`, `_recount`, `_replies`, `_own_answers`. | Proposal 1 | Source behavior when corresponding paths are enabled. |
+| Hypothetical GRU states can remain separate from actual history. | supported | `temporal_model.py`, `candidates` and `observe`; `claudio_agent.py`, `_catch_up`. | Proposal 1 | Interface semantics; no claim about observed model understanding. |
+| Effective Python settings cannot be inferred from the web extracts. | supported | `claudio_load.py`, `load_claudio` and `load_players`; metadata descriptions; data-check ledger D3. | Proposal 1 | Configuration provenance limit. |
+| PVS rejection does not provide a completed score for every alternative. | supported | `claudio_fast.cpp`, `Board::root_search`, statuses `0–3`. | Proposal 1 | Bounded material objective and supplied return contract. |
+| The existing web personality excludes many non-exact PVS alternatives. | supported | `g16v2.ts`, root status handling and `verified`; `personality.ts`, verified-candidate filter. | Proposal 1 | Structural exclusion, not a measured frequency. |
+| Several existing axes reuse forcing-related quantities. | supported | `g16v2.ts`, personality signal construction using `forcing`, `momentum` and `value`. | Proposal 1 | Algebraic overlap visible in source; recognition impact remains theoretical. |
+| The repertoire can bypass style. | supported | Python `_choose` repertoire return; web `rankPosition` repertoire return before personality selection. | Proposal 1 | Applies when that path is enabled and contains the position. |
+| Site deity definitions are visual. | supported | `pantheon.ts`, opening comment and `Deity` fields; `campaign.ts`, order array. | Proposal 1 | Supplies IDs and presentation, not move-selection behavior. |
+| Mate-search non-discovery has completion and filtering limits. | supported | Native `forced_mate`, `MateSearch`, node interruption and `pawn_reach`. | Proposal 1 | Does not establish full game-theoretic safety. |
+| Supplied material-search keys omit clock/history. | supported | Native `Key`, `key_of`, `DeepSearch`. | Proposal 1 | Limits use as full result certificates; not a claim about a demonstrated runtime failure. |
+| Optional learned king safety and geometric pressure are separate mechanisms. | supported | `king_safety_model.py`; `king_safety.py`; web `TemporalNetwork.kingSafety`. | Proposal 1 | Presence does not establish local activation or calibration. |
+| Existing episodic memory is not already the proposed local planner. | supported | `cognitive_memory.py`; supplied `Claudio` construction and selection path. | Proposal 1 | The proposed explicit goal memory is new functionality. |
+| Ten persistent target policies can improve theoretical style coherence. | assumption | Proposed architecture, §§6–9. | Proposal 1 | Reasoned design expectation, not measured recognition. |
+| Proposed thresholds offer useful initial freedom while remaining conservative. | assumption | Numeric schema in §§4–7. | Proposal 1 | Initial design values; no empirical calibration or Elo implication. |
+| Useful near-equivalent alternatives exist often enough for style to matter. | assumption | Chess design premise; broad admission and advisory repertoire address avoidable suppression. | Proposal 1 | Does not guarantee distinct choices in every game or position. |
+| A learned-score bound does not establish a bound on real strength loss. | supported | The supplied scoring/search definitions contain no such calibration or theorem. | Proposal 1 | Limits the claims this design can make. |
+
+## Risks and checks
+
+These are conceptual failure conditions and decision implications. No test was executed, and no Laboratory request is made.
+
+| Risk | Requirements threatened | Failure condition | Consequence for the recommendation |
+|---|---|---|---|
+| Candidate starvation persists | R1, R2, R6 | The implementation still presents only the winning PVS scalar, or a repertoire early return. | Reject that implementation of the design; complete alternative admission. |
+| All quiet multi-candidate positions produce equivalent goal scores | R1, R2, R6 | Distinct targets and profile priorities cannot influence selection even when several alternatives pass the envelope. | Redesign the feature/goal representation. Do not conceal the failure by adding noise or widening safety bands automatically. |
+| Score agreement hides a shared model error | R3, R5 | Heads and horizons agree on a bad positional judgment. | Retain the stated limitation; the envelope cannot certify strength preservation. Reconsider affected feature pressures or common evaluation. |
+| Tactical evidence is overstated | R3, R5, R7 | A bound, interrupted calculation or filtered negative mate search is treated as a completed certificate. | The safety argument fails; correct the evidence contract before adopting the affected mechanism. |
+| A putative mate crosses a draw boundary | R3, R5 | A claimed winning tree permits an actual strict repetition or move-clock draw before mate. | Reject the certificate; use the rule-aware result layer. |
+| Plans become stubborn scripts | R1, R3, R6 | A target persists after its premise disappears, or an expected opponent reply is replayed as fact. | Replace scripted continuation with the defined objective reassessment. |
+| Plan memory advances during search | R1, R6 | Repeated ranking or timed iterations increase age, progress or switching confirmations. | Persistence behavior is invalid; commit only actual-history transitions. |
+| Defensive priorities erase identity | R1, R2 | Every adequate defense becomes an undifferentiated safety bonus even when several meaningful defenses exist. | Restore target-specific secondary priorities; keep common tactical constraints. |
+| Geometry rewards decorative activity | R1, R3, R4 | A check, pawn break or mobility count receives credit despite no durable target progress. | Adjust the relevant feature or target potential, retaining neutral guards. |
+| Liquidation and restriction become aliases | R2 | Restriction merely rewards fewer enemy pieces, or weakness pressure lacks a fixed target. | Use per-piece mobility and identified pawn targets as specified. |
+| Opening freedom reduces strength | R3, R5 | Advisory repertoire allows materially inferior choices despite apparently similar internal scores. | Change the common opening evaluation or admission policy; do not claim unchanged strength. |
+| Sparse endings are suppressed by king-safety geometry | R1, R5 | Legitimate king activity is repeatedly excluded by a middlegame exposure proxy. | Revisit its phase gating and estimator threshold, while retaining exact result protections. |
+| Optional interfaces are assumed active | R4, R7 | Implementation silently substitutes missing learned KS, configuration or proof data. | Expose the actual source and use the specified fallback semantics. |
+| Web state diverges from local intent | R1, R6, R7 | Worker recreation or iterative search loses or multiplies plan state. | Correct protocol transfer and commitment semantics; do not declare the port equivalent. |
+
+### Conceptual refutations
+
+1. **Result-priority refutation:** a valid counterexample in which style selects a certified loss over an available certified win would invalidate the selection design, regardless of its stylistic appeal.
+
+2. **Candidate-contract refutation:** if an alternative’s eligibility can be established from a PVS rejection bound without completing or otherwise bounding its regret sufficiently, the claimed quality envelope is unsound.
+
+3. **Identity refutation:** if distinct profile vectors and persistent target policies still induce the same preference ordering throughout positions with meaningful admitted alternatives, the proposed representation has failed its primary objective. Static names and different traces would not rescue it.
+
+4. **Persistence refutation:** if maintaining an intention requires continuing after its tactical or positional justification disappears, the memory mechanism is wrong. Coherence must come from a continuing reason, not a compulsory sequence.
+
+My recommendation is to adopt the shared quality envelope and explicit target-memory architecture as the theoretical basis, with the ten profiles above as the complete initial design. The King retains the decision.
+
+END-OF-CONTRIBUTION

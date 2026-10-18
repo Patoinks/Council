@@ -1,0 +1,2033 @@
+    out = []
+    for path in str(spec).split("+"):
+        net, values, config, _, king = load_claudio(path.strip(), with_config=True, with_king=True)
+        out.append((net, values, ClaudioConfig.with_settings(list(settings), base=config), king))
+    return out
+
+
+def make_player(loaded, rng=None):
+    """A Claudio, or a ColourPair when two checkpoints were loaded."""
+    import numpy as np
+    from claudio_agent import Claudio, ColourPair
+    rng = rng if rng is not None else np.random.default_rng()
+    made = []
+    for net, values, cfg, king in loaded:
+        if hasattr(net, "_organic_payload"):
+            from martinus_organic.agent import OrganicClaudio
+            made.append(OrganicClaudio(net, values, cfg, net._organic_payload, rng=rng, king_model=king))
+        else:
+            made.append(Claudio(net, values, cfg, rng=rng, king_model=king))
+    return made[0] if len(made) == 1 else ColourPair(made[0], made[1])
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/claudio_net.py
+
+````text
+"""A bigger Claudio network that starts out playing exactly like the current one.
+
+Growing, not replacing (function-preserving, Net2Net style):
+- every hidden layer is widened by copying units; the copies share the old
+  unit's outgoing weights in random proportions that add up to 1, so the output
+  is unchanged but the copies learn differently from the first update on;
+- a residual block (latent -> wide -> latent) is added at the end of the encoder
+  with its last layer at zero, so it starts as the identity and adds depth.
+Nothing is learned from outside: the grown network knows exactly what Claudio knew.
+"""
+from __future__ import annotations
+
+import copy
+
+import torch
+from torch import nn
+from torch.nn import functional as F
+
+
+class Residual(nn.Module):
+    def __init__(self, width: int, hidden: int):
+        super().__init__()
+        self.fc1 = nn.Linear(width, hidden)
+        self.fc2 = nn.Linear(hidden, width)
+        nn.init.zeros_(self.fc2.weight)
+        nn.init.zeros_(self.fc2.bias)
+
+    def forward(self, x):
+        return x + self.fc2(F.silu(self.fc1(x)))
+
+
+def add_residuals(net, count: int, hidden: int):
+    for _ in range(count):
+        net.encoder.append(Residual(net.latent_size, hidden))
+    return net
+
+
+@torch.no_grad()
+def _widen(first: nn.Linear, second_layers: list[nn.Linear], new: int, generator) -> tuple[nn.Linear, list[nn.Linear]]:
+    """first: in -> h, each second: h -> out. Returns the widened copies (in -> new, new -> out)."""
+    old = first.out_features
+    if new < old:
+        raise ValueError("can only widen")
+    source = torch.cat([torch.arange(old), torch.randint(0, old, (new - old,), generator=generator)])
+    wide_first = nn.Linear(first.in_features, new)
+    wide_first.weight.copy_(first.weight[source])
+    wide_first.bias.copy_(first.bias[source])
+    # Random shares per copy, summing to 1 for every original unit.
+    shares = torch.rand(new, generator=generator) + 0.5
+    totals = torch.zeros(old).index_add_(0, source, shares)
+    shares = shares / totals[source]
+    wide_second = []
+    for second in second_layers:
+        layer = nn.Linear(new, second.out_features)
+        layer.weight.copy_(second.weight[:, source] * shares[None, :])
+        layer.bias.copy_(second.bias)
+        wide_second.append(layer)
+    return wide_first, wide_second
+
+
+def _widen_head(head: nn.Sequential, new: int, generator):
+    first, second = _widen(head[0], [head[2]], new, generator)
+    head[0], head[2] = first, second[0]
+
+
+@torch.no_grad()
+def grow(net, hidden: int, head_hidden: int, piece_hidden: int, residuals: int, residual_hidden: int, seed=0):
+    """A widened, deeper copy of `net` computing the same function."""
+    generator = torch.Generator().manual_seed(seed)
+    big = copy.deepcopy(net)
+    first, (second,) = _widen(big.encoder[0], [big.encoder[2]], hidden, generator)
+    big.encoder[0], big.encoder[2] = first, second
+    for head in [*big.survival_heads, *big.future_heads, big.rnd_predictor, big.rnd_target, big.predict_head]:
+        _widen_head(head, head_hidden, generator)
+    outputs = [big.piece_head[2]] + ([big.capture_out] if hasattr(big, "capture_out") else [])
+    first, wide = _widen(big.piece_head[0], outputs, piece_hidden, generator)
+    big.piece_head[0], big.piece_head[2] = first, wide[0]
+    if hasattr(big, "capture_out"):
+        big.capture_out = wide[1]
+    big.rnd_target.requires_grad_(False)
+    add_residuals(big, residuals, residual_hidden)
+    return big
+
+
+def build_net(architecture: dict):
+    """SurvivalNet with the stored sizes, plus the residual blocks when present."""
+    from types import SimpleNamespace
+    from tonkai.temporal_model import SurvivalNet
+    shape = dict(architecture)
+    residuals = int(shape.pop("residuals", 0) or 0)
+    residual_hidden = int(shape.pop("residual_hidden", 0) or 0)
+    if "future_horizons" in shape:
+        shape["future_horizons"] = tuple(shape["future_horizons"])
+    net = SurvivalNet(SimpleNamespace(**shape))
+    return add_residuals(net, residuals, residual_hidden)
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/pawnomics.py
+
+````text
+"""Pawnomics: how far each pawn can go without being lost and without being stopped (the owner's idea).
+
+For every pawn with no enemy pawn in front of it on its file, it walks the pawn's path square by square,
+in its own piece values, and stops at the first square where:
+- an enemy pawn controls it (a lever: it cannot go through without trading),
+- the pawn would be lost there (the exact capture sequence on that square, x-rays included),
+- the enemy king gets there (or next to it, undefended) before the pawn - the race, with the tempo,
+- an enemy piece can step onto it first and sit there undisturbed (a blockade),
+- an enemy piece already sits there and cannot be won or chased away (a permanent blockade);
+  one that can be chased costs two tempi, an own piece in the way one.
+A pawn that gets all the way is a new queen, worth what a queen is worth more than a pawn, less the further
+away it is and the more enemy pieces are left that could still catch it; otherwise it is worth the rank it
+reaches. pawnomics(board, colour, first) is that sum for one side, in pawns.
+"""
+import chess
+
+KING_VALUE = 1000.0
+RANK_WORTH = [0.0, 0.0, 0.0, 0.1, 0.25, 0.5, 0.9, 1.6]    # by the rank reached, counted from its own side
+FILES = [chess.BB_FILES[f] for f in range(8)]
+
+
+def _value(values, piece_type):
+    return KING_VALUE if piece_type == chess.KING else values[piece_type]
+
+
+def _cheapest(board, side, square, values):
+    best, best_value = None, None
+    for s in board.attackers(side, square):
+        v = _value(values, board.piece_type_at(s))
+        if best is None or v < best_value:
+            best, best_value = s, v
+    return best, best_value
+
+
+def lost_on(board, square, values):
+    """The best the side NOT owning the piece on `square` wins by starting captures there (0: nothing)."""
+    target = board.piece_at(square)
+    side = not target.color
+    b = board.copy()
+    gains, standing = [], _value(values, target.piece_type)
+    while True:
+        attacker, worth = _cheapest(b, side, square, values)
+        if attacker is None:
+            break
+        if worth == KING_VALUE and b.attackers(not side, square):
+            break                                   # the king cannot take a defended piece
+        gains.append(standing - (gains[-1] if gains else 0.0))
+        standing = worth
+        piece = b.remove_piece_at(attacker)
+        b.set_piece_at(square, piece)
+        side = not side
+    for i in range(len(gains) - 1, 0, -1):
+        gains[i - 1] = -max(-gains[i - 1], gains[i])
+    return max(0.0, gains[0]) if gains else 0.0
+
+
+def _attacks_from(kind, square, occupied):
+    if kind == chess.KNIGHT:
+        return chess.BB_KNIGHT_ATTACKS[square]
+    mask = 0
+    if kind in (chess.BISHOP, chess.QUEEN):
+        mask |= chess.BB_DIAG_ATTACKS[square][chess.BB_DIAG_MASKS[square] & occupied]
+    if kind in (chess.ROOK, chess.QUEEN):
+        mask |= (chess.BB_RANK_ATTACKS[square][chess.BB_RANK_MASKS[square] & occupied]
+                 | chess.BB_FILE_ATTACKS[square][chess.BB_FILE_MASKS[square] & occupied])
+    return mask
+
+
+def two_move_reach(board, side):
+    """Squares the side's pieces (not pawns, not the king) can stand on within two moves."""
+    occupied, own = board.occupied, board.occupied_co[side]
+    reach = 0
+    for kind in (chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN):
+        for s in board.pieces(kind, side):
+            first = _attacks_from(kind, s, occupied) & ~own
+            reach |= first
+            for t in chess.scan_forward(first):
+                reach |= _attacks_from(kind, t, occupied & ~chess.BB_SQUARES[s]) & ~own
+    return reach
+
+
+def _structure(board, square, colour):
+    """v2: a real passed pawn (no enemy pawn in front on its own or the next files) protected by a pawn, connected,
+    or with a rook behind it is worth more; with an enemy rook behind it, less."""
+    file, rank = chess.square_file(square), chess.square_rank(square)
+    front = (chess.BB_ALL << (8 * (rank + 1))) & chess.BB_ALL if colour else (1 << (8 * rank)) - 1
+    near = FILES[file] | (FILES[file - 1] if file > 0 else 0) | (FILES[file + 1] if file < 7 else 0)
+    if board.pieces_mask(chess.PAWN, not colour) & near & front:
+        return 1.0
+    factor = 1.0
+    own_pawns = board.pieces_mask(chess.PAWN, colour)
+    if board.attackers_mask(colour, square) & own_pawns:
+        factor *= 1.3
+    sides = (FILES[file - 1] if file > 0 else 0) | (FILES[file + 1] if file < 7 else 0)
+    band = chess.BB_RANKS[rank] | (chess.BB_RANKS[rank - 1] if rank > 0 else 0) | (chess.BB_RANKS[rank + 1] if rank < 7 else 0)
+    if own_pawns & sides & band:
+        factor *= 1.2
+    behind = FILES[file] & ~front & ~chess.BB_SQUARES[square]
+    for s in chess.scan_forward(board.attackers_mask(colour, square) & behind & board.rooks):
+        factor *= 1.2
+        break
+    for s in chess.scan_forward(board.attackers_mask(not colour, square) & behind & board.rooks):
+        factor *= 0.8
+        break
+    return factor
+
+
+def _pawn(board, square, colour, first, values, enemy_material, reach2=None):
+    """What one pawn is worth by how far it can get (pawns), or None if it is not on an open file."""
+    file, rank = chess.square_file(square), chess.square_rank(square)
+    step = 8 if colour == chess.WHITE else -8
+    ahead = [square + step * k for k in range(1, (7 - rank if colour else rank) + 1)]
+    enemy_pawns = board.pieces_mask(chess.PAWN, not colour)
+    if enemy_pawns & FILES[file] & chess.SquareSet(ahead).mask:
+        return None
+    rel = rank + 1 if colour else 8 - rank          # 2..7 from its own side
+    free = board.copy(stack=False)
+    free.remove_piece_at(square)
+    king = board.king(not colour)
+    tempo, reached = 0, rel
+    for i, sq in enumerate(ahead):
+        moves = i + 1 - (1 if rel == 2 and i >= 1 else 0) + tempo   # the double step from its first rank
+        before = moves if not first else moves - 1                  # enemy moves before the pawn gets there
+        occupant = board.piece_at(sq)
+        if occupant is not None:
+            if occupant.color == colour:
+                if occupant.piece_type == chess.PAWN:
+                    break                               # its own pawn in front: that one is the runner
+                tempo += 1                              # an own piece in the way steps aside
+                moves += 1
+                before += 1
+            elif occupant.piece_type == chess.KING:
+                break
+            else:
+                chased = (lost_on(board, sq, values) > 0 or any(
+                    _value(values, board.piece_type_at(s)) < _value(values, occupant.piece_type)
+                    for s in board.attackers(colour, sq)))
+                if not chased:
+                    break                               # a blockade it cannot break
+                tempo += 2
+                moves += 2
+                before += 2
+        if any(board.piece_type_at(s) == chess.PAWN for s in board.attackers(not colour, sq)):
+            break
+        there = free.copy(stack=False)
+        there.remove_piece_at(sq)
+        there.set_piece_at(sq, chess.Piece(chess.PAWN, colour))
+        if lost_on(there, sq, values) > 0:
+            break
+        defended = bool(there.attackers(colour, sq))
+        if king is not None and not defended and chess.square_distance(king, sq) - 1 <= before:
+            break                                       # the king gets there (or next to it) first
+        if not defended and before >= 1 and occupant is None and any(
+                board.piece_type_at(s) not in (chess.PAWN, chess.KING) for s in board.attackers(not colour, sq)):
+            break                                       # a piece steps in front first, undisturbed
+        if (reach2 is not None and not defended and before >= 2 and occupant is None
+                and reach2 & chess.BB_SQUARES[sq]):
+            break                                       # v2: or gets there in two moves
+        reached = rel + i + 1
+        if reached == 8:
+            catch = max(0.2, 1.0 - enemy_material / 15.0)
+            worth = (values[chess.QUEEN] - values[chess.PAWN]) * catch * 0.92 ** (moves - 1)
+            return worth * (_structure(board, square, colour) if reach2 is not None else 1.0)
+    worth = RANK_WORTH[min(reached, 7)]
+    return worth * (_structure(board, square, colour) if reach2 is not None and worth else 1.0)
+
+
+def pawnomics(board, colour, first, values, v2=False):
+    """Sum over the side's pawns (pawns). first: this side moves next."""
+    reach2 = two_move_reach(board, not colour) if v2 else None
+    enemy_material = sum(values[t] * chess.popcount(board.pieces_mask(t, not colour))
+                         for t in (chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN))
+    total = 0.0
+    for sq in board.pieces(chess.PAWN, colour):
+        worth = _pawn(board, sq, colour, first, values, enemy_material, reach2)
+        if worth:
+            total += worth
+    return total
+
+
+def balance(board, me, values, v2=False):
+    """Own pawnomics minus the enemy's, the side to move moving first (pawns)."""
+    to_move = board.turn
+    return (pawnomics(board, me, to_move == me, values, v2) - pawnomics(board, not me, to_move != me, values, v2))
+
+
+def has_runners(board):
+    """Any pawn with no enemy pawn in front of it on its file (otherwise there is nothing to compute)."""
+    for colour in (chess.WHITE, chess.BLACK):
+        enemy = board.pieces_mask(chess.PAWN, not colour)
+        for sq in board.pieces(chess.PAWN, colour):
+            f, r = chess.square_file(sq), chess.square_rank(sq)
+            span = chess.BB_FILES[f] & ((chess.BB_ALL << (8 * (r + 1))) & chess.BB_ALL if colour else
+                                        (1 << (8 * r)) - 1)
+            if not enemy & span:
+                return True
+    return False
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/abertura.py
+
+````text
+"""Openings: a repertoire of main lines of opening theory, and the opening principles after it.
+
+repertoire_move(board): the theory move for this position (first line listed wins), or None.
+principles(board, move, ply): the move's worth by the classic principles, in units (about -2..+1.5):
+develop the knights and bishops towards the centre, central pawns, castle, and not the rim knights,
+early queen trips, rook or king walks before castling, the same piece twice, or wing pawns.
+"""
+import chess
+
+# White: 1.e4. Black: 1...e5 against 1.e4, the Queen's Gambit Declined / Nimzo against 1.d4, 1...e5 against
+# 1.c4, 1...d5 against the rest. Each string a line from the start; a position's move is the first line's.
+LINES_V1 = """
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6 c3 O-O h3 Na5 Bc2 c5 d4 Qc7
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Nxe4 d4 b5 Bb3 d5 dxe5 Be6 c3
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O b5 Bb3 Be7 Re1 d6 c3 O-O h3
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O d6 c3 Bd7 d4
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 d6 c3 Bd7 d4 Nf6 O-O
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 b5 Bb3 Nf6 O-O Be7 Re1 d6 c3 O-O h3
+e4 e5 Nf3 Nc6 Bb5 a6 Bxc6 dxc6 O-O f6 d4 exd4 Nxd4 c5 Nb3 Qxd1 Rxd1
+e4 e5 Nf3 Nc6 Bb5 Nf6 O-O Nxe4 d4 Nd6 Bxc6 dxc6 dxe5 Nf5 Qxd8+ Kxd8 Nc3
+e4 e5 Nf3 Nc6 Bb5 Nf6 O-O Be7 Re1 d6 d4
+e4 e5 Nf3 Nc6 Bb5 Bc5 c3 Nf6 d4 exd4 e5
+e4 e5 Nf3 Nc6 Bb5 d6 d4 Bd7 Nc3 Nf6 O-O
+e4 e5 Nf3 Nc6 Bb5 f5 Nc3 fxe4 Nxe4 d5 Nxe5
+e4 e5 Nf3 Nc6 Bb5 Nge7 O-O g6 c3 Bg7 d4
+e4 e5 Nf3 Nc6 Bb5 Nd4 Nxd4 exd4 O-O
+e4 e5 Nf3 Nc6 Bb5 g6 d4 exd4 Bg5
+e4 e5 Nf3 Nc6 Bb5 Qf6 O-O
+e4 e5 Nf3 Nc6 Bc4 Bc5 c3 Nf6 d3 d6 O-O O-O Re1 a6 Bb3 Ba7 h3
+e4 e5 Nf3 Nc6 Bc4 Bc5 O-O Nf6 d3 d6 c3 O-O
+e4 e5 Nf3 Nc6 Bc4 Bc5 d3 Nf6 c3 d6 O-O O-O
+e4 e5 Nf3 Nc6 Bc4 Bc5 Nc3 Nf6 d3 d6 O-O O-O
+e4 e5 Nf3 Nc6 Bc4 Bc5 b4 Bxb4 c3 Ba5 d4 exd4 O-O Nge7
+e4 e5 Nf3 Nc6 Bc4 Nf6 d3 Be7 O-O O-O Re1 d6 c3
+e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nf6 Nxc6 bxc6 e5 Qe7 Qe2 Nd5 c4 Ba6
+e4 e5 Nf3 Nc6 d4 exd4 Bc4 Nf6 e5 d5 Bb5 Ne4 Nxd4 Bd7
+e4 e5 Nf3 Nc6 Nc3 Nf6 d4 exd4 Nxd4 Bb4 Nxc6 bxc6 Bd3 d5
+e4 e5 Nf3 Nc6 Nc3 Nf6 Bb5 Bb4 O-O O-O d3 d6
+e4 e5 Nf3 Nc6 c3 Nf6 d4 Nxe4 d5 Ne7 Nxe5 Ng6
+e4 e5 Nf3 Nc6 Be2 Nf6 d3 d5 Nbd2 Bc5
+e4 e5 Nf3 Nc6 d3 Nf6 Be2 d5 Nbd2 Bc5
+e4 e5 Nf3 d6 d4 Nf6 Nc3 Nbd7 Bc4 Be7 O-O O-O
+e4 e5 Nf3 d6 d4 exd4 Nxd4 Nf6 Nc3 Be7 Bf4 O-O Qd2
+e4 e5 Nf3 Nf6 Nxe5 d6 Nf3 Nxe4 d4 d5 Bd3 Nc6 O-O Be7
+e4 e5 Nf3 f6 Nxe5 fxe5 Qh5+ Ke7 Qxe5+ Kf7 Bc4+
+e4 e5 Nf3 Qf6 Nc3 c6 d4
+e4 e5 Nf3 Qe7 Nc3 c6 d4
+e4 e5 Nf3 Bc5 Nxe5
+e4 e5 Nf3 Bd6 d4
+e4 e5 Nf3 d5 exd5 e4 Qe2 Nf6 d3
+e4 e5 Nc3 Nf6 f4 d5 fxe5 Nxe4 Nf3 Be7 d4 O-O
+e4 e5 Nc3 Nf6 Bc4 Nc6 d3 Bb4 Nf3 d5
+e4 e5 Nc3 Nf6 Nf3 Nc6 Bb5 Bb4
+e4 e5 Nc3 Nf6 g3 d5 exd5 Nxd5 Bg2 Nxc3 bxc3 Bd6
+e4 e5 Nc3 Nf6 d3 Bb4 Nf3 d5
+e4 e5 f4 exf4 Nf3 d5 exd5 Nf6 Bb5+ c6 dxc6 Nxc6 d4 Bd6
+e4 e5 f4 exf4 Bc4 Nf6 Nc3 c6 d4 Bb4
+e4 e5 Bc4 Nf6 d3 c6 Nf3 d5 Bb3 Bd6 Nc3 dxe4
+e4 e5 d4 exd4 Qxd4 Nc6 Qe3 Nf6 Nc3 Bb4 Bd2 O-O O-O-O Re8
+e4 e5 d4 exd4 c3 d5 exd5 Qxd5 cxd4 Nc6 Nf3 Bg4
+e4 e5 d3 Nf6 Nf3 Nc6 Be2 d5
+e4 e5 Qh5 Nc6 Bc4 g6 Qf3 Nf6 Ne2 Bg7
+e4 e5 Qf3 Nf6 Bc4 Nc6 Ne2 Bc5
+e4 e5 c3 Nf6 d4 Nxe4 dxe5 d5
+e4 e5 Nh3 Nf6 Nc3 Bc5
+e4 e5 a3 Nf6 Nc3 d5 exd5 Nxd5
+e4 e5 h3 Nf6 Nc3 Bb4
+e4 e5 Ke2 d5 exd5 Qxd5
+e4 e5 Na3 Nf6 Nc4 Nc6
+e4 e5 Be2 Nf6 d3 d5
+e4 e5 g3 Nf6 Bg2 d5 exd5 Nxd5
+e4 e5 b3 Nf6 Bb2 Nc6
+e4 e5 Ne2 Nf6 Ng3 Bc5
+e4 e5 c4 Nf6 Nc3 Bc5
+e4 e5 f3 Nc6 c3 Nf6
+e4 e5 d3 Nc6
+e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6 Be3 e5 Nb3 Be6 f3 Be7 Qd2 O-O O-O-O
+e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 g6 Be3 Bg7 f3 O-O Qd2 Nc6 Bc4
+e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 Nc6 Bg5 e6 Qd2 a6 O-O-O
+e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 e6 Be3 a6 f3 b5 Qd2
+e4 c5 Nf3 d6 d4 Nf6 Nc3 cxd4 Nxd4
+e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 Nf6 Nc3 e5 Ndb5 d6 Bg5 a6 Na3 b5 Nd5 Be7
+e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 g6 Nc3 Bg7 Be3 Nf6 Bc4 O-O Bb3
+e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 e6 Nc3 Qc7 Be3 a6 Qd2 Nf6 O-O-O
+e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 e5 Nb5 d6 c4
+e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 Qb6 Nb3 Nf6 Nc3 e6
+e4 c5 Nf3 e6 d4 cxd4 Nxd4 Nc6 Nc3 Qc7 Be3 a6 Qd2 Nf6 O-O-O
+e4 c5 Nf3 e6 d4 cxd4 Nxd4 a6 Bd3 Nf6 O-O Qc7 Qe2
+e4 c5 Nf3 e6 d4 cxd4 Nxd4 Nf6 Nc3 Nc6 Ndb5 Bb4 a3
+e4 c5 Nf3 g6 d4 cxd4 Nxd4 Bg7 Nc3 Nc6 Be3 Nf6 Bc4 O-O Bb3
+e4 c5 Nf3 a6 c3 Nf6 e5 Nd5 d4 cxd4 cxd4
+e4 c5 Nf3 Nf6 e5 Nd5 Nc3 e6 Nxd5 exd5 d4
+e4 c5 Nf3 b6 d4 cxd4 Nxd4 Bb7 Nc3
+e4 c5 Nf3 Qc7 c3
+e4 c5 Nf3 d5 exd5 Qxd5 Nc3 Qd8 Bc4
+e4 e6 d4 d5 Nc3 Nf6 Bg5 Be7 e5 Nfd7 Bxe7 Qxe7 f4 O-O Nf3 c5
+e4 e6 d4 d5 Nc3 Bb4 e5 c5 a3 Bxc3+ bxc3 Ne7 Qg4 O-O Bd3
+e4 e6 d4 d5 Nc3 dxe4 Nxe4 Nd7 Nf3 Ngf6 Nxf6+ Nxf6 Bd3 c5 dxc5 Bxc5 O-O
+e4 e6 d4 d5 Nc3 c5 exd5 exd5 Nf3 Nc6 Bb5
+e4 e6 d4 d5 Nc3 Nc6 Nf3 Nf6 e5 Ne4 Bd3
+e4 e6 d4 c5 Nf3 cxd4 Nxd4
+e4 e6 d4 b6 Nf3 Bb7 Bd3
+e4 e6 d4 Nf6 e5 Nd5 Nf3
+e4 c6 d4 d5 Nc3 dxe4 Nxe4 Bf5 Ng3 Bg6 h4 h6 Nf3 Nd7 h5 Bh7 Bd3 Bxd3 Qxd3
+e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nd7 Nf3 Ngf6 Nxf6+ Nxf6 Bd3
+e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nf6 Nxf6+ exf6 Bc4
+e4 c6 d4 d5 Nc3 g6 Nf3 Bg7 h3
+e4 c6 d4 d5 e5 Bf5 Nf3 e6 Be2 c5 Be3
+e4 c6 d4 g6 Nc3 Bg7 Nf3 d6 Be2
+e4 d5 exd5 Qxd5 Nc3 Qa5 d4 Nf6 Nf3 c6 Bc4 Bf5 Bd2 e6 Qe2
+e4 d5 exd5 Qxd5 Nc3 Qd6 d4 Nf6 Nf3 a6 g3
+e4 d5 exd5 Qxd5 Nc3 Qd8 d4 Nf6 Nf3 Bg4 h3
+e4 d5 exd5 Nf6 d4 Nxd5 Nf3 g6 Be2 Bg7 O-O O-O c4 Nb6
+e4 d5 exd5 Nf6 d4 Bg4 Nf3 Qxd5 Be2
+e4 d6 d4 Nf6 Nc3 g6 Nf3 Bg7 Be2 O-O O-O c6 a4
+e4 d6 d4 Nf6 Nc3 e5 Nf3 Nbd7 Bc4 Be7 O-O O-O
+e4 d6 d4 g6 Nc3 Bg7 Nf3 Nf6 Be2 O-O O-O
+e4 d6 d4 e5 Nf3 exd4 Nxd4 Nf6 Nc3
+e4 g6 d4 Bg7 Nc3 d6 Nf3 Nf6 Be2 O-O O-O
+e4 g6 d4 Bg7 Nc3 c6 Nf3 d5 h3
+e4 g6 d4 d6 Nc3 Bg7 Nf3 Nf6 Be2
+e4 Nf6 e5 Nd5 d4 d6 Nf3 Bg4 Be2 e6 O-O Be7 c4 Nb6
+e4 Nf6 e5 Nd5 d4 d6 Nf3 g6 Bc4 Nb6 Bb3 Bg7
+e4 Nf6 e5 Ng8 d4 d6 Nf3
+e4 Nf6 e5 Ne4 d4 d5 Bd3
+e4 Nc6 d4 d5 Nc3 dxe4 d5 Ne5 Qd4 Ng6 Qxe4
+e4 Nc6 d4 e5 dxe5 Nxe5 Nf3 Nxf3+ Qxf3
+e4 b6 d4 Bb7 Bd3 e6 Nf3 c5 c3
+e4 a6 d4 b5 Nf3 Bb7 Bd3 e6 O-O
+e4 b5 Bxb5 Bb7 Nc3
+e4 f5 exf5 Nf6 Nf3 d5 d4
+e4 a5 d4 e6 Nf3
+e4 h6 d4 e6 Nf3 d5 Nc3
+e4 g5 d4 h6 h4 g4 Bf4
+e4 Na6 d4 c6 Nf3
+e4 Nh6 d4 g6 Nf3
+e4 f6 d4 e6 Nf3
+e4 h5 d4 d5 exd5
+e4 c5 Nf3 Nc6 Nc3
+e4 c5 Nc3 Nc6 Nf3
+d4 Nf6 c4 e6 Nf3 d5 Nc3 Be7 Bg5 O-O e3 h6 Bh4 b6 Be2 Bb7
+d4 Nf6 c4 e6 Nf3 d5 Nc3 Be7 Bf4 O-O e3 c5 dxc5 Bxc5 a3 Nc6
+d4 Nf6 c4 e6 Nf3 d5 Nc3 Be7 cxd5 exd5 Bg5 c6 Qc2
+d4 Nf6 c4 e6 Nf3 d5 Nc3 Be7 e3 O-O Bd3 dxc4 Bxc4 c5 O-O
+d4 Nf6 c4 e6 Nf3 d5 g3 Be7 Bg2 O-O O-O dxc4 Qc2 a6 Qxc4 b5
+d4 Nf6 c4 e6 Nf3 d5 cxd5 exd5 Nc3 c6 Bg5 Be7 e3 Nbd7
+d4 Nf6 c4 e6 Nf3 d5 e3 Be7 Nc3 O-O Bd3 dxc4 Bxc4 c5
+d4 Nf6 c4 e6 Nf3 d5 Bg5 Be7 e3 O-O Nc3 h6 Bh4
+d4 Nf6 c4 e6 Nf3 d5 Qc2 c5 cxd5 exd5
+d4 Nf6 c4 e6 Nf3 d5 a3 dxc4 e3 c5
+d4 Nf6 c4 e6 Nc3 Bb4 e3 O-O Bd3 d5 Nf3 c5 O-O Nc6 a3 Bxc3 bxc3 dxc4 Bxc4 Qc7
+d4 Nf6 c4 e6 Nc3 Bb4 Qc2 O-O a3 Bxc3+ Qxc3 b6 Bg5 Bb7 f3 h6 Bh4 d5
+d4 Nf6 c4 e6 Nc3 Bb4 a3 Bxc3+ bxc3 c5 e3 Nc6 Bd3 O-O Ne2 b6
+d4 Nf6 c4 e6 Nc3 Bb4 f3 d5 a3 Be7 e4 dxe4 fxe4 e5 d5 Bc5
+d4 Nf6 c4 e6 Nc3 Bb4 Bg5 h6 Bh4 c5 d5 d6 e3 exd5 cxd5
+d4 Nf6 c4 e6 Nc3 Bb4 Nf3 O-O Bg5 c5 e3 cxd4 exd4 h6
+d4 Nf6 c4 e6 Nc3 Bb4 Bd2 O-O e3 d5 Nf3 c5
+d4 Nf6 c4 e6 Nc3 Bb4 g3 O-O Bg2 d5 Nf3 dxc4 O-O Nc6
+d4 Nf6 c4 e6 Nc3 Bb4 e4 Bxc3+ bxc3 d6 Bd3 e5
+d4 Nf6 c4 e6 Nc3 Bb4 Qb3 c5 dxc5 Nc6 Nf3 Ne4
+d4 Nf6 c4 e6 g3 d5 Bg2 Be7 Nf3 O-O O-O dxc4 Qc2 a6 Qxc4 b5 Qc2 Bb7
+d4 Nf6 c4 e6 g3 d5 Nf3 Be7 Bg2 O-O O-O dxc4
+d4 Nf6 c4 e6 Bg5 h6 Bxf6 Qxf6 Nc3 Bb4
+d4 Nf6 c4 e6 e3 d5 Nc3 Be7 Nf3 O-O Bd3 dxc4 Bxc4 c5
+d4 Nf6 c4 e6 a3 d5 Nc3 Be7 cxd5 exd5 Bg5 O-O e3
+d4 Nf6 c4 e6 Nd2 d5 Ngf3 c5
+d4 Nf6 c4 e6 d5 exd5 cxd5 d6 Nc3 g6
+d4 Nf6 c4 e6 f3 d5 Nc3 Be7 cxd5 exd5 Bf4 c5
+d4 Nf6 Nf3 d5 c4 e6 Nc3 Be7 Bg5 O-O e3 h6 Bh4 b6
+d4 Nf6 Nf3 d5 e3 e6 Bd3 c5 b3 Nc6 Bb2 Bd6 O-O O-O
+d4 Nf6 Nf3 d5 Bf4 c5 e3 Nc6 c3 Qb6 Qb3 c4 Qc2 Bf5 Qc1 e6 Nbd2 Be7
+d4 Nf6 Nf3 d5 g3 e6 Bg2 Be7 O-O O-O c4 dxc4
+d4 Nf6 Nf3 d5 Bg5 Ne4 Bf4 c5 e3 Nc6
+d4 Nf6 Nf3 d5 Nbd2 e6 e3 c5 c3 Nc6 Bd3 Bd6 O-O O-O
+d4 Nf6 Nf3 d5 c3 e6 Bg5 c5 e3 Nc6 Nbd2 Be7
+d4 Nf6 Nf3 e6 c4 d5 Nc3 Be7
+d4 Nf6 Nf3 e6 Bg5 c5 e3 h6 Bxf6 Qxf6
+d4 Nf6 Nf3 e6 e3 d5 Bd3 c5
+d4 Nf6 Nf3 e6 g3 d5 Bg2 Be7 O-O O-O
+d4 Nf6 Nf3 e6 Bf4 c5 e3 Nc6 c3 d5
+d4 Nf6 Bf4 d5 e3 c5 c3 Nc6 Nd2 e6 Ngf3 Bd6 Bg3 O-O Bd3 b6
+d4 Nf6 Bf4 d5 Nf3 c5 e3 Nc6 c3 Qb6 Qb3 c4 Qc2 Bf5
+d4 Nf6 Bf4 d5 Nc3 e6 e3 Bd6 Bxd6 cxd6
+d4 Nf6 Bf4 e6 e3 c5 c3 d5 Nd2 Nc6
+d4 Nf6 Bg5 e6 e4 h6 Bxf6 Qxf6 Nf3 d6 Nc3 g6
+d4 Nf6 Bg5 e6 Nf3 c5 e3 h6 Bxf6 Qxf6
+d4 Nf6 Bg5 e6 Nd2 d5 e3 Be7
+d4 Nf6 Bg5 e6 e3 h6 Bh4 c5 c3 Qb6 Qb3 cxd4 exd4
+d4 Nf6 Bg5 e6 c4 h6 Bxf6 Qxf6 Nc3 Bb4
+d4 Nf6 Nc3 d5 Bg5 Nbd7 Nf3 h6 Bh4 e6 e3 Be7 Bd3 c5
+d4 Nf6 Nc3 d5 Bf4 e6 e3 Bd6 Bxd6 cxd6 Nf3 O-O
+d4 Nf6 Nc3 d5 e4 dxe4 f3 exf3 Nxf3 Bg4 h3 Bxf3 Qxf3 c6
+d4 Nf6 Nc3 d5 Nf3 e6 Bg5 Be7 e3 O-O
+d4 Nf6 Nc3 d5 e3 e6 Nf3 c5
+d4 Nf6 Nc3 d5 Qd3 c5 dxc5 e6
+d4 Nf6 e3 d5 Nf3 e6 Bd3 c5 c3 Nc6 Nbd2 Bd6 O-O O-O
+d4 Nf6 e3 d5 Bd3 c5 c3 Nc6 f4 Bg4
+d4 Nf6 e3 d5 c4 e6 Nc3 Be7 Nf3 O-O
+d4 Nf6 g3 d5 Bg2 e6 Nf3 Be7 O-O O-O c4 dxc4
+d4 Nf6 f3 d5 e4 dxe4 Nc3 exf3 Nxf3 Bg4 h3 Bxf3 Qxf3 c6
+d4 Nf6 Nd2 d5 Ngf3 e6 e3 c5 c3 Nc6
+d4 Nf6 c3 d5 Bf4 c5 e3 Nc6 Nd2 e6
+d4 Nf6 Qd3 d5 Nf3 e6 Bg5 c5
+d4 Nf6 a3 d5 Nf3 e6 c4 dxc4 e3 c5
+d4 Nf6 h3 d5 Nf3 e6 c4 c5
+d4 Nf6 Nh3 d5 g3 e5
+d4 Nf6 b3 e6 Bb2 d5 Nf3 c5 e3 Nc6
+d4 Nf6 d5 e6 c4 exd5 cxd5 d6 Nc3 g6
+d4 Nf6 Na3 d5 Nf3 e6
+d4 Nf6 a4 d5 Nf3 e6
+d4 Nf6 h4 d5 Nf3 e6
+d4 Nf6 g4 Nxg4 e4 d6 h3 Nf6 Nc3 e5
+d4 Nf6 f4 d5 Nf3 g6 e3 Bg7 Be2 O-O O-O c5 c3
+d4 Nf6 b4 e6 a3 d5 Nf3 c5 bxc5 Bxc5
+c4 e5 Nc3 Nf6 Nf3 Nc6 g3 d5 cxd5 Nxd5 Bg2 Nb6 O-O Be7 d3 O-O a3 Be6 b4 a5
+c4 e5 Nc3 Nf6 g3 d5 cxd5 Nxd5 Bg2 Nb6 Nf3 Nc6 O-O Be7 d3 O-O
+c4 e5 Nc3 Nf6 e4 Bc5 Nf3 d6 d4 exd4 Nxd4 O-O Be2 Re8
+c4 e5 Nc3 Nf6 e3 Bb4 Nge2 O-O a3 Be7 d4 exd4 Nxd4 d5
+c4 e5 Nc3 Nf6 d3 Bb4 Bd2 O-O e4 c6
+c4 e5 Nc3 Nf6 a3 d5 cxd5 Nxd5 e4 Nxc3 bxc3
+c4 e5 Nc3 Nc6 g3 g6 Bg2 Bg7 d3 d6
+c4 e5 g3 Nf6 Bg2 d5 cxd5 Nxd5 Nc3 Nb6 Nf3 Nc6 O-O Be7 d3 O-O
+c4 e5 Nf3 e4 Nd4 Nc6 Nc2 Nf6 Nc3 d5 cxd5 Nxd5
+c4 e5 e3 Nf6 Nc3 d5 cxd5 Nxd5 Nf3 Nc6
+c4 e5 d3 Nc6 Nc3 f5 g3 Nf6 Bg2 Bc5
+c4 e5 a3 Nf6 Nc3 d5 cxd5 Nxd5
+c4 e5 e4 Nf6 Nc3 Bc5 g3
+c4 e5 d4 exd4 Qxd4 Nc6 Qd1 Nf6 Nc3 Bb4
+c4 e5 b3 Nf6 Bb2 Nc6 e3 d5 cxd5 Nxd5
+c4 e5 Qc2 Nf6 Nc3 Bb4
+c4 e5 f4 exf4 Nf3 Nf6 d4 d5
+c4 e5 h3 Nf6 Nc3 d5
+c4 e5 g4 d5 cxd5 Bxg4
+c4 e5 Nf3 Nc6 Nc3 Nf6 g3 d5 cxd5 Nxd5 Bg2 Nb6 O-O Be7 d3 O-O
+c4 e5 Nf3 Nc6 d4 e4 Nfd2 Nf6 Nc3 d5
+c4 e5 Nf3 Nc6 g3 Nf6 Bg2 d5 cxd5 Nxd5 O-O Nb6 Nc3 Be7
+c4 e5 Nf3 Nc6 e3 Nf6 d4 e4 Nfd2 d5
+Nf3 d5 g3 Nf6 Bg2 e6 O-O Be7 d3 O-O Nbd2 c5 e4 Nc6 Re1 b5
+Nf3 d5 d4 Nf6 c4 e6 Nc3 Be7 Bg5 O-O e3 h6 Bh4 b6
+Nf3 d5 d4 Nf6 Bf4 c5 e3 Nc6 c3 Qb6 Qb3 c4 Qc2 Bf5
+Nf3 d5 d4 Nf6 e3 e6 Bd3 c5 b3 Nc6 Bb2 Bd6 O-O O-O
+Nf3 d5 d4 Nf6 g3 e6 Bg2 Be7 O-O O-O c4 dxc4
+Nf3 d5 d4 Nf6 Bg5 Ne4 Bf4 c5 e3 Nc6
+Nf3 d5 d4 Nf6 c3 e6 Bg5 c5 e3 Nc6
+Nf3 d5 d4 Nf6 Nbd2 e6 e3 c5 c3 Nc6
+Nf3 d5 d4 Nf6 Nc3 e6 Bg5 Be7 e3 O-O
+Nf3 d5 c4 e6 d4 Nf6 Nc3 Be7 Bg5 O-O e3 h6 Bh4 b6
+Nf3 d5 c4 e6 g3 Nf6 Bg2 Be7 O-O O-O b3 c5 Bb2 Nc6 e3 d4
+Nf3 d5 c4 e6 b3 Nf6 Bb2 Be7 e3 O-O
+Nf3 d5 c4 e6 cxd5 exd5 d4 Nf6 Nc3 c6
+Nf3 d5 c4 e6 e3 Nf6 Nc3 Be7 d4 O-O
+Nf3 d5 c4 d4 e3 Nc6 exd4 Nxd4 Nxd4 Qxd4 Nc3
+Nf3 d5 e3 Nf6 c4 e6 Nc3 Be7 d4 O-O b3 b6
+Nf3 d5 e3 Nf6 d4 e6 Bd3 c5 b3 Nc6
+Nf3 d5 b3 Nf6 Bb2 e6 e3 Be7 c4 O-O Nc3 c5
+Nf3 d5 d3 Nf6 g3 c5 Bg2 Nc6 O-O e5 Nbd2 Be7 e4 O-O
+Nf3 d5 e4 dxe4 Ng5 Nf6 d3 exd3 Bxd3
+Nf3 d5 Nc3 Nf6 d4 e6 Bg5 Be7 e3 O-O
+Nf3 d5 b4 Nf6 Bb2 e6 a3 c5 bxc5 Bxc5
+Nf3 d5 c3 Nf6 d4 e6 Bg5 c5
+Nf3 d5 a3 Nf6 d4 e6 c4 c5
+Nf3 d5 h3 Nf6 d4 e6 c4 c5
+Nf3 d5 Ng1 Nf6 d4 e6
+Nf3 d5 g4 Bxg4 Ne5 Bf5
+Nf3 d5 a4 Nf6 d4 e6
+Nf3 d5 Na3 Nf6 d4 e6
+Nf3 d5 Rg1 Nf6 d4 e6
+Nf3 d5 e3 Nf6 b3 e6 Bb2 Be7 c4 O-O
+g3 d5 Bg2 Nf6 Nf3 e6 O-O Be7 d3 O-O Nbd2 c5 e4 Nc6
+g3 d5 Bg2 Nf6 d3 e5 Nf3 Nc6 O-O Be7 c4 O-O
+g3 d5 Bg2 Nf6 d4 e6 Nf3 Be7 O-O O-O c4 dxc4
+g3 d5 Bg2 Nf6 c4 c6 Nf3 Bf5 cxd5 cxd5 Qb3 Qb6
+g3 d5 Nf3 Nf6 Bg2 e6 O-O Be7
+g3 d5 d4 Nf6 Bg2 e6 Nf3 Be7
+g3 d5 c4 c6 Bg2 Nf6 Nf3 Bf5
+g3 d5 e4 dxe4 Bg2 Nf6 Nc3 e5
+g3 d5 Bg2 Nf6 e3 e5 Ne2 Bd6
+b3 e5 Bb2 Nc6 e3 d5 Bb5 Bd6 Nf3 Qe7 c4 Nf6 Nc3 O-O
+b3 e5 Bb2 Nc6 c4 Nf6 e3 d5 cxd5 Nxd5 a3 Bd6
+b3 e5 Bb2 Nc6 Nf3 e4 Nd4 Nxd4 Bxd4 Nf6
+b3 e5 Bb2 Nc6 e4 Nf6 Nc3 Bb4
+b3 e5 Bb2 Nc6 g3 d5 Bg2 Nf6 d3 Be7
+b3 e5 Bb2 Nc6 d4 exd4 Nf3 Bc5
+b3 e5 e4 Nf6 Bb2 Nc6 Nc3 Bb4
+b3 e5 Nf3 e4 Nd4 Nc6 Nxc6 dxc6 Bb2 Bd6
+b3 e5 c4 Nf6 Bb2 Nc6 e3 d5 cxd5 Nxd5
+b3 e5 e3 d5 Bb2 Nc6 Bb5 Bd6
+f4 d5 Nf3 Nf6 e3 g6 Be2 Bg7 O-O O-O d3 c5 Qe1 Nc6
+f4 d5 Nf3 Nf6 g3 g6 Bg2 Bg7 O-O O-O d3 c5
+f4 d5 Nf3 Nf6 b3 g6 Bb2 Bg7 e3 O-O Be2 c5
+f4 d5 e3 Nf6 Nf3 g6 Be2 Bg7 O-O O-O
+f4 d5 e4 dxe4 Nc3 Nf6 d3 exd3 Bxd3 g6
+f4 d5 d4 Nf6 Nf3 g6 e3 Bg7
+f4 d5 g3 Nf6 Bg2 g6 Nf3 Bg7
+f4 d5 b3 Nf6 Bb2 g6 Nf3 Bg7
+f4 d5 c4 d4 Nf3 c5
+e3 d5 d4 Nf6 Nf3 e6 Bd3 c5 c3 Nc6 Nbd2 Bd6 O-O O-O
+e3 d5 Nf3 Nf6 c4 e6 d4 Be7 Nc3 O-O
+e3 d5 c4 e6 d4 Nf6 Nc3 Be7 Nf3 O-O
+e3 d5 b3 e5 Bb2 Bd6 c4 c6
+e3 d5 f4 Nf6 Nf3 g6
+e3 d5 g3 Nf6 Bg2 e5 Ne2 Bd6
+e3 d5 Be2 e5 d4 e4
+e3 d5 Qh5 Nf6 Qh4 e5
+d3 d5 Nf3 Nf6 g3 c5 Bg2 Nc6 O-O e5 Nbd2 Be7 e4 O-O
+d3 d5 e4 dxe4 dxe4 Qxd1+ Kxd1 Nc6
+d3 d5 g3 e5 Bg2 Nf6 Nf3 Nc6 O-O Be7
+d3 d5 Nd2 e5 e4 Nf6 Ngf3 Nc6
+d3 d5 c3 e5 Nd2 Nf6 e4 Nc6
+d3 d5 e3 e5 Nd2 Nf6
+d3 d5 Nc3 Nf6 e4 dxe4 dxe4 Qxd1+ Kxd1 e5
+d3 d5 Bf4 Nf6 Nf3 c5
+Nc3 d5 e4 d4 Nce2 e5 Ng3 Be6 c3 c5 Bb5+ Nd7
+Nc3 d5 d4 Nf6 Bg5 Nbd7 Nf3 h6 Bh4 e6 e3 Be7
+Nc3 d5 d4 Nf6 Bf4 e6 e3 Bd6 Bxd6 cxd6
+Nc3 d5 d4 Nf6 e4 dxe4 f3 exf3 Nxf3 Bg4 h3 Bxf3 Qxf3 c6
+Nc3 d5 Nf3 Nf6 d4 e6 Bg5 Be7
+Nc3 d5 e3 e5 d4 exd4 exd4 Nf6
+Nc3 d5 f4 Nf6 Nf3 g6 e3 Bg7
+Nc3 d5 g3 Nf6 Bg2 e6 d3 Be7
+Nc3 d5 b3 e5 Bb2 Nc6 e3 Nf6
+Nc3 d5 e4 dxe4 Nxe4 Nf6
+a3 d5 d4 Nf6 Nf3 e6 c4 c5 e3 Nc6
+a3 d5 Nf3 Nf6 d4 e6 c4 c5
+a3 d5 c4 e6 d4 Nf6 Nc3 Be7
+a3 d5 e4 dxe4 Nc3 Nf6
+a3 d5 b4 e5 Bb2 Bd6
+a3 d5 g3 Nf6 Bg2 e5
+h3 d5 d4 Nf6 Nf3 e6 c4 c5
+h3 d5 c4 e6 d4 Nf6
+h3 d5 Nf3 Nf6 d4 e6
+h3 d5 e4 dxe4 Nc3 Nf6
+h3 d5 g4 e5 Bg2 c6
+b4 e5 Bb2 Bxb4 Bxe5 Nf6 c4 O-O Nf3 d5 e3
+b4 e5 a3 d5 Bb2 Bd6 e3 Nf6
+b4 e5 Bb2 Bxb4 e4 Nc6
+b4 e5 b5 d5 Bb2 Bd6
+b4 e5 c3 d5 e3 Nf6
+c3 e5 d4 exd4 cxd4 d5 Nc3 Nf6 Bg5 Be7 e3 O-O
+c3 e5 e4 Nf6 d4 Nxe4 dxe5 d5
+c3 e5 Nf3 e4 Nd4 c5 Nc2 d5 d3 Nf6
+c3 e5 d3 d5 Nd2 Nf6 e4 Nc6
+Na3 e5 Nc4 Nc6 e4 Nf6 d3 d5 exd5 Nxd5 Nf3
+Na3 e5 e4 Nf6 Nc4 Nc6
+Na3 e5 c4 Nf6 Nc2 d5
+Na3 e5 d4 exd4 Qxd4 Nc6
+Nh3 d5 g3 e5 f4 Bxh3 Bxh3 exf4 O-O
+Nh3 d5 d4 Nf6 Nf4 e5
+Nh3 d5 e3 e5 d4 Nc6
+a4 e5 e4 Nf6 Nc3 Bc5 Nf3 Nc6
+a4 e5 d4 exd4 Qxd4 Nc6 Qe4+ Be7
+h4 d5 d4 c5 e3 Nc6 Nf3 Nf6 c4 e6
+h4 d5 e4 dxe4 Nc3 Nf6
+f3 e5 e4 Nc6 c3 Nf6 d4 d5
+f3 e5 d4 exd4 Qxd4 Nc6
+f3 e5 e3 d5 c4 c6
+g4 d5 Bg2 Bxg4 c4 c6 cxd5 cxd5 Qb3 Nc6 Qxb7 Nd4 Kf1 e6
+g4 d5 h3 e5 Bg2 c6 d4 e4 c4 Bd6
+g4 d5 e4 dxe4 h3 Nc6
+"""
+
+# Human opening theory only. The frozen lines come first, so an extension never changes
+# an existing choice. Opponent alternatives add branches; there is still one move per key.
+# Main lines reach moves 12--15; dubious early moves are met by centre/development,
+# or established tactical refutations (Damiano, Latvian, elephant and queen raids).
+LINES_EXTENSIONS = """
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6 c3 O-O h3 Na5 Bc2 c5 d4 Qc7 Nbd2 cxd4 cxd4 Nc6 Nb3 a5 Be3 a4
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6 c3 O-O h3 Na5 Bc2 c5 d4 Qc7 Nbd2 Nc6 d5 Nd8 Nf1 Ne8 Ng3 g6
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6 c3 O-O h3 Na5 Bc2 c5 d4 Qc7 Nbd2 Bb7 Nf1 Rfe8 Ng3 Bf8 d5
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Nxe4 d4 b5 Bb3 d5 dxe5 Be6 c3 Bc5 Nbd2 O-O Bc2 Bf5 Nb3 Bb6 Nfd4 Nxd4 cxd4
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O b5 Bb3 Be7 Re1 d6 c3 O-O h3 Na5 Bc2 c5 d4 Qc7 Nbd2 cxd4 cxd4 Nc6 Nb3
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O d6 c3 Bd7 d4 Be7 Re1 O-O Nbd2 Re8 Nf1 Bf8 Ng3 g6 h3 Bg7
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 d6 c3 Bd7 d4 Nf6 O-O Be7 Re1 O-O Nbd2 Re8 Nf1 Bf8 Ng3 g6 h3 Bg7
+e4 e5 Nf3 Nc6 Bb5 a6 Bxc6 dxc6 O-O f6 d4 exd4 Nxd4 c5 Nb3 Qxd1 Rxd1 Be6 Nc3 Bd6 Be3 b6 Nd5 O-O-O a4 Ne7
+e4 e5 Nf3 Nc6 Bb5 Nf6 O-O Nxe4 d4 Nd6 Bxc6 dxc6 dxe5 Nf5 Qxd8+ Kxd8 Nc3 Be6 h3 Be7 Bg5 h6 Bxe7+ Kxe7 Rad1 Rad8
+e4 e5 Nf3 Nc6 Bb5 Nf6 O-O Be7 Re1 d6 d4 exd4 Nxd4 Bd7 Nc3 O-O Bf4 Re8 Bxc6 bxc6 Qd3 Bf8 Rad1
+e4 e5 Nf3 Nc6 Bb5 Bc5 c3 Nf6 d4 exd4 e5 Nd5 O-O O-O cxd4 Bb6 Nc3 Nxc3 bxc3 d6 exd6 Qxd6 Re1
+e4 e5 Nf3 Nc6 Bb5 d6 d4 Bd7 Nc3 Nf6 O-O Be7 Re1 exd4 Nxd4 O-O Bf4 Re8 Bxc6 bxc6 Qd3 Bf8 Rad1
+e4 e5 Nf3 Nc6 Bb5 f5 Nc3 fxe4 Nxe4 d5 Nxe5 dxe4 Nxc6 Qg5 Qe2 Nf6 f4 Qxf4 Ne5+ c6 d4 Qh4+ g3 Qh3 Bc4
+e4 e5 Nf3 Nc6 Bb5 Nge7 O-O g6 c3 Bg7 d4 exd4 cxd4 d5 exd5 Nxd5 Re1+ Be6 Nc3 O-O
+e4 e5 Nf3 Nc6 Bb5 Nd4 Nxd4 exd4 O-O c6 Bc4 Nf6 Re1 d6 d3 Be7 Nd2 O-O Nf3
+e4 e5 Nf3 Nc6 Bc4 Bc5 c3 Nf6 d3 d6 O-O O-O Re1 a6 Bb3 Ba7 h3 h6 Nbd2 Be6 Bc2 d5 exd5 Qxd5 Nc4
+e4 e5 Nf3 Nc6 Bc4 Bc5 c3 Nf6 d3 d6 O-O O-O Re1 a6 Bb3 Ba7 h3 h6 Nh2 Be6 Bxe6 fxe6 Be3 Bxe3 fxe3 d5 exd5 exd5
+e4 e5 Nf3 Nc6 Bc4 Bc5 c3 Nf6 d3 d6 O-O O-O Re1 a6 Bb3 Ba7 h3 h6 Be3 Bxe3 Rxe3 Be6 Nbd2 d5
+e4 e5 Nf3 Nc6 Bc4 Bc5 O-O Nf6 d3 d6 c3 O-O Re1 a6 Bb3 Ba7 h3 h6 Nbd2 Be6 Bc2
+e4 e5 Nf3 Nc6 Bc4 Bc5 d3 Nf6 c3 d6 O-O O-O Re1 a6 Bb3 Ba7 h3 h6 Nbd2 Be6 Bc2
+e4 e5 Nf3 Nc6 Bc4 Bc5 Nc3 Nf6 d3 d6 O-O O-O Bg5 h6 Bh4 g5 Bg3 Bg4 Nd5 Nxd5 Bxd5
+e4 e5 Nf3 Nc6 Bc4 Bc5 b4 Bxb4 c3 Ba5 d4 exd4 O-O Nge7 cxd4 d5 exd5 Nxd5 Ba3 Be6 Qb3 Bb6 Re1
+e4 e5 Nf3 Nc6 Bc4 Bc5 d4 exd4 O-O d6 c3 Nf6 cxd4 Bb6 Nc3 O-O Re1 Bg4 Be3
+e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nf6 Nxc6 bxc6 e5 Qe7 Qe2 Nd5 c4 Ba6 b3 g6 Ba3 Qe6 Bxf8 Kxf8 Nd2 Kg7
+e4 e5 Nf3 Nc6 d4 exd4 Bc4 Nf6 e5 d5 Bb5 Ne4 Nxd4 Bd7 Bxc6 bxc6 O-O Bc5 Be3 O-O
+e4 e5 Nf3 Nc6 Nc3 Nf6 d4 exd4 Nxd4 Bb4 Nxc6 bxc6 Bd3 d5 exd5 cxd5 O-O O-O Bg5 c6 Qf3
+e4 e5 Nf3 Nc6 Nc3 Nf6 Bb5 Bb4 O-O O-O d3 d6 Bg5 Bxc3 bxc3 Qe7 Re1 Nd8 d4 Ne6
+e4 e5 Nf3 d6 d4 Nf6 Nc3 Nbd7 Bc4 Be7 O-O O-O Re1 c6 a4 Qc7 Ba2 h6 h3 Re8
+e4 e5 Nf3 d6 d4 exd4 Nxd4 Nf6 Nc3 Be7 Bf4 O-O Qd2 Nc6 O-O-O Nxd4 Qxd4 Be6 f3 c6
+e4 e5 Nf3 Nf6 Nxe5 d6 Nf3 Nxe4 d4 d5 Bd3 Nc6 O-O Be7 c4 Nb4 Be2 O-O Nc3 Bf5 a3 Nxc3 bxc3 Nc6
+e4 e5 Nf3 f6 Nxe5 fxe5 Qh5+ Ke7 Qxe5+ Kf7 Bc4+ d5 Bxd5+ Kg6 h4 h5 Bxb7 Bxb7 Qf5+ Kh6 d4+
+e4 e5 Nf3 f6 Nxe5 Qe7 Nf3 Qxe4+ Be2 d5 O-O Nc6 Re1 Be7 Nc3 Qf5 d4
+e4 e5 Nf3 f5 Nxe5 Qf6 d4 d6 Nc4 fxe4 Nc3 Qg6 Be2 Nf6 O-O Be7 f3 exf3 Bxf3
+e4 e5 Nf3 d5 exd5 e4 Qe2 Nf6 d3 Be7 dxe4 O-O Nc3 Re8 Be3 Bb4 Qd3
+e4 e5 Nc3 Nf6 f4 d5 fxe5 Nxe4 Nf3 Be7 d4 O-O Bd3 f5 exf6 Nxf6 O-O c5
+e4 e5 Nc3 Nf6 Bc4 Nc6 d3 Bb4 Nf3 d5 exd5 Nxd5 Bd2 Nxc3 bxc3 Bd6 O-O
+e4 e5 f4 exf4 Nf3 d5 exd5 Nf6 Bb5+ c6 dxc6 Nxc6 d4 Bd6 O-O O-O Nc3 Bg4
+e4 e5 f4 exf4 Bc4 Nf6 Nc3 c6 d4 Bb4 e5 d5 exf6 dxc4 Nf3 O-O O-O
+e4 e5 Bc4 Nf6 d3 c6 Nf3 d5 Bb3 Bd6 Nc3 dxe4 Nxe4 Nxe4 dxe4 O-O O-O
+e4 e5 d4 exd4 Qxd4 Nc6 Qe3 Nf6 Nc3 Bb4 Bd2 O-O O-O-O Re8 Qg3 d6 f3 Be6
+e4 e5 d4 exd4 c3 d5 exd5 Qxd5 cxd4 Nc6 Nf3 Bg4 Be2 O-O-O Nc3 Bb4 O-O
+e4 e5 Qh5 Nc6 Bc4 g6 Qf3 Nf6 Ne2 Bg7 d3 O-O Nbc3 d6 Bg5 h6
+e4 e5 Qf3 Nf6 Bc4 Nc6 Ne2 Bc5 d3 d6 O-O Be6 Nbc3 Qd7
+e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6 Be3 e5 Nb3 Be6 f3 Be7 Qd2 O-O O-O-O Nbd7 g4 b5 g5 b4 Nd5 Nxd5 exd5 Bf5
+e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6 Be3 e5 Nb3 Be6 f3 Be7 Qd2 O-O O-O-O Qc7 g4 b5 g5 b4 Nd5 Nxd5 exd5 Bf5
+e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 g6 Be3 Bg7 f3 O-O Qd2 Nc6 Bc4 Bd7 O-O-O Rc8 Bb3 Ne5 h4 h5 Kb1
+e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 Nc6 Bg5 e6 Qd2 a6 O-O-O Bd7 f4 Be7 Nf3 b5 Bxf6 gxf6 Kb1 Qb6
+e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 e6 Be3 a6 f3 b5 Qd2 Nbd7 g4 h6 O-O-O Bb7 h4 b4 Na4 d5
+e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 Nf6 Nc3 e5 Ndb5 d6 Bg5 a6 Na3 b5 Nd5 Be7 Bxf6 Bxf6 c3 O-O Nc2 Bg5 a4
+e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 g6 Nc3 Bg7 Be3 Nf6 Bc4 O-O Bb3 d6 f3 Bd7 Qd2 Rc8 O-O-O Ne5 h4 h5
+e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 e6 Nc3 Qc7 Be3 a6 Qd2 Nf6 O-O-O Bb4 f3 Ne5 Nb3 b5 Kb1 Bb7
+e4 c5 Nf3 e6 d4 cxd4 Nxd4 a6 Bd3 Nf6 O-O Qc7 Qe2 d6 c4 Be7 Nc3 O-O b3 b6 Bb2 Bb7
+e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 e5 Nb5 d6 c4 Be7 N1c3 a6 Na3 Nf6 Be2 O-O O-O Be6
+e4 c5 Nf3 a6 c3 Nf6 e5 Nd5 d4 cxd4 cxd4 d6 Bc4 Nb6 Bb3 Nc6 O-O dxe5 dxe5 Qxd1 Rxd1
+e4 c5 Nf3 Nf6 e5 Nd5 Nc3 e6 Nxd5 exd5 d4 cxd4 Qxd4 Nc6 Qxd5 d6 exd6 Bxd6
+e4 c5 Nf3 d5 exd5 Qxd5 Nc3 Qd8 Bc4 e6 O-O Nc6 d3 Nf6 Re1 Be7
+e4 e6 d4 d5 Nc3 Nf6 Bg5 Be7 e5 Nfd7 Bxe7 Qxe7 f4 O-O Nf3 c5 Qd2 Nc6 O-O-O a6 dxc5 Nxc5 Bd3 b5 Kb1 Bb7 Ne2 Qc7 Rhf1 Rfc8
+e4 e6 d4 d5 Nc3 Bb4 e5 c5 a3 Bxc3+ bxc3 Ne7 Qg4 O-O Bd3 Nbc6 Nf3 f5 exf6 Rxf6 Bg5 Rf7 O-O
+e4 e6 d4 d5 Nc3 dxe4 Nxe4 Nd7 Nf3 Ngf6 Nxf6+ Nxf6 Bd3 c5 dxc5 Bxc5 O-O O-O Qe2 b6 Bg5 Bb7 Rad1
+e4 e6 d4 d5 Nc3 c5 exd5 exd5 Nf3 Nc6 Bb5 Nf6 O-O Be7 dxc5 O-O Be3 Bg4 h3 Bh5
+e4 c6 d4 d5 Nc3 dxe4 Nxe4 Bf5 Ng3 Bg6 h4 h6 Nf3 Nd7 h5 Bh7 Bd3 Bxd3 Qxd3 e6 Bf4 Ngf6 O-O-O Be7 Ne4 Nxe4 Qxe4
+e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nd7 Nf3 Ngf6 Nxf6+ Nxf6 Bd3 Bg4 c3 e6 h3 Bxf3 Qxf3 Bd6 O-O O-O
+e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nf6 Nxf6+ exf6 Bc4 Bd6 Ne2 O-O O-O Re8 Bf4
+e4 c6 d4 d5 Nc3 g6 Nf3 Bg7 h3 Nf6 e5 Ne4 Nxe4 dxe4 Ng5 c5 Bc4
+e4 d5 exd5 Qxd5 Nc3 Qa5 d4 Nf6 Nf3 c6 Bc4 Bf5 Bd2 e6 Qe2 Bb4 O-O-O Nbd7 a3 Bxc3 Bxc3 Qc7
+e4 d5 exd5 Qxd5 Nc3 Qd6 d4 Nf6 Nf3 a6 g3 Bg4 Bg2 Nc6 O-O O-O-O Be3 e6 Qd2
+e4 d5 exd5 Qxd5 Nc3 Qd8 d4 Nf6 Nf3 Bg4 h3 Bxf3 Qxf3 c6 Be3 e6 O-O-O Nbd7 Bd3
+e4 d5 exd5 Nf6 d4 Nxd5 Nf3 g6 Be2 Bg7 O-O O-O c4 Nb6 Nc3 Nc6 Be3 Bg4 d5 Bxf3 Bxf3
+e4 d6 d4 Nf6 Nc3 g6 Nf3 Bg7 Be2 O-O O-O c6 a4 Qc7 h3 Nbd7 Be3 e5 dxe5 dxe5 Qd2
+e4 g6 d4 Bg7 Nc3 d6 Nf3 Nf6 Be2 O-O O-O Nc6 d5 Ne5 Nxe5 dxe5 Be3 e6
+e4 Nf6 e5 Nd5 d4 d6 Nf3 Bg4 Be2 e6 O-O Be7 c4 Nb6 Nc3 O-O Be3 Nc6 exd6 cxd6 b3
+e4 Nf6 e5 Nd5 d4 d6 Nf3 g6 Bc4 Nb6 Bb3 Bg7 O-O O-O h3 Nc6 Re1 dxe5 dxe5 Qxd1 Rxd1
+e4 Nf6 e5 Ng8 d4 d6 Nf3 Nf6 Nc3 g6 Bc4 Bg7 O-O O-O Re1 Nc6 exd6 cxd6 h3
+e4 Nf6 e5 Ng8 d4 e6 Nf3 d5 Bd3 c5 c3 Nc6 O-O Nge7 Re1 Ng6 h4 Be7 h5
+e4 Nf6 e5 Ng8 d4 d5 Nf3 Bf5 Bd3 Bxd3 Qxd3 e6 O-O c5 c3 Nc6 Be3
+e4 Nc6 d4 d5 Nc3 dxe4 d5 Ne5 Qd4 Ng6 Qxe4 Nf6 Qa4+ Bd7 Bb5 a6 Bxd7+ Qxd7
+e4 b6 d4 Bb7 Bd3 e6 Nf3 c5 c3 Nf6 Qe2 Be7 O-O O-O Nbd2 d5 e5
+e4 a6 d4 b5 Nf3 Bb7 Bd3 e6 O-O c5 c3 Nf6 Re1 Be7 e5 Nd5 Nbd2
+e4 a5 d4 e6 Nf3 d5 Nc3 Nf6 e5 Nfd7 Bd3 c5 O-O Nc6 Re1 Be7 h3 O-O
+e4 a5 d4 d5 exd5 Qxd5 Nc3 Qd6 Nf3 Nf6 Bc4 e6 O-O Be7 Re1 O-O
+e4 a5 d4 e5 Nf3 Nc6 Bb5 Nf6 O-O d6 d5 Bd7 Nc3 Be7 Be3 O-O
+e4 a5 d4 Nc6 Nf3 e5 Bb5 Nf6 O-O d6 d5 Bd7 Nc3 Be7 Be3 O-O
+e4 a5 d4 d6 Nf3 Nf6 Nc3 g6 Bc4 Bg7 O-O O-O Re1 Nc6 h3
+e4 a5 d4 a4 Nf3 d6 Nc3 e5 dxe5 dxe5 Qxd8+ Kxd8 Nxe5 Be6 Bc4
+e4 a5 d4 h5 Nf3 d6 Bc4 Nf6 Nc3 e6 O-O Be7 Re1 O-O
+e4 a5 d4 b5 Bxb5 Bb7 Nc3 e6 Nf3 Nf6 Bd3 Bb4 O-O O-O Re1
+e4 b5 Bxb5 Bb7 Nc3 e6 Nf3 Nf6 e5 Nd5 O-O Be7 d4 O-O
+e4 f5 exf5 Nf6 Nf3 d5 d4 Bxf5 Bd3 Bxd3 Qxd3 Nc6 O-O Qd7 Re1
+e4 g5 d4 h6 h4 g4 Bf4 d6 Nc3 Nf6 Qd2 Nc6 O-O-O e5 dxe5
+e4 h6 d4 e6 Nf3 d5 Nc3 Nf6 e5 Nfd7 Bd3 c5 O-O Nc6 Re1
+e4 f6 d4 e6 Nf3 d5 Nc3 Bb4 Bd3 Ne7 O-O O-O Re1
+e4 h5 d4 d5 exd5 Qxd5 Nc3 Qa5 Nf3 Nf6 Bc4 e6 O-O
+e4 Na6 d4 c6 Nf3 Nc7 Bd3 d5 e5 Bg4 O-O e6 h3
+e4 Nh6 d4 g6 Nf3 Bg7 Nc3 d6 Bc4 O-O O-O Nc6 h3
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6 c3 O-O h3 h6 d4 Re8 Nbd2 Bf8 Nf1
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6 c3 O-O h3 Re8 d4 Bf8 Nbd2 h6 Nf1
+e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6 c3 O-O h3 Nb8 d4 Nbd7 Nbd2 Bb7 Bc2 Re8
+d4 Nf6 c4 e6 Nf3 d5 Nc3 Be7 Bg5 O-O e3 h6 Bh4 b6 Be2 Bb7 O-O Nbd7 Rc1 c5 cxd5 Nxd5 Bxe7 Qxe7 Nxd5 exd5
+d4 Nf6 c4 e6 Nf3 d5 Nc3 Be7 Bf4 O-O e3 c5 dxc5 Bxc5 a3 Nc6 Qc2 Qa5 Rd1 Be7 Be2 dxc4 Bxc4 e5
+d4 Nf6 c4 e6 Nf3 d5 Nc3 Be7 cxd5 exd5 Bg5 c6 Qc2 O-O e3 Nbd7 Bd3 Re8 O-O Nf8 Rab1
+d4 Nf6 c4 e6 Nf3 d5 g3 Be7 Bg2 O-O O-O dxc4 Qc2 a6 Qxc4 b5 Qc2 Bb7 Bd2 Be4 Qc1 Nbd7
+d4 Nf6 c4 e6 Nc3 Bb4 e3 O-O Bd3 d5 Nf3 c5 O-O Nc6 a3 Bxc3 bxc3 dxc4 Bxc4 Qc7 Bd3 e5 Qc2 Re8 d5 e4
+d4 Nf6 c4 e6 Nc3 Bb4 Qc2 O-O a3 Bxc3+ Qxc3 b6 Bg5 Bb7 f3 h6 Bh4 d5 e3 Nbd7 Bd3 c5 Ne2
+d4 Nf6 c4 e6 Nc3 Bb4 a3 Bxc3+ bxc3 c5 e3 Nc6 Bd3 O-O Ne2 b6 e4 Ne8 O-O Ba6 f4 f5
+d4 Nf6 c4 e6 Nc3 Bb4 f3 d5 a3 Be7 e4 dxe4 fxe4 e5 d5 Bc5 Nf3 Ng4 b4 Bf2+ Ke2 a5
+d4 Nf6 c4 e6 Nc3 Bb4 Nf3 O-O Bg5 c5 e3 cxd4 exd4 h6 Bh4 d5 Rc1 Nc6 a3 Be7 Bd3
+d4 Nf6 c4 e6 Nc3 Bb4 g3 O-O Bg2 d5 Nf3 dxc4 O-O Nc6 Qa4 Bd6 Qxc4 e5 Rd1
+d4 Nf6 Nf3 d5 e3 e6 Bd3 c5 b3 Nc6 Bb2 Bd6 O-O O-O Nbd2 b6 Ne5 Bb7 f4
+d4 Nf6 Nf3 d5 Bf4 c5 e3 Nc6 c3 Qb6 Qb3 c4 Qc2 Bf5 Qc1 e6 Nbd2 Be7 Be2 O-O O-O Nh5 Bg3
+d4 Nf6 Bf4 d5 e3 c5 c3 Nc6 Nd2 e6 Ngf3 Bd6 Bg3 O-O Bd3 b6 O-O Bb7 Ne5 Qc7
+d4 Nf6 Nc3 d5 Bg5 Nbd7 Nf3 h6 Bh4 e6 e3 Be7 Bd3 c5 O-O O-O Re1 b6
+c4 e5 Nc3 Nf6 Nf3 Nc6 g3 d5 cxd5 Nxd5 Bg2 Nb6 O-O Be7 d3 O-O a3 Be6 b4 a5 b5 Nd4 Nxd4 exd4 Ne4 Bd5
+c4 e5 Nc3 Nf6 g3 d5 cxd5 Nxd5 Bg2 Nb6 Nf3 Nc6 O-O Be7 d3 O-O Be3 Be6 Rc1 f5
+c4 e5 Nf3 e4 Nd4 Nc6 Nc2 Nf6 Nc3 d5 cxd5 Nxd5 Nxe4 Bf5 Ng3 Bg6 d4
+Nf3 d5 g3 Nf6 Bg2 e6 O-O Be7 d3 O-O Nbd2 c5 e4 Nc6 Re1 b5 e5 Nd7 Nf1 Bb7 Bf4
+Nf3 d5 d4 Nf6 c4 e6 Nc3 Be7 Bg5 O-O e3 h6 Bh4 b6 Be2 Bb7 Bd3 Nbd7 O-O c5
+g3 d5 Bg2 Nf6 Nf3 e6 O-O Be7 d3 O-O Nbd2 c5 e4 Nc6 Re1 b5 e5 Nd7 Nf1 Bb7
+f4 d5 Nf3 Nf6 e3 g6 Be2 Bg7 O-O O-O d3 c5 Qe1 Nc6 Nc3 d4 Ne4 Nxe4 dxe4
+b3 e5 Bb2 Nc6 e3 d5 Bb5 Bd6 Nf3 Qe7 c4 Nf6 Nc3 O-O cxd5 Nb4 a3 Nbxd5 Nxd5 Nxd5
+"""
+LINES = LINES_V1 + LINES_EXTENSIONS
+_BOOK = {}
+
+# Correções opcionais de cobertura, justificadas por saídas repetidas no SF
+# guardado da ronda 2 (analise.json). Nunca substituem uma escolha V1/V2.
+PATCH_LINES = """
+e4 c6 d4 e6 Nf3 d5 Bd3 Nf6 Nc3 Be7 O-O O-O Re1 Nbd7 Bf4
+e4 c6 d4 e6 Nf3 d5 Bd3 dxe4 Bxe4 Nf6 Bd3 Be7 O-O O-O Nc3
+e4 c5 Nf3 Nc6 d4 d5 exd5 Qxd5 Nc3 Qe6+ Be2 Nf6 O-O cxd4 Nxd4 Nxd4 Qxd4 Qb6 Be3 Qxd4 Bxd4 e6 Rad1 Be7
+e4 c5 Nf3 Nc6 d4 d5 exd5 Qxd5 Nc3 Qd8 Be3 Nf6 Be2 e6 O-O Be7 dxc5 O-O Qxd8 Rxd8 Rad1
+"""
+_PATCH = None
+
+
+def _key(board, version=2):
+    key = board.board_fen() + (" w " if board.turn else " b ") + board.castling_xfen()
+    if version == 2:
+        key += " " + (chess.square_name(board.ep_square) if board.has_legal_en_passant() else "-")
+    return key
+
+
+def _book(version=2):
+    if version not in (1, 2):
+        raise ValueError("opening book version must be 1 or 2")
+    if version not in _BOOK:
+        book = {}
+        for text in (LINES_V1 if version == 1 else LINES).strip().splitlines():
+            b = chess.Board()
+            for san in text.split():
+                move = b.parse_san(san)          # an error here is a typo in a line: it must fail loudly
+                book.setdefault(_key(b, version), move)
+                b.push(move)
+        _BOOK[version] = book
+    return _BOOK[version]
+
+
+def repertoire_move(board, version=2):
+    move = _book(version).get(_key(board, version))
+    return move if move is not None and move in board.legal_moves else None
+
+
+def repertoire_patch_move(board):
+    """Fallback opt-in: um lance por posição; as escolhas existentes têm prioridade."""
+    global _PATCH
+    if _PATCH is None:
+        book = {}
+        for text in PATCH_LINES.strip().splitlines():
+            b = chess.Board()
+            for san in text.split():
+                move = b.parse_san(san)
+                if _key(b, 2) not in _book(2):
+                    book.setdefault(_key(b, 2), move)
+                b.push(move)
+        _PATCH = book
+    move = _PATCH.get(_key(board, 2))
+    return move if move is not None and move in board.legal_moves else None
+
+
+MINORS = (chess.KNIGHT, chess.BISHOP)
+RIM = chess.BB_FILE_A | chess.BB_FILE_H
+
+
+def _home(colour):
+    return chess.BB_RANK_1 if colour == chess.WHITE else chess.BB_RANK_8
+
+
+def principles_v1(board, move, ply):
+    """Classic opening principles for one move of the side to move, in units."""
+    me = board.turn
+    piece = board.piece_at(move.from_square)
+    if piece is None:
+        return 0.0
+    kind, units = piece.piece_type, 0.0
+    capture = board.is_capture(move)
+    to_bb = chess.BB_SQUARES[move.to_square]
+    from_bb = chess.BB_SQUARES[move.from_square]
+    can_castle = board.has_castling_rights(me)
+    if board.is_castling(move):
+        return 1.5
+    if kind == chess.KING:
+        return -2.0 if can_castle else -0.5
+    if capture:
+        return 0.0                                   # trades and gains belong to the calculation
+    undeveloped = sum(1 for t in MINORS for s in board.pieces(t, me) if chess.BB_SQUARES[s] & _home(me))
+    if kind in MINORS:
+        if from_bb & _home(me):
+            units += 0.8                             # a new piece in play
+            if kind == chess.KNIGHT:
+                if to_bb & RIM:
+                    units -= 1.6                     # a knight on the rim
+                elif chess.square_file(move.to_square) in (3, 4):
+                    units -= 0.4                     # Ne2/Nd2: in front of its own pieces, not the centre
+        else:
+            units -= 0.6 if undeveloped else 0.2     # the same piece again, others still at home
+            if to_bb & _home(me):
+                units -= 0.6                         # and back home
+        if kind == chess.BISHOP:
+            # in front of its own central pawn still at home (Bd3 with the d-pawn on d2): blocks it
+            front = move.to_square - 8 if me == chess.WHITE else move.to_square + 8
+            if 0 <= front < 64 and chess.square_file(move.to_square) in (3, 4):
+                p = board.piece_at(front)
+                if p is not None and p.piece_type == chess.PAWN and p.color == me:
+                    units -= 0.7
+    elif kind == chess.QUEEN:
+        units -= 0.8 if ply < 16 else 0.3
+    elif kind == chess.ROOK:
+        if can_castle:
+            units -= 1.0                             # a rook walk before castling
+        elif chess.square_file(move.to_square) not in (2, 3, 4):
+            units -= 0.4                             # a rook belongs on the central files
+    elif kind == chess.PAWN:
+        f = chess.square_file(move.from_square)
+        start = from_bb & (chess.BB_RANK_2 if me == chess.WHITE else chess.BB_RANK_7)
+        if f in (3, 4):
+            units += (0.9 if abs(move.to_square - move.from_square) == 16 else 0.4) if start else 0.1
+        elif f == 2:
+            units += 0.3 if start else 0.0
+        elif f in (0, 7):
+            units -= 0.6
+        elif f == 5:
+            units -= 0.2                             # the f-pawn opens its own king
+        elif f in (1, 6):
+            units -= 0.1 if start and abs(move.to_square - move.from_square) == 8 else 0.4
+    return units
+
+
+CENTRE = chess.BB_D4 | chess.BB_E4 | chess.BB_D5 | chess.BB_E5
+
+
+def _pawn_structure(pawns):
+    counts = [chess.popcount(pawns & file_bb) for file_bb in chess.BB_FILES]
+    doubled = sum(max(0, n - 1) for n in counts)
+    isolated = sum(n for f, n in enumerate(counts)
+                   if not (counts[f - 1] if f else 0) and not (counts[f + 1] if f < 7 else 0))
+    return doubled, isolated
+
+
+def _connected_rooks(board, colour):
+    rooks = list(board.pieces(chess.ROOK, colour))
+    return any((chess.square_rank(a) == chess.square_rank(b) or
+                chess.square_file(a) == chess.square_file(b)) and
+               not (chess.between(a, b) & board.occupied)
+               for i, a in enumerate(rooks) for b in rooks[i + 1:])
+
+
+def _context(board):
+    me = board.turn
+    king = board.king(me)
+    flank = None
+    if king is not None and chess.BB_SQUARES[king] & _home(me) and not board.has_castling_rights(me):
+        file = chess.square_file(king)
+        flank = (5, 6, 7) if file >= 6 else (0, 1, 2) if file <= 2 else None
+    return (_pawn_structure(board.pawns & board.occupied_co[me]),
+            _connected_rooks(board, me), flank)
+
+
+def _principles_v2(board, after, move, ply, context):
+    piece = board.piece_at(move.from_square)
+    if piece is None:
+        return 0.0
+    me, kind = piece.color, piece.piece_type
+    if board.is_castling(move) or kind == chess.KING:
+        return principles_v1(board, move, ply)
+    units = principles_v1(board, move, ply)
+    structure, connected, flank = context
+    capture = board.is_capture(move)
+    if kind == chess.PAWN:
+        doubled, isolated = _pawn_structure(after.pawns & after.occupied_co[me])
+        # Recaptures may be necessary; use a softer preference, never a veto.
+        scale = 0.5 if capture else 1.0
+        units -= scale * (0.55 * (doubled - structure[0]) + 0.3 * (isolated - structure[1]))
+        from_file, to_file = chess.square_file(move.from_square), chess.square_file(move.to_square)
+        if flank is not None and from_file in flank:
+            rank = chess.square_rank(move.to_square)
+            relative = rank if me == chess.WHITE else 7 - rank
+            if to_file != from_file:
+                units -= 0.35                       # opening a file in the king's pawn cover
+            elif relative >= 3:
+                units -= 0.65                       # f4/g4/h4 or a5/b5/c5 in front of own castled king
+            elif relative == 2:
+                units -= 0.1                        # a single step can give the king an escape square
+            if flank == (5, 6, 7) and from_file == 5:
+                units -= 0.55                       # the f-pawn also opens the diagonal towards the king
+    if kind in MINORS or kind == chess.PAWN:
+        # Compare real attacks after the move, including opened bishop diagonals.
+        before_control = chess.popcount(board.attacks_mask(move.from_square) & CENTRE)
+        after_control = chess.popcount(after.attacks_mask(move.to_square) & CENTRE)
+        units += 0.18 * (after_control - before_control)
+        if kind == chess.PAWN:
+            units += 0.25 * (bool(chess.BB_SQUARES[move.to_square] & CENTRE) -
+                             bool(chess.BB_SQUARES[move.from_square] & CENTRE))
+    if kind != chess.PAWN and kind != chess.BISHOP:
+        behind = move.to_square - 8 if me == chess.WHITE else move.to_square + 8
+        if 0 <= behind < 64 and chess.square_file(move.to_square) in (3, 4):
+            pawn = board.piece_at(behind)
+            rank = chess.square_rank(behind) if me == chess.WHITE else 7 - chess.square_rank(behind)
+            if pawn is not None and pawn.color == me and pawn.piece_type == chess.PAWN and rank in (1, 2):
+                units -= 0.7                       # knights/queen/rooks can block d/e pawns too
+    if kind == chess.BISHOP and flank is not None:
+        home = (chess.G2 if me else chess.G7) if flank == (5, 6, 7) else (chess.B2 if me else chess.B7)
+        if move.from_square == home:
+            target = board.piece_at(move.to_square)
+            if capture and target is not None and target.piece_type in MINORS and board.is_attacked_by(not me, move.to_square):
+                units -= 0.65                      # avoid exchanging the bishop protecting the castled king
+            elif not capture:
+                units -= 0.25                      # retain its king-cover diagonal where practical
+    if not connected and _connected_rooks(after, me):
+        units += 0.55                              # finishing development, including moving the queen
+    return units
+
+
+def _undeveloped_minors(board, colour):
+    offset = 0 if colour else 56
+    knights = chess.BB_SQUARES[offset + 1] | chess.BB_SQUARES[offset + 6]
+    bishops = chess.BB_SQUARES[offset + 2] | chess.BB_SQUARES[offset + 5]
+    return ((board.knights & knights) | (board.bishops & bishops)) & board.occupied_co[colour]
+
+
+def _castle_obstacles(board, colour):
+    """Pieces still in a retained castling route; minimum over the available sides."""
+    home = 0 if colour else 56
+    if board.king(colour) != home + 4:
+        return None
+    routes = []
+    rights = board.clean_castling_rights() & board.occupied_co[colour]
+    for rook, files in ((home + 7, (5, 6)), (home, (1, 2, 3))):
+        if rights & chess.BB_SQUARES[rook]:
+            routes.append(sum(bool(board.occupied & chess.BB_SQUARES[home + f]) for f in files))
+    return min(routes) if routes else None
+
+
+def _bishop_activity(board, colour):
+    """Reachable squares outside our pieces and the enemy pawn attacks."""
+    enemy_pawns = board.pawns & board.occupied_co[not colour]
+    pawn_attacks = 0
+    for square in chess.scan_forward(enemy_pawns):
+        pawn_attacks |= chess.BB_PAWN_ATTACKS[not colour][square]
+    return sum(chess.popcount(board.attacks_mask(square) &
+                             ~board.occupied_co[colour] & ~pawn_attacks)
+               for square in board.pieces(chess.BISHOP, colour))
+
+
+def _context_v3(board):
+    me = board.turn
+    pawns = board.pawns & board.occupied_co[me]
+    open_centre = not (pawns & chess.BB_FILE_D) or not (pawns & chess.BB_FILE_E)
+    return (chess.popcount(_undeveloped_minors(board, me)),
+            _castle_obstacles(board, me), _bishop_activity(board, me), open_centre)
+
+
+def _principles_v3(board, after, move, ply, context, v3_context, scale):
+    """Development/king readiness, with forced retreats left to the calculation.
+
+    V2 is the frozen base. Only the additional V3 terms are scaled; scale=0 is
+    an exact ablation. These preferences never select a book move or veto a move.
+    """
+    units = _principles_v2(board, after, move, ply, context)
+    if not scale:
+        return units
+    piece = board.piece_at(move.from_square)
+    if piece is None:
+        return units
+    me, kind = piece.color, piece.piece_type
+    undeveloped, obstacles, activity, open_centre = v3_context
+    if board.is_castling(move):
+        return units + scale * (0.6 + (0.4 if ply >= 12 else 0.0) + (0.3 if open_centre else 0.0))
+    if kind == chess.KING:
+        return units
+    capture = board.is_capture(move)
+    starts = _undeveloped_minors(board, me)
+    developing = kind in MINORS and bool(starts & chess.BB_SQUARES[move.from_square])
+    extra = (0.55 if capture else 0.2) if developing else 0.0
+    if kind in MINORS or kind == chess.PAWN:
+        extra += 0.08 * max(-4, min(4, _bishop_activity(after, me) - activity))
+    if obstacles is not None:
+        remaining = _castle_obstacles(after, me)
+        if remaining is not None and remaining < obstacles:
+            extra += 0.45 * (obstacles - remaining)
+    # Do not add tempo penalties to a capture, check, check evasion or escape
+    # from attack. Na5 in the Two Knights and a threatened bishop's retreat
+    # cannot be judged merely by where the piece lands.
+    forced = capture or after.is_check() or board.is_check() or board.is_attacked_by(not me, move.from_square)
+    if not forced:
+        if kind in MINORS and not developing:
+            if undeveloped:
+                extra -= 0.25 * min(2, undeveloped)
+            elif any(board.pieces(t, me) & chess.SquareSet(_home(me)) for t in MINORS):
+                extra += 0.4       # a developed bishop on b1 is not an untouched bishop on c1
+            if chess.square_file(move.to_square) in (0, 7):
+                majors = (after.rooks | after.queens) & after.occupied_co[not me]
+                if not after.attacks_mask(move.to_square) & majors:
+                    extra -= 0.45
+        elif kind == chess.QUEEN:
+            if undeveloped:
+                extra -= 0.25 * undeveloped
+            elif ply >= 16:
+                extra += 0.3       # once development is complete, the queen may join the rooks
+        elif kind == chess.ROOK and obstacles is not None:
+            extra -= 0.45 if undeveloped else 0.15
+        elif kind == chess.PAWN:
+            file = chess.square_file(move.from_square)
+            rank = chess.square_rank(move.to_square) if me else 7 - chess.square_rank(move.to_square)
+            if undeveloped and file in (0, 1, 6, 7) and rank >= 3:
+                extra -= 0.25 * min(2, undeveloped)
+            if obstacles is not None:
+                if file == 5:
+                    extra -= 0.65
+                elif file == 6 and rank >= 3:
+                    extra -= 0.55   # g3/g6 preparing a fianchetto remains available
+    return units + scale * extra
+
+
+def principle_scores(board, moves, ply, version=2, scale=1.0, v4_scale=1.0, plan_scale=1.0):
+    """One shared copy/context for all legal candidates; the caller's board is untouched."""
+    if version == 1:
+        return [principles_v1(board, move, ply) for move in moves]
+    if version not in (2, 3, 4):
+        raise ValueError("opening principles version must be 1, 2, 3 or 4")
+    context, after = _context(board), board.copy(stack=False)
+    v3_context = _context_v3(board) if version >= 3 else None
+    if version == 4 and v4_scale:
+        import abertura_v4
+        v4_context = abertura_v4.context(board, ply)
+    scores = []
+    for move in moves:
+        after.push(move)
+        units = (_principles_v2(board, after, move, ply, context) if version == 2 else
+                 _principles_v3(board, after, move, ply, context, v3_context, scale))
+        if version == 4 and v4_scale:
+            units += v4_scale * abertura_v4.extra(board, after, move, ply, v4_context, plan_scale)
+        scores.append(units)
+        after.pop()
+    return scores
+
+
+def principles(board, move, ply, version=2, scale=1.0, v4_scale=1.0, plan_scale=1.0):
+    """Classic opening preferences, with frozen V1 available for paired comparisons."""
+    return principle_scores(board, [move], ply, version, scale, v4_scale, plan_scale)[0]
+
+
+def weight_at(ply, plies, fade="legacy"):
+    """Full weight for the first two thirds of the opening, then fading to nothing at `plies`."""
+    if ply >= plies:
+        return 0.0
+    if fade == "linear":
+        return max(0.0, (plies - ply) / max(1, plies))
+    if fade == "hold":
+        return 1.0
+    if fade != "legacy":
+        raise ValueError("opening_fade must be legacy, linear or hold")
+    full = plies * 2 // 3
+    return 1.0 if ply < full else (plies - ply) / max(1, plies - full)
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/uci.py
+
+````text
+"""Claudio as a UCI engine: any arbiter (cutechess, python-chess, a duel script)
+can play it in its own process and time it from outside.
+
+    python claudio/uci.py [--checkpoint claudio/claudio.pt]
+"""
+import argparse
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import paths  # noqa: E402,F401  (frozen base code)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--checkpoint", type=Path, default=Path(__file__).resolve().parent / "claudio.pt")
+    args = parser.parse_args()
+    import chess
+    import numpy as np
+    import torch
+    torch.set_num_threads(1)
+    from claudio_agent import Claudio, ClaudioConfig
+    from claudio_load import load_claudio
+
+    from claudio_load import load_players, make_player
+    loaded = load_players(args.checkpoint)                 # one checkpoint, or "white.pt+black.pt"
+    player = make_player(loaded, np.random.default_rng())
+    board, pending = chess.Board(), ["startpos"]
+    for line in sys.stdin:
+        words = line.split()
+        if not words:
+            continue
+        command = words[0]
+        if command == "uci":
+            print("id name Claudio", flush=True)
+            print("id author Claude (Anthropic) for Martim", flush=True)
+            print("uciok", flush=True)
+        elif command == "isready":
+            print("readyok", flush=True)
+        elif command == "ucinewgame":
+            player.reset()
+            board = chess.Board()
+        elif command == "position":
+            pending = words[1:]         # read after "go": the arbiter's clock counts all the work
+        elif command == "go":
+            board = _position(pending, board)
+            move = player.choose(board)
+            print(f"bestmove {move.uci()}", flush=True)
+        elif command == "quit":
+            break
+
+
+def _position(words, previous):
+    """The position after "go"; only the new moves are played when it continues the previous one."""
+    import chess
+    if words[0] == "startpos":
+        root, rest = chess.STARTING_FEN, words[1:]
+    else:
+        end = words.index("moves") if "moves" in words else len(words)
+        root, rest = " ".join(words[1:end]), words[end:]
+    moves = rest[1:] if rest and rest[0] == "moves" else []
+    done = [m.uci() for m in previous.move_stack]
+    if previous.root().fen() == chess.Board(root).fen() and moves[:len(done)] == done:
+        board = previous
+    else:
+        board, done = chess.Board(root), []
+    for uci in moves[len(done):]:
+        board.push_uci(uci)
+    return board
+
+
+if __name__ == "__main__":
+    main()
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/base/tonkai/encoding.py
+
+````text
+"""Board -> flat binary vector, always from TonkAI's own point of view.
+
+Layout (782 floats):
+
+    [  0 .. 767]  12 piece planes x 64 squares
+                  planes 0-5  : SELF   pawn knight bishop rook queen king
+                  planes 6-11 : OPPONENT, same order
+    [768]         1 if it is SELF to move
+    [769 .. 772]  castling rights: self K, self Q, opp K, opp Q
+    [773 .. 780]  en-passant file, one-hot (all zero when there is none)
+    [781]         halfmove clock / 100
+
+When TonkAI plays black the board is flipped vertically, so "my back rank" is
+always squares 0-7. TonkAI therefore only ever learns one perspective; it does
+not know it is playing white or black.
+
+Indices 0..780 are binary, which is why a position packs into 99 bytes.
+"""
+
+from __future__ import annotations
+
+import chess
+import numpy as np
+
+N_PLANES = 12
+N_SQUARES = 64
+PLANE_SIZE = N_PLANES * N_SQUARES          # 768
+EXTRA_SIZE = 14
+INPUT_SIZE = PLANE_SIZE + EXTRA_SIZE       # 782
+
+OFF_STM = PLANE_SIZE
+OFF_CASTLE = PLANE_SIZE + 1
+OFF_EP = PLANE_SIZE + 5
+OFF_HALFMOVE = PLANE_SIZE + 13
+
+# everything except the halfmove clock is a single bit
+N_BINARY = INPUT_SIZE - 1                  # 781
+PACK_BITS_BYTES = (N_BINARY + 7) // 8      # 98
+PACKED_SIZE = PACK_BITS_BYTES + 1          # 99
+
+PIECE_ORDER = (chess.PAWN, chess.KNIGHT, chess.BISHOP,
+               chess.ROOK, chess.QUEEN, chess.KING)
+PIECE_NAMES = ("Pawn", "Knight", "Bishop", "Rook", "Queen", "King")
+KING_PLANE_SELF = 5
+KING_PLANE_OPP = 11
+
+# new[i] = old[i ^ 56]  -> vertical flip
+_FLIP = np.array([sq ^ 56 for sq in range(64)], dtype=np.intp)
+
+_mask_scratch = np.empty(N_PLANES, dtype=np.uint64)
+
+
+def encode_into(board: chess.Board, self_color: bool, out: np.ndarray) -> None:
+    """Write one position into `out` (float32, length INPUT_SIZE)."""
+    out[:] = 0.0
+
+    m = _mask_scratch
+    i = 0
+    for color in (self_color, not self_color):
+        for pt in PIECE_ORDER:
+            m[i] = board.pieces_mask(pt, color)
+            i += 1
+
+    bits = np.unpackbits(m.view(np.uint8), bitorder="little")
+    if self_color == chess.BLACK:
+        bits = bits.reshape(N_PLANES, N_SQUARES)[:, _FLIP].reshape(PLANE_SIZE)
+    out[:PLANE_SIZE] = bits
+
+    out[OFF_STM] = 1.0 if board.turn == self_color else 0.0
+    opp = not self_color
+    out[OFF_CASTLE + 0] = float(board.has_kingside_castling_rights(self_color))
+    out[OFF_CASTLE + 1] = float(board.has_queenside_castling_rights(self_color))
+    out[OFF_CASTLE + 2] = float(board.has_kingside_castling_rights(opp))
+    out[OFF_CASTLE + 3] = float(board.has_queenside_castling_rights(opp))
+
+    if board.ep_square is not None:
+        out[OFF_EP + chess.square_file(board.ep_square)] = 1.0
+
+    out[OFF_HALFMOVE] = min(board.halfmove_clock, 100) / 100.0
+
+
+def encode(board: chess.Board, self_color: bool) -> np.ndarray:
+    out = np.empty(INPUT_SIZE, dtype=np.float32)
+    encode_into(board, self_color, out)
+    return out
+
+
+def encode_after_moves(board: chess.Board, moves, self_color: bool,
+                       out: np.ndarray | None = None) -> np.ndarray:
+    """Encode the position resulting from each move, into ONE (N, 782) array.
+
+    Keep python-chess responsible for each resulting position, then expand
+    all piece bitboards together for the network's single forward pass.
+    """
+    n = len(moves)
+    if out is None or out.shape[0] < n:
+        out = np.empty((max(n, 1), INPUT_SIZE), dtype=np.float32)
+    result = out[:n]
+    if n == 0:
+        return result
+    result[:] = 0.0
+    masks = np.empty((n, N_PLANES), dtype=np.uint64)
+    opp = not self_color
+    for i, mv in enumerate(moves):
+        board.push(mv)
+        try:
+            j = 0
+            for color in (self_color, opp):
+                for pt in PIECE_ORDER:
+                    masks[i, j] = board.pieces_mask(pt, color)
+                    j += 1
+            result[i, OFF_STM] = 1.0 if board.turn == self_color else 0.0
+            result[i, OFF_CASTLE] = float(board.has_kingside_castling_rights(self_color))
+            result[i, OFF_CASTLE + 1] = float(board.has_queenside_castling_rights(self_color))
+            result[i, OFF_CASTLE + 2] = float(board.has_kingside_castling_rights(opp))
+            result[i, OFF_CASTLE + 3] = float(board.has_queenside_castling_rights(opp))
+            if board.ep_square is not None:
+                result[i, OFF_EP + chess.square_file(board.ep_square)] = 1.0
+            # Preserve encode_into's Python float division before assignment.
+            result[i, OFF_HALFMOVE] = min(board.halfmove_clock, 100) / 100.0
+        finally:
+            board.pop()
+    bits = np.unpackbits(masks.view(np.uint8), axis=1, bitorder="little")
+    if self_color == chess.BLACK:
+        # Reverse ranks inside every plane, matching the square ^ 56 mapping.
+        bits = bits.reshape(n, N_PLANES, 8, 8)[:, :, ::-1, :].reshape(n, PLANE_SIZE)
+    result[:, :PLANE_SIZE] = bits
+    return result
+
+
+# ------------------------------------------------------------------ packing
+
+def pack(vec: np.ndarray) -> np.ndarray:
+    """782 floats -> 99 bytes."""
+    bits = vec[:N_BINARY].astype(np.uint8)
+    packed = np.empty(PACKED_SIZE, dtype=np.uint8)
+    packed[:PACK_BITS_BYTES] = np.packbits(bits, bitorder="little")
+    packed[PACK_BITS_BYTES] = int(round(float(vec[OFF_HALFMOVE]) * 100.0))
+    return packed
+
+
+def pack_into(vec: np.ndarray, out: np.ndarray) -> None:
+    out[:PACK_BITS_BYTES] = np.packbits(vec[:N_BINARY].astype(np.uint8),
+                                        bitorder="little")
+    out[PACK_BITS_BYTES] = int(round(float(vec[OFF_HALFMOVE]) * 100.0))
+
+
+def pack_many(vectors: np.ndarray) -> np.ndarray:
+    """Vectorized pack_into, including its float64 rounding of the clock."""
+    out = np.empty((len(vectors), PACKED_SIZE), dtype=np.uint8)
+    out[:, :PACK_BITS_BYTES] = np.packbits(
+        vectors[:, :N_BINARY].astype(np.uint8), axis=1, bitorder="little")
+    out[:, PACK_BITS_BYTES] = np.rint(
+        vectors[:, OFF_HALFMOVE].astype(np.float64) * 100.0).astype(np.uint8)
+    return out
+
+
+def unpack_many(packed: np.ndarray) -> np.ndarray:
+    """(N, 99) bytes -> (N, 782) float32."""
+    packed = np.atleast_2d(packed)
+    bits = np.unpackbits(packed[:, :PACK_BITS_BYTES], axis=1, bitorder="little")
+    out = np.empty((packed.shape[0], INPUT_SIZE), dtype=np.float32)
+    out[:, :N_BINARY] = bits[:, :N_BINARY]
+    out[:, OFF_HALFMOVE] = packed[:, PACK_BITS_BYTES].astype(np.float32) / 100.0
+    return out
+
+
+# --------------------------------------------------------- plane <-> square
+
+def plane_square_to_index(plane: int, square: int) -> int:
+    return plane * N_SQUARES + square
+
+
+def describe_plane(plane: int) -> tuple[str, str]:
+    """(side, piece name) for a plane index."""
+    side = "self" if plane < 6 else "opponent"
+    return side, PIECE_NAMES[plane % 6]
+
+
+def oriented_square(square: int, self_color: bool) -> int:
+    """Real board square -> the square index used inside the encoding."""
+    return square if self_color == chess.WHITE else square ^ 56
+
+
+def real_square(oriented: int, self_color: bool) -> int:
+    return oriented if self_color == chess.WHITE else oriented ^ 56
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-leto/python/claudio/base/tonkai/cognitive_memory.py
+
+````text
+"""Bounded episodic memory, empirical error calibration and learned short skills.
+
+All evidence comes from completed, real trajectories before learning on them.
+Search rollouts never masquerade as historical outcomes or confidence evidence.
+"""
+from copy import deepcopy
+
+import chess
+import numpy as np
+
+
+def normalized(vector):
+    vector = np.asarray(vector, dtype=np.float32)
+    return vector / np.maximum(np.linalg.norm(vector, axis=-1, keepdims=True), 1e-8)
+
+
+def structural_keys(encoded, latent):
+    """Pooled occupancy + exact side/castling/clock features + fixed latent.
+
+    The encoder supplying `latent` is frozen for the entire V3 lifetime, so old
+    memories and new queries remain in the same coordinate system.
+    """
+    x = np.asarray(encoded)
+    planes = x[:, :768].reshape(-1, 12, 4, 2, 4, 2).mean(axis=(3, 5)).reshape(len(x), -1)
+    return normalized(np.concatenate((normalized(planes), x[:, 768:] * 0.5,
+                                     normalized(latent) * 0.5), axis=-1))
+
+
+def perspective_action(uci, colour):
+    move = chess.Move.from_uci(uci)
+    if colour == chess.BLACK:
+        move = chess.Move(chess.square_mirror(move.from_square), chess.square_mirror(move.to_square), move.promotion)
+    return move.uci()
+
+
+class ErrorCalibration:
+    """Held-out sequential residuals of a discounted value (not a win probability)."""
+    def __init__(self, bins=12):
+        self.count = np.zeros(bins, dtype=np.int64)
+        self.square_error = np.zeros(bins, dtype=np.float64)
+        self.absolute_error = np.zeros(bins, dtype=np.float64)
+
+    def _bin(self, values):
+        return np.minimum((np.clip(values, 0, 1) * len(self.count)).astype(int), len(self.count) - 1)
+
+    def observe(self, predictions, outcomes):
+        p, y = np.asarray(predictions), np.asarray(outcomes)
+        if p.shape != y.shape or not np.isfinite(p).all() or not np.isfinite(y).all():
+            raise ValueError("Calibration needs paired finite predictions and outcomes")
+        bins = self._bin(p)
+        np.add.at(self.count, bins, 1)
+        np.add.at(self.square_error, bins, (p - y) ** 2)
+        np.add.at(self.absolute_error, bins, np.abs(p - y))
+
+    def uncertainty(self, values, disagreement):
+        indices = self._bin(np.asarray(values))
+        # Conservative prior decays with evidence; agreement alone is insufficient.
+        residual = np.sqrt((self.square_error[indices] + 0.25) / (self.count[indices] + 1))
+        return np.maximum(np.asarray(disagreement), residual).astype(np.float32)
+
+    def state_dict(self):
+        return {name: getattr(self, name).copy() for name in ("count", "square_error", "absolute_error")}
+
+    def load_state_dict(self, state):
+        for name, value in state.items():
+            setattr(self, name, np.array(value, copy=True))
+
+
+class ExperienceMemory:
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.entries = []
+        self.episodes = []
+        self.next_id = 0
+        self._keys = None
+        self._retention = None
+
+    def _matrix(self):
+        if self._keys is None and self.entries:
+            self._keys = np.stack([entry["key"] for entry in self.entries])
+            # Rebuilt together with the keys: entries are replaced, never edited in
+            # place, except trust (audits), which is read live below.
+            self._turns = np.array([entry.get("own_turn") is not None for entry in self.entries]), \
+                np.array([bool(entry.get("own_turn")) for entry in self.entries])
+        return self._keys
+
+    def query(self, keys, own_turn=None):
+        keys = np.atleast_2d(keys)
+        result = {name: np.zeros(len(keys), dtype=np.float32) for name in
+                  ("value", "support", "similarity", "variance", "trust", "information")}
+        result["ids"] = [[] for _ in keys]
+        if not self.entries:
+            result["information"].fill(1.0)
+            return result
+        similarities = keys @ self._matrix().T
+        if own_turn is not None:
+            known, turns = self._turns
+            similarities[:, known & (turns != bool(own_turn))] = -1
+        # One call for every row; row-wise it is the same sort as np.argsort(values).
+        orders = np.argsort(similarities, axis=1)[:, -self.cfg.memory_neighbors:][:, ::-1]
+        for row, values in enumerate(similarities):
+            best = orders[row]
+            best = best[values[best] >= self.cfg.memory_similarity]
+            if not len(best):
+                result["information"][row] = 1
+                continue
+            entries = [self.entries[i] for i in best]
+            weights = np.array([max(0.01, values[i] - self.cfg.memory_similarity + .01)
+                                * entry["trust"] for i, entry in zip(best, entries)])
+            targets = np.array([entry["target"] for entry in entries])
+            # np.average performs these same reductions for each statistic.
+            # Reuse the denominator without changing dtype or summation order.
+            dtype = np.result_type(targets.dtype, weights.dtype)
+            total = weights.sum(dtype=dtype)
+            if total == 0:
+                raise ZeroDivisionError("Weights sum to zero, can't be normalized")
+            mean = float(np.multiply(targets, weights, dtype=dtype).sum() / total)
+            variance = float(np.multiply((targets - mean) ** 2, weights, dtype=dtype).sum() / total)
+            # Repeated examples from one game do not pretend to be independent evidence.
+            support = len({entry["game"] for entry in entries})
+            result["value"][row], result["variance"][row] = mean, variance
+            result["support"][row], result["similarity"][row] = support, float(values[best[0]])
+            trust = np.array([entry["trust"] for entry in entries])
+            trust_dtype = np.result_type(trust.dtype, weights.dtype)
+            trust_total = total if trust_dtype == dtype else weights.sum(dtype=trust_dtype)
+            result["trust"][row] = float(np.multiply(trust, weights, dtype=trust_dtype).sum() / trust_total)
+            # Local expected evidence gain proxy: shrinks with independent experience
+            # and conflicting outcomes, rather than rewarding raw prediction noise.
+            result["information"][row] = 1 / ((support + 1) * (1 + 8 * variance))
+            result["ids"][row] = [entry["id"] for entry in entries]
+        return result
+
+    def add(self, key, target, prediction, game, fen, actions=(), colour=True, own_turn=None):
+        nearest = self.query(np.asarray(key)[None], own_turn=own_turn)
+        rarity = 1 - float(nearest["similarity"][0])
+        priority = min(2.0, abs(float(target) - float(prediction)) + rarity + .05)
+        entry = {"id": self.next_id, "key": np.array(key, copy=True), "target": float(target),
+                 "prediction": float(prediction), "game": int(game), "fen": fen, "actions": tuple(actions),
+                 "colour": bool(colour), "own_turn": own_turn, "priority": priority, "trust": 1.0, "audits": 0}
+        self.next_id += 1
+        if len(self.entries) >= self.cfg.archive_capacity:
+            # Protect high-error/rare memories; discount redundant neighbours.
+            # Rejected candidates do not change the archive. Its pairwise
+            # redundancy and priorities remain exactly the same until insertion.
+            if self._retention is None:
+                matrix = self._matrix()
+                duplicate = matrix @ matrix.T
+                np.fill_diagonal(duplicate, -1)
+                self._retention = np.array([e["priority"] for e in self.entries]) + .25 * (1 - duplicate.max(axis=1))
+            retention = self._retention
+            index = int(retention.argmin())
+            if priority < retention[index]:
+                return None
+            self.entries.pop(index)
+        self.entries.append(entry)
+        self._keys = None
+        self._retention = None
+        return entry["id"]
+
+    def protect_episode(self, episode, priority, game):
+        self.episodes.append({"episode": deepcopy(episode), "priority": float(priority), "game": int(game)})
+        self.episodes.sort(key=lambda entry: entry["priority"], reverse=True)
+        del self.episodes[self.cfg.protected_episodes:]
+
+    def audit(self, ids, agreement, *, observed=False):
+        # Bootstrap-based perturbation tests are weaker evidence than actual endings.
+        weight = .2 if observed else .05
+        wanted = set(ids)
+        for entry in self.entries:
+            if entry["id"] in wanted:
+                entry["trust"] = float(np.clip((1 - weight) * entry["trust"] + weight * agreement, .1, 1))
+                entry["audits"] += 1
+
+    def state_dict(self, *, include_episodes=True, copy=True):
+        state = {"entries": self.entries, "episodes": self.episodes if include_episodes else [],
+                 "next_id": self.next_id}
+        return deepcopy(state) if copy else state
+
+    def load_state_dict(self, state):
+        self.entries, self.episodes = deepcopy(state["entries"]), deepcopy(state["episodes"])
+        self.next_id, self._keys = state["next_id"], None
+        self._retention = None
+
+
+class SkillLibrary:
+    """Mine short legal continuations; support and real returns decide reuse.
+
+    These are episodic macro-actions, not named chess concepts or DIAYN skills.
+    Any unexpected reply, illegal continuation or inferior value cancels a plan.
+    """
+    def __init__(self, cfg):
+        self.cfg, self.skills = cfg, []
+
+    def learn(self, key, actions, colour, target, baseline, game):
+        actions = tuple(perspective_action(action, colour) for action in actions[:self.cfg.skill_horizon])
+        if len(actions) < 3 or target <= baseline:
+            return
+        for skill in self.skills:
+            if skill["actions"] == actions and float(skill["key"] @ key) >= self.cfg.memory_similarity:
+                if game in skill["games"]:
+                    return
+                skill["games"].add(game)
+                n = len(skill["games"])
+                skill["value"] += (target - skill["value"]) / n
+                return
+        self.skills.append({"key": np.array(key, copy=True), "actions": actions,
+                            "value": float(target), "games": {int(game)}, "trust": 1.0})
+        if len(self.skills) > self.cfg.skill_capacity:
+            # Rare one-off motifs give way to repeatable, useful sequences.
+            worst = min(range(len(self.skills)), key=lambda i: (len(self.skills[i]["games"]), self.skills[i]["value"]))
+            self.skills.pop(worst)
+
+    def retrieve(self, key, board, colour, fast=None):
+        candidates = []
+        for skill in self.skills:
+            similarity = float(skill["key"] @ key)
+            if (len(skill["games"]) < self.cfg.skill_min_support or similarity < self.cfg.memory_similarity
+                    or skill["trust"] < .5):
+                continue
+            actions = tuple(perspective_action(action, colour) for action in skill["actions"])
+            if fast is not None:
+                from .fast_rules import code, NONE
+                replay = fast.copy()
+                for action in actions:
+                    move = code(chess.Move.from_uci(action))
+                    if move not in replay.legal_moves() or replay.terminal() != NONE:
+                        break
+                    replay.push(move)
+                else:
+                    candidates.append((similarity * skill["value"] * skill["trust"], actions))
+            else:
+                replay = board.copy(stack=True)
+                for action in actions:
+                    move = chess.Move.from_uci(action)
+                    if move not in replay.legal_moves or replay.is_game_over(claim_draw=True):
+                        break
+                    replay.push(move)
+                else:
+                    candidates.append((similarity * skill["value"] * skill["trust"], actions))
+        return max(candidates, key=lambda item: item[0])[1] if candidates else ()
+
+    def audit(self, key, agreement, *, observed=False):
+        weight = .2 if observed else .05
+        for skill in self.skills:
+            if float(skill["key"] @ key) >= self.cfg.memory_similarity:
+                skill["trust"] = float(np.clip((1 - weight) * skill["trust"] + weight * agreement, .1, 1))
+
+    def state_dict(self, *, copy=True):
+        return deepcopy(self.skills) if copy else self.skills
+
+    def load_state_dict(self, state):
+        self.skills = deepcopy(state)
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-nezha/web/personalities/nezha.json
+
+````text
+{
+  "version": 1,
+  "id": "nezha",
+  "name": "Nezha",
+  "axes": {
+    "king_safety_bias": 0.85,
+    "eval_optimism": 0.4,
+    "prophylaxis_vs_initiative": 1,
+    "tension_preference": 0.65,
+    "pawn_style": 0.75,
+    "gru_momentum_trigger": 0.8,
+    "resilience_and_contempt": 0.55
+  },
+  "safety": {
+    "max_utility_loss": 0.02,
+    "max_bonus": 0.025,
+    "max_king_safety_drop": 0.05
+  }
+}
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-nezha/web/src/tonkai/personality.ts
+
+````text
+export const PERSONALITY_AXES = ['king_safety_bias', 'eval_optimism', 'prophylaxis_vs_initiative',
+  'tension_preference', 'pawn_style', 'gru_momentum_trigger', 'resilience_and_contempt'] as const;
+export type PersonalityAxis = typeof PERSONALITY_AXES[number];
+export type PersonalitySignals = Record<PersonalityAxis, number>;
+export interface PersonalityProfile {
+  version: 1; id: string; name: string; axes: PersonalitySignals;
+  safety: { max_utility_loss: number; max_bonus: number; max_king_safety_drop: number };
+}
+export interface PersonalityCandidate {
+  index: number; utility: number; verified: boolean; exact: boolean;
+  ownSafetyDrop: number; signals: PersonalitySignals;
+}
+export interface PersonalityDecision {
+  profile: string; baseline: string; selected: string; changed: boolean; reason: string;
+  baselineUtility: number; selectedUtility: number; utilityLoss: number; bonus: number;
+  eligible: number; signals?: PersonalitySignals;
+}
+const finite = (value: unknown, min: number, max: number) =>
+  typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+
+/** Reject malformed profiles instead of quietly changing the engine's safeguards. */
+export function parsePersonality(value: unknown): PersonalityProfile {
+  if (!value || typeof value !== 'object') throw new Error('Invalid personality profile');
+  const p = value as PersonalityProfile;
+  if (p.version !== 1 || !/^[a-z][a-z0-9-]{0,31}$/.test(p.id) || typeof p.name !== 'string' || !p.name.trim()
+    || !p.axes || PERSONALITY_AXES.some(axis => !finite(p.axes[axis], -1, 1))
+    || !p.safety || !finite(p.safety.max_utility_loss, 0, .05) || !finite(p.safety.max_bonus, 0, .05)
+    || !finite(p.safety.max_king_safety_drop, 0, .1)) throw new Error('Invalid personality profile');
+  return structuredClone(p);
+}
+export function personalityBonus(profile: PersonalityProfile, signals: PersonalitySignals) {
+  const total = PERSONALITY_AXES.reduce((sum, axis) => sum + Math.abs(profile.axes[axis]), 0);
+  if (!total) return 0;
+  const weighted = PERSONALITY_AXES.reduce((sum, axis) => {
+    const value = signals[axis];
+    if (!Number.isFinite(value)) throw new Error('Non-finite personality signal');
+    return sum + profile.axes[axis] * Math.max(-1, Math.min(1, value));
+  }, 0);
+  return profile.safety.max_bonus * weighted / total;
+}
+/** Utility is G4's own score, never centipawns or an invented Elo conversion. */
+export function personalityAlternatives(profile: PersonalityProfile, baseline: PersonalityCandidate,
+  candidates: PersonalityCandidate[]) {
+  if (baseline.exact || !baseline.verified || !Number.isFinite(baseline.utility)) return [];
+  return candidates.filter(c => c.index !== baseline.index && c.verified && !c.exact
+    && Number.isFinite(c.utility) && c.utility <= baseline.utility + 1e-9
+    && baseline.utility - c.utility <= profile.safety.max_utility_loss
+    && Number.isFinite(c.ownSafetyDrop) && c.ownSafetyDrop <= profile.safety.max_king_safety_drop)
+    .map(c => ({ ...c, bonus: personalityBonus(profile, c.signals) }))
+    .filter(c => c.utility + c.bonus > baseline.utility + personalityBonus(profile, baseline.signals) + 1e-12)
+    .sort((a, b) => b.utility + b.bonus - a.utility - a.bonus || a.index - b.index);
+}
+
+````
+
+# SOURCE FILE: tonkai/releases/g4-nezha/web/src/tonkai/g16v2.ts
+
+````text
+import { Chess, type Color, type Move } from 'chess.js';
+import { TemporalNetwork, encodedFen } from './temporal';
+import type { Manifest } from './network';
+import type { PieceValuer } from './pieceSafety';
+import { principleScores, repertoireKey, weightAt, type OpeningRepertoire } from './abertura';
+import { LetoPosition } from './letoPosition';
+import { hasRunners, pawnBalance } from './pawnomics';
+import { pawnBalanceV3 } from './pawnomicsV3';
+import { provenPawnMoves } from './pawnProofs';
+import { parsePersonality, personalityAlternatives, type PersonalityProfile, type PersonalitySignals,
+  type PersonalityCandidate, type PersonalityDecision } from './personality';
+
+export interface G16Manifest extends Manifest {
+  personality?: PersonalityProfile;
+  model_name: string;
+  claudio_config: Record<string, number | string | boolean>;
+  options: { finish_pieces: number; finish_moves: number; finish_nodes: number; finish_planner?: boolean; learned_policy?: boolean; opening_book?: boolean; opening_fast?: boolean };
+  book: Record<string, Record<string, [number, number]>>;
+  native: { wasm_sha256: string; loader_sha256: string; loader?: string; wasm?: string };
+  piece_value_mode?: 'contextual';
+  opening_repertoire?: { file: string; version: number; positions: number; sha256: string };
+}
+export interface G16Rules { call(operation: string, args: unknown[]): unknown }
+export type LetoSearchLimits = { depth: number; nodes: number; exchangeNodes: number; replyTop: number;
+  tacticTop: number; rounds: number; scanDepth: number; mateNodes: number };
+type Plan = { moves: number; move: number; nodes: number; proven: number; aborted: boolean };
+type Tensor = { data: Float32Array; shape: number[] };
+const key = (fen: string) => fen.split(' ').slice(0, 4).join(' ');
+const index = (s: string) => (Number(s[1]) - 1) * 8 + s.charCodeAt(0) - 97;
+const codeOf = (m: Move) => index(m.from) | index(m.to) << 6 | (m.promotion ? ' pnbrqk'.indexOf(m.promotion) << 12 : 0);
+const uciOf = (code: number) => {
+  const square = (n: number) => String.fromCharCode(97 + (n & 7)) + (1 + (n >> 3));
+  return square(code & 63) + square(code >> 6 & 63) + ((code >> 12) ? ' pnbrqk'[code >> 12] : '');
+};
+const avg = (a: number[]) => a.reduce((s, v) => s + v, 0) / a.length;
+const softmax32 = (a: number[]) => { const maximum = Math.max(...a), e = a.map(v => Math.fround(Math.exp(v - maximum))), total = e.reduce((s, v) => s + v, 0); return e.map(v => Math.fround(v / total)); };
+const order = (a: number[]) => a.map((_, i) => i).sort((i, j) => a[j] - a[i] || j - i);
+
+/** Pinned native searches retain the checkpoint budgets; Pawnomics is versioned separately. */
+export class G16Network extends TemporalNetwork {
+  private rules: G16Rules;
+  private settings: Record<string, number | string | boolean>;
+  private gManifest: G16Manifest;
+  private weights: Map<string, Tensor>;
+  private counters = { decisions: 0, plannerHits: 0, policyReorders: 0, bookHits: 0, pawnProofHits: 0 };
+  private rootMaterial: number[] | null = null;
+  private spread: number;
+  private timedSpread: number | null = null;
+  private repertoire: OpeningRepertoire;
+  private personality?: PersonalityProfile;
+  private personalityTrace?: PersonalityDecision;
+  private momentumCache = new Map<string, number>();
+  constructor(manifest: G16Manifest, tensors: Map<string, Tensor>, rules: G16Rules, repertoire: OpeningRepertoire = {}) {
+    super(manifest, tensors); this.gManifest = manifest; this.settings = manifest.claudio_config;
+    this.repertoire = repertoire;
+    this.personality = manifest.personality ? parsePersonality(manifest.personality) : undefined;
+    if (this.settings.opening_book && !Object.keys(repertoire).length) throw new Error('Missing Leto opening repertoire');
+    this.weights = tensors; this.rules = rules; this.spread = Number(this.settings.value_spread_ref);
+    if (this.settings.quiesce_promotions || this.settings.quiesce_checks || this.n('check_extension')) {
+      this.call('options', Boolean(this.settings.quiesce_promotions), Boolean(this.settings.quiesce_checks), this.n('check_extension'));
+    }
+  }
+  private n(name: string) { return Number(this.settings[name]); }
+  private call<T>(name: string, ...args: unknown[]): T { return this.rules.call(name, args) as T; }
+  protected override linear(x: Float64Array, name: string, activation = false) {
+    return super.linear(x, name, activation).map(Math.fround);
+  }
+  private setup(board: Chess) {
+    this.rootMaterial = null;
+    const history = board.history({ verbose: true });
+    const root = history[0]?.before ?? board.fen({ forceEnpassantSquare: true });
+    this.call('init', root, history.map(codeOf));
+    const keys = [key(root), ...history.map(m => key(encodedFen(new Chess(m.after), m)))];
+    let since = 0;
+    history.forEach((m, i) => { if (m.isCapture() || m.isEnPassant() || m.piece === 'p') since = i + 1; });
+    return { keys, since };
+  }
+  private phaseValues(board: Chess) {
+    if (this.gManifest.piece_value_mode === 'contextual') return [0, ...Array.from({ length: 5 }, (_, i) => this.gManifest.kd_values![String(i + 1)])];
+    const pieces = board.board().flat().filter(Boolean).length;
+    const fields = board.fen().split(' '), plies = 2 * (Number(fields[5]) - 1) + Number(fields[1] === 'b');
+    const rows = String(this.settings.phase_values).split(';').map(row => [0, ...row.split(',').map(Number)]);
+    return rows.length === 3 ? rows[plies < this.n('phase_opening') ? 0 : pieces <= this.n('phase_ending') ? 2 : 1]
+      : [0, ...Array.from({ length: 5 }, (_, i) => this.gManifest.kd_values![String(i + 1)])];
+  }
+  override pieceValuer(board: Chess, self: Color, context?: Float64Array): PieceValuer {
+    if (this.gManifest.piece_value_mode === 'contextual') return super.pieceValuer(board, self, context);
+    const values = this.phaseValues(board);
+    return piece => (piece.color === self ? 1 : -1) * (piece.type === 'k' ? 10000 : values[' pnbrqk'.indexOf(piece.type)]);
+  }
+  terminal(board: Chess, self: Color): number | null {
+    this.setup(board);
+    const end = this.call<number>('terminal');
+    if (end === 0 || this.call<boolean>('dead', board.fen())) return .5;
+    return end < 0 ? null : (end === 1) === (self === 'w') ? 1 : 0;
+  }
+  diagnostics() { return { ...this.counters }; }
+  personalityDiagnostics() { return this.personalityTrace ? structuredClone(this.personalityTrace) : undefined; }
+  private momentum(board: Chess, self: Color, value: number) {
+    const history = board.history({ verbose: true });
+    if (history.length < 2) return 0;
+    const key = history[0].before + ':' + history.map(move => move.lan).join(',');
+    const cached = this.momentumCache.get(key);
+    if (cached !== undefined) return cached;
+    const previous = new Chess(history[0].before);
+    for (const move of history.slice(0, -2)) previous.move(move.san);
+    const change = value - this.value(this.observe(previous, self).context).mean;
+    if (this.momentumCache.size >= 8) this.momentumCache.delete(this.momentumCache.keys().next().value!);
+    this.momentumCache.set(key, change);
+    return change;
+  }
+  searchCalibration() { return this.timedSpread ?? this.spread; }
+  restoreSearchCalibration(spread: number) {
+    if (!Number.isFinite(spread) || spread <= 0) throw new Error('Invalid G4 calibration.');
+    this.spread = spread; this.timedSpread = null;
+  }
+  private contextualMaterial(board: Chess, self: Color, context: Float64Array) {
+    const value = this.pieceValuer(board, self, context), material = new Array<number>(128).fill(0);
+    for (const piece of board.board().flat()) if (piece && piece.type !== 'k') {
+      material[index(piece.square)] = (piece.color === self ? 1 : -1) * value(piece, piece.square);
+    }
+    for (const color of ['b','w'] as const) for (const type of ['n','b','r','q'] as const) for (let file=0;file<8;file++) {
+      const location = String.fromCharCode(97+file) + (color === 'w' ? '8' : '1');
+      material[64 + Number(color==='w')*32 + (' nbrq'.indexOf(type)-1)*8 + file]
+        = (color === self ? 1 : -1) * value({type,color}, location as Move['to']);
+    }
+    if (!material.every(Number.isFinite)) throw new Error('Non-finite contextual piece values');
+    this.rootMaterial = material;
+    this.call('context', material);
+  }
+  private candidatesV2(board: Chess, self: Color) {
+    const state = this.observe(board, self), codes = this.call<number[]>('legal');
+    const legal = new Map(board.moves({ verbose: true }).map(move => [codeOf(move), move]));
+    return codes.map(code => {
+      const move = legal.get(code); if (!move) throw new Error('G16 native/browser legal moves disagree');
+      board.move(move); const fen = encodedFen(board, move); board.undo();
+      const step = this.step(fen, self, state.memory), v = this.value(step.context);
+      return { code, move, uci: uciOf(code), san: move.san, fen, ...step, ...v, utility: v.mean,
+        logits: [Math.log(v.mean), -Infinity, Math.log(1-v.mean)], wdl: [v.mean, 0, 1-v.mean] };
+    });
+  }
+  override predict(board: Chess, self: Color) {
+    this.setup(board);
+    const choices = this.candidatesV2(board, self), p = softmax32(choices.map(c => c.predictLogit));
+    return choices.map((c, i) => ({ uci: c.uci, san: c.san, p: p[i] })).sort((a, b) => b.p - a.p);
+  }
+  private endingValue(ending: number, self: Color, draw = .5) {
+    return ending === 0 ? draw : ending === -1 ? null : (ending === 1) === (self === 'w') ? 10 : -10;
+  }
+  private ends(codes: number[], previous: string[], dead: boolean, self: Color, draw: number) {
+    const [ends, repeats] = this.call<[number[], boolean[]]>('endings', codes, previous, dead);
+    return ends.map((end, i) => this.endingValue(end, self, draw) ?? (repeats[i] ? draw : null));
+  }
+  private gain(move: Move, values: number[]) {
+    if (this.rootMaterial) {
+      const victim = move.isEnPassant() ? index(move.to) + (move.color === 'w' ? -8 : 8) : index(move.to);
+      const capture = move.captured || move.isEnPassant() ? this.rootMaterial[victim] : 0;
+      const promotion = move.promotion ? this.rootMaterial[64+Number(move.color==='w')*32+(' nbrq'.indexOf(move.promotion)-1)*8+(index(move.to)&7)] - this.rootMaterial[index(move.from)] : 0;
+      return capture + promotion;
+    }
+    return (move.isEnPassant() ? values[1] : move.captured ? values[' pnbrqk'.indexOf(move.captured)] : 0)
+      + (move.promotion ? values[' pnbrqk'.indexOf(move.promotion)] - values[1] : 0);
+  }
+  override rank(board: Chess, self: Color, limits?: LetoSearchLimits) {
+    if (!limits) { this.timedSpread = null; return this.rankPosition(board, self); }
+    const settings = this.settings, spread = this.spread;
+    this.settings = { ...settings, tactic_depth: limits.depth, tactic_nodes: limits.nodes,
+      exchange_nodes: limits.exchangeNodes, reply_top: limits.replyTop, tactic_top: limits.tacticTop,
+      tactic_rounds: limits.rounds, scan_depth: limits.scanDepth, mate_nodes: limits.mateNodes };
+    try { const ranked = this.rankPosition(board, self); this.timedSpread = this.spread; return ranked; }
+    finally { this.settings = settings; this.spread = spread; }
+  }
+  private rankPosition(board: Chess, self: Color) {
+    this.personalityTrace = undefined;
+    if (board.turn() !== self) throw new Error('G16 must be on turn');
+    const history = this.setup(board), white = self === 'w', values = this.phaseValues(board);
+    const state = this.observe(board, self), pieces = board.board().flat().filter(Boolean);
+    if (this.gManifest.piece_value_mode === 'contextual') this.contextualMaterial(board, self, state.context);
+    const previous = this.settings.repeat_as_draw && history.keys.length - history.since >= 4 ? history.keys.slice(history.since) : [];
+    const dead = pieces.filter(p => p!.type !== 'p' && p!.type !== 'k').length <= 2;
+    const codes = this.call<number[]>('legal');
+    if (!codes.length) return [];
+    this.counters.decisions++;
+    const chooseOnly = (code: number) => {
+      const move = board.moves({ verbose: true }).find(m => codeOf(m) === code);
+      if (!move) throw new Error('G16 returned an illegal move');
+      if (this.personality) this.personalityTrace = { profile: this.personality.id, baseline: uciOf(code),
+        selected: uciOf(code), changed: false, reason: 'forced-book-or-proved', baselineUtility: 10,
+        selectedUtility: 10, utilityLoss: 0, bonus: 0, eligible: 0 };
+      return [{ code, move, uci: uciOf(code), san: move.san, fen: board.fen(), memory: state.memory,
+        context: state.context, mean: 1, deviation: 0, heads: this.value(state.context).heads.map(() => 1),
+        predictLogit: 0, utility: 10, logits: [0,-Infinity,-Infinity], wdl: [1,0,0] }];
+    };
+    const cfg = this.gManifest.options;
+    const ply = 2 * (Number(board.fen().split(' ')[5]) - 1) + Number(board.turn() === 'b');
+    // Claudio._choose catches up memory, handles the only legal move, then consults theory.
+    if (this.n('pawn_version') === 3) {
+      const proof = provenPawnMoves(board);
+      if (proof?.length) {
+        const chosen = proof[0], code = codes.find(code => uciOf(code) === chosen.uci);
+        if (code !== undefined) {
+          this.counters.pawnProofHits++;
+          return chooseOnly(code).map(move => ({ ...move,
+          utility: chosen.wdl > 0 ? 10 : chosen.wdl < 0 ? -10 : this.n('draw_value'),
+          mean: chosen.wdl > 0 ? 1 : chosen.wdl < 0 ? 0 : .5,
+          wdl: chosen.wdl > 0 ? [1, 0, 0] : chosen.wdl < 0 ? [0, 0, 1] : [0, 1, 0] }));
+        }
+      }
+    }
+    if (codes.length === 1) return chooseOnly(codes[0]);
+    if (this.settings.opening_book && ply < 40) {
+      const theory = this.repertoire[repertoireKey(board)];
+      const code = codes.find(code => uciOf(code) === theory);
+      if (code !== undefined) { this.counters.bookHits++; return chooseOnly(code); }
+    }
+    const enemy = pieces.filter(p => p!.color !== self && p!.type !== 'k');
+    const lead = pieces.reduce((s, p) => s + (p!.type === 'k' ? 0 : (this.rootMaterial ? this.rootMaterial[index(p!.square)] : values[' pnbrqk'.indexOf(p!.type)]) * (p!.color === self ? 1 : -1)), 0);
+    if (cfg.finish_planner !== false && pieces.length <= cfg.finish_pieces && !enemy.length && lead > 0) {
+      let plan = this.call<Plan>('plan', this.call<string>('fen'), history.keys.slice(history.since, -1), Math.min(4, cfg.finish_moves), 40000);
+      if (!plan.moves && (this.value(state.context).mean >= this.n('ahead_value') || pieces.some(p => p!.color === self && (p!.type === 'q' || p!.type === 'r')))) {
+        plan = this.call<Plan>('plan', this.call<string>('fen'), history.keys.slice(history.since, -1), cfg.finish_moves, cfg.finish_nodes);
+      }
+      if (plan.moves && plan.move) { this.counters.plannerHits++; return chooseOnly(plan.move); }
+    }
+    // Evidence-gated fast opening: full native safety and mate checks remain mandatory.
+    const seen = this.gManifest.book[key(board.fen())];
+    if (cfg.opening_fast !== false && seen && ply < this.n('book_plies') && !board.isCheck()) {
+      const interval = (n: number, good: number) => {
+        const z = 1.96, p = good / n, centre = (p + z*z/(2*n))/(1 + z*z/n), width = z*Math.sqrt(p*(1-p)/n + z*z/(4*n*n))/(1+z*z/n);
+        return [centre-width, centre+width];
+      };
+      const supported = Object.entries(seen).filter(([, [n]]) => n >= Math.max(16, this.n('book_min')))
+        .sort((a, b) => interval(...b[1])[0] - interval(...a[1])[0]);
+      if (supported.length) {
+        const [uci, row] = supported[0], low = interval(...row)[0];
+        const move = board.moves({ verbose: true }).find(m => m.from + m.to + (m.promotion ?? '') === uci);
+        if (move && low >= .5 && supported.slice(1).every(([, row]) => low > interval(...row)[1])
+          && !this.call<number[]>('mate', white, this.n('mate_attack'), this.n('mate_nodes'), this.n('pawn_reach'))[0]) {
+          const code = codeOf(move), loss = this.call<[number, number[]][]>('deep', [code], values, this.n('tactic_depth'), this.n('exchange_depth'), this.n('tactic_nodes'))[0][0];
+          this.call('push', code);
+          const unsafe = this.call<number>('strict') !== -1 || history.keys.slice(history.since).includes(key(this.call<string>('fen')))
+            || this.call<number[]>('mate', !white, this.n('mate_defence'), this.n('mate_nodes'), this.n('pawn_reach'))[0];
+          this.call('pop');
+          if (!unsafe && Number.isFinite(loss) && this.gain(move, values) - loss >= -1e-9) return chooseOnly(code);
+        }
+      }
+    }

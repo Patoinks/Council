@@ -36,3 +36,30 @@ Pacote comum: PACOTE-PROPOSTA-v1.md, 608461 bytes, SHA-256 db7ac9e7924414ece46b5
 | argon | Gemini web, Argon Alto, conta indicada por Martim | Anexo carregado e prefixo enviado; interface mostra resposta em curso. |
 
 Nenhuma resposta é considerada completa apenas por o processo ter iniciado. Recibos e marcador final serão verificados na captura. O envio não é uma demonstração de identidade interna do fornecedor nem de memória isolada. Acordo entre os três modelos OpenAI não é corroboração de fornecedores independentes.
+
+## Recuperação de transporte do Argon
+
+- A primeira conversa https://gemini.google.com/u/1/app/d8c42cb57b2e7ce9?pageId=none declarou o anexo truncado dentro de base/tonkai_fast/fast.cpp e ausência dos fontes 21–31, prompt da fase e marcador final. Qualquer resposta dessa entrega é incompleta e não entra no conjunto fechado.
+- O operador tentou parar a resposta inválida; o controlo da tab sofreu timeouts de CDP. A conversa de origem fica identificada para preservação; não se afirma que a tentativa de parar tenha tido sucesso. Uma tab nova no mesmo browser respondeu normalmente.
+- O pacote comum foi dividido em sete TXT numerados, com limites por linha e cerca de 100 KB por parte; proposal-parts-v1/PARTS.sha256.json regista os hashes. A concatenação, sem alterar um único carácter, foi comparada com o pacote congelado e é exatamente igual. Nenhum fonte nem argumento foi resumido, selecionado ou retirado.
+- A proposta foi reenviada numa conversa nova da mesma conta/modelo Argon Alto, com as sete partes carregadas. Além do prefixo Participant ID, a única adição foi uma instrução de transporte para ler as partes 01–07 em ordem, localizar o marcador na última e pedir material em falta antes de propor. Não foram fornecidas respostas anteriores nem propostas de pares.
+- Verificação de transporte do operador: os 31 ficheiros do ZIP v3 correspondem a tamanho/SHA-256 do inventário; não há artefactos proibidos; o pacote comum contém LEIS.md atual completo e o marcador final correto. A verificação Git usa core.whitespace=cr-at-eol para conservar os bytes/CRLF dos originais; não reescreve o material congelado.
+- Resultado do reenvio: a interface apresentou as sete partes e a mensagem em envio, mas depois regressou ao ecrã inicial vazio, sem URL de conversa nova, anexos, resposta ou erro explicativo. A tab da primeira entrega também deixou de apresentar a resposta. Isto é falha de interface observada; Argon é skip nesta fase pela Lei 4. O acesso Argon Alto na conta indicada foi verificado; não se atribui a falha a falta de plano nessa conta. Não há nova tentativa ou substituição nesta fase.
+- Preservação: a observação original da resposta parcial foi recuperada do registo de ferramentas desta própria conversa, como evento bruto privado no staging externo. A captura pública incompleta contém apenas o trecho de resposta do AX, sem o menu de conta, localização ou histórico lateral. Não preserva código inline/matemática omitidos pelo AX e não é representada como resposta completa ou semanticamente fiel em tais campos. O original parcial não entra no conjunto fechado nem no pacote de revisão.
+- Sonnet: a primeira leitura de clipboard após Copy devolveu, por atraso de atualização, o texto da consulta de dados anterior. Essa captura inválida foi preservada separadamente como sonnet-stale-clipboard.incomplete.txt fora do checkout. Após observar a interface e reler o clipboard, foi capturado o original certo de 52233 bytes, com marcador de proposta e fecho corretos. O texto inválido não entra no conjunto nem substitui a proposta Sonnet.
+
+## Propostas — conjunto fechado
+
+Quatro originais completos: proposals/astra.txt, proposals/sol.txt, proposals/normal.txt e proposals/sonnet.txt, nesta ordem. CLOSED-PROPOSALS.json e PROPOSALS.sha256 identificam os bytes capturados; PROPOSAL-RECEIPTS.json regista o transporte. Todos repetem END-OF-COUNCIL-008-PROPOSTA-v1, declaram Missing sections: none e terminam com END-OF-CONTRIBUTION. O fecho aplica a Lei 4 ao Argon sem esperar nem escolher substituto. O trecho AX incompleto fica em incomplete/ e não integra o conjunto.
+
+- Astra: CLI gpt-6-astra high solicitado, saída final direta, 63499 bytes, 864 linhas. O modelo declara rótulo não visível, memória de plataforma e nenhuma consulta a pareceres pares.
+- Sol: CLI gpt-6.1-sol xhigh solicitado, saída final direta, 67169 bytes, 1082 linhas.
+- Normal: Copy da interface web, https://chatgpt.com/c/6ad48695-e174-83ed-80ec-e13b0c06afca . O original de 98904 caracteres declara memória do resumo da consulta inicial, sem consulta a propostas de pares. A captura completa e a identidade foram verificadas antes de guardar.
+- Sonnet: Copy da interface web, original validado após a atualização de clipboard; Sonnet 5.5 High observado. Captura de 52233 bytes/637 linhas. Limites de leitura de dependências estão no próprio original.
+- Avisos CLI sobre configuração rmcp_client ignorada e hook de notificação demasiado longo não impediram a entrega da Astra. Não são tratados como falha de contribuição completa; não se modificou configuração do utilizador.
+
+## Revisões — preparação
+
+Nova conversa/execução para cada revisor. Todos recebem o mesmo PACOTE-REVISAO-v1.md com os quatro originais completos e o mesmo CODIGO-EVIDENCIA-v3.zip, integral e verificável pelo inventário incorporado. A entrega separa o arquivo de fontes do texto de revisão para evitar o corte por anexo observado no Gemini; não retira argumentos ou fontes e permite inspeção de passagens exatas. Leitura estática de anexos/fontes é permitida; executar xadrez/testes/treino não é.
+
+O Argon será considerado de novo nesta fase, pois o skip anterior não é permanente. Qualquer erro de interface/quota/bug observado na revisão recebe o seu próprio registo e skip pela Lei 4. Os originais de revisão ficam no staging externo até ao fecho.

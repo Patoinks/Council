@@ -1,0 +1,168 @@
+# SOURCE FILE: evidence/leto-web-export-configuration-metadata.json
+
+````text
+{
+  "description": "Existing LETO WEB export configuration metadata, not authoritative effective Python checkpoint configuration. Only metadata fields extracted; no checkpoint loaded and no tensors included.",
+  "source": "C:\\Users\\Martim\\Desktop\\Github\\TonkAI\\releases\\g4-leto\\web\\public\\tonkai\\leto.json",
+  "source_sha256": "f548c7495320a3210e1cede4b1c3972719e77acbdc4979c4ea0a25e0616fdcaa",
+  "model_name": "G4 Leto",
+  "architecture": {
+    "hidden_size": 512,
+    "latent_size": 128,
+    "head_hidden": 64,
+    "piece_hidden": 64,
+    "type_embed": 16,
+    "square_embed": 16,
+    "side_embed": 8,
+    "memory_size": 64,
+    "ensemble_size": 5,
+    "future_horizons": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "capture_target_weight": 0.05,
+    "residuals": 1,
+    "residual_hidden": 512
+  },
+  "config": {
+    "hidden_size": 512,
+    "latent_size": 128,
+    "head_hidden": 64,
+    "piece_hidden": 64,
+    "type_embed": 16,
+    "square_embed": 16,
+    "side_embed": 8,
+    "memory_size": 64,
+    "ensemble_size": 5,
+    "future_horizons": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "capture_target_weight": 0.05,
+    "residuals": 1,
+    "residual_hidden": 512,
+    "objective": "victory",
+    "king_safety_weight": 0.0548
+  },
+  "claudio_config": {
+    "safety_weight": 1.76,
+    "exchange_depth": 5,
+    "exchange_nodes": 69277,
+    "exchange_dynamic": false,
+    "tactic_depth": 6,
+    "tactic_top": 10,
+    "root_pvs": true,
+    "tactic_rounds": 3,
+    "tactic_nodes": 559745,
+    "shared_table": false,
+    "quiesce_promotions": true,
+    "quiesce_checks": false,
+    "check_extension": 0,
+    "leaf_weight": 0.0,
+    "reply_top": 4,
+    "reply_weight": 0.36,
+    "reply_mode": "expect",
+    "reply_depth": 2,
+    "reply_branch": 2,
+    "mate_defence": 2,
+    "mate_attack": 2,
+    "mate_gate": 0.28,
+    "mate_nodes": 9241,
+    "pawn_reach": 0,
+    "king_weight": 0.0548,
+    "scan_depth": 3,
+    "ahead_draws": true,
+    "ahead_value": 0.635,
+    "draw_ahead": -1.0,
+    "ahead_material": 0.5,
+    "critical_depth": 0,
+    "critical_gap": 0.0,
+    "critical_spread": 0.0,
+    "endgame_pieces": 0,
+    "endgame_mate": 0,
+    "endgame_depth": 0,
+    "endgame_nodes": 400000,
+    "fifty_horizon": 10,
+    "phase_values": "",
+    "phase_opening": 20,
+    "phase_ending": 12,
+    "book": "",
+    "book_weight": 0.0,
+    "book_min": 8,
+    "book_plies": 16,
+    "simplify_weight": 0.049,
+    "simplify_margin": 0.57,
+    "repeat_as_draw": true,
+    "memory": true,
+    "value_scaling": true,
+    "value_spread_ref": 0.0215,
+    "value_spread_decay": 0.98,
+    "head": "mean",
+    "temperature": 0.0,
+    "draw_value": 0.408655,
+    "pawn_weight": 0.3,
+    "pawn_convert": 0.5,
+    "pawn_v2": false,
+    "opening_book": true,
+    "opening_weight": 0.15,
+    "opening_plies": 30,
+    "opening_book_version": 2,
+    "opening_principles_version": 3,
+    "opening_v3_scale": 1.0,
+    "opening_fade": "hold",
+    "syzygy": "",
+    "pawn_version": 3
+  },
+  "options": {
+    "learned_policy": false,
+    "opening_book": false,
+    "opening_fast": false,
+    "finish_planner": false,
+    "finish_pieces": 0,
+    "finish_moves": 0,
+    "finish_nodes": 0
+  }
+}
+
+````
+
+# PHASE PROMPT: prompts/01-PROPOR.md
+
+# Prompt 1 — Independent proposal
+
+**For the operator — the Right Hand (Codex 6.1 Sol xHigh).** Open a new conversation for each participant. Send the same `PACOTE-PROPOSTA.md` to everyone. It contains, in order: the section list, `LEIS.md`, `REGRAS.md`, `CONTEXTO.md`, the manifest, `templates/CONTRIBUICAO.md`, the text below, and the end marker on the last line. Do not include other participants' proposals. Before the packet, add only the line `Participant ID: <id>.` Record any other addition in the manifest. If the Right Hand also participates, the manifest says so. Keep the answers outside the repository until the round closes.
+
+---
+
+You are a participant in a Council that must produce a plan for the decision described in CONTEXTO.md. Follow LEIS.md first, then REGRAS.md. Martim alone makes the Laws and may overrule. The King (Opus) synthesizes and decrees. The Right Hand operates and implements. You propose and review; you do not decide. Do not debate Law No. 2. Do not implement anything.
+
+On the first line, repeat the packet's end marker and list any missing sections, or write «Missing sections: none». If the marker is missing or wrong, ask for the packet again instead of proposing.
+
+Use templates/CONTRIBUICAO.md. Declare your participant ID, the visible model (or «not visible»), the tools you actually used, cross-conversation memory, prior exposure to this debate, and whether this is a new conversation. Do not look for other participants' proposals.
+
+Your answer must contain:
+
+1. A brief of up to 300 words: recommendation, decisive reasons, the main alternative, the condition under which it fails, and how to check it.
+2. Your reading of the objective, the requirements (R#) and the open questions (U#) that could change the decision.
+3. The recommended plan: components, responsibilities, interfaces, flow and execution steps with observable acceptance checks.
+4. At least one plausible alternative, and why you prefer your recommendation.
+5. A comparison against the context's requirements and criteria.
+6. Risks, failure modes and dependencies. List every risk that could break a mandatory requirement.
+7. Evidence table for decisive claims: state (supported, attributed, assumption, contested, unknown), provenance and passage, scope, and the phase in which you consulted it.
+8. At least one refutation test: the observable result that would make you abandon or change the recommendation.
+
+Apply Law No. 1: analyze time or resource metrics only when they belong to Martim's explicitly stated objective or constraints; do not invent personal limits, spending authority, deadlines or resource targets. Do not invent tools, research or results. Write in English, in Markdown. End your answer with a line containing only `END-OF-CONTRIBUTION`.
+
+
+# Binding task clarification
+
+Current Laws override older prompt/template requests for test or validation stages. Produce the best theoretical design; do not execute tools, software, tests, games, benchmarks or training, and do not edit or search any filesystem or earlier contribution. The complete selected source is embedded above. Any genuinely unprovided module is a disclosed limit, never invented evidence. No internet lookup is needed; this is a design Council grounded in the supplied code, not a claim to have researched new facts.
+Style quality is the objective. Give all ten deities concrete game identities, complete initial parameters, computable signal definitions, phase/score dependent plan behavior, persistent plan selection and abandonment rules, and exact candidate-selection pseudocode. Explain pairwise separations and illustrative same-position plan contrasts. Do not describe arbitrary blunders, noise, weaker search or lore as personality. Learned-score guards do not prove Elo preservation. Distinguish original Python/C++ from the existing web-only Nezha layer. Explicitly label all proposed functionality and assumptions.
+Do not make experiments part of the plan. Omit Test requests unless each request satisfies Law 9 with every exact command, file content, expected output and PASS/FAIL/INCONCLUSIVE condition; a vague wish for a test is not a complete Laboratory request. Conceptual failure conditions/refutations can be reasoned about without presenting them as executed results or required plan stages.
+The first line repeats END-OF-COUNCIL-008-PROPOSTA-v1 followed by Missing sections: none, or lists missing sections. Declare actual model, tools, memory, prior exposure and whether this is a fresh conversation. Answer in English using the contribution template and phase requirements. Finish with END-OF-CONTRIBUTION on its own line.
+
+END-OF-COUNCIL-008-PROPOSTA-v1

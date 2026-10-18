@@ -1,0 +1,37 @@
+[
+  {
+    "file": "part-01-of-07.txt",
+    "bytes": 100544,
+    "sha256": "d90202821bf2338d6074ceb7ddbb68b746ea648924bd25b17ba09280322d89f2"
+  },
+  {
+    "file": "part-02-of-07.txt",
+    "bytes": 99921,
+    "sha256": "1a3c4f4e6e7ce44f5eb981d740f055f4dc60bf637ad79597adc6e242eedba886"
+  },
+  {
+    "file": "part-03-of-07.txt",
+    "bytes": 99946,
+    "sha256": "205ddd9a45074331ccffe2f728df61a5840618a907abc10ebbe078ee0e39f7bd"
+  },
+  {
+    "file": "part-04-of-07.txt",
+    "bytes": 99974,
+    "sha256": "e4bdc6b86b24cee6c2fede4bfe595c34cad8e4d89ca8d75bd66f2d853c00df88"
+  },
+  {
+    "file": "part-05-of-07.txt",
+    "bytes": 99964,
+    "sha256": "29796cca4ccfa63d5fbb5826ae90654b080c855fbddcdb20f6a91b906b8ad265"
+  },
+  {
+    "file": "part-06-of-07.txt",
+    "bytes": 99959,
+    "sha256": "bd3d6326b5e02a40f9ed792cd76c1b880407c2152e7b1f02d46bdfe043415966"
+  },
+  {
+    "file": "part-07-of-07.txt",
+    "bytes": 8153,
+    "sha256": "d4d35a565918ae4c09a70856816c3c0c3daf00db1f87a46640bd0fa96e1ef47f"
+  }
+]

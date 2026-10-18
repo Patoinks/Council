@@ -1,0 +1,30 @@
+[
+  {
+    "id": "astra",
+    "path": "proposals/astra.txt",
+    "bytes": 63499,
+    "sha256": "e59904085462cae32b7cc090c6ee9459ca7a555f78d2e10b91bef085fa18e010",
+    "lines": 864
+  },
+  {
+    "id": "sol",
+    "path": "proposals/sol.txt",
+    "bytes": 67169,
+    "sha256": "8841641a6d7052c85915ef0b71bdbaf0adaf389fbb7d8d8df0525514844262b8",
+    "lines": 1082
+  },
+  {
+    "id": "normal",
+    "path": "proposals/normal.txt",
+    "bytes": 99051,
+    "sha256": "d2c98222e04e61f6748c03a7ad66534502a8db195641807add4c1d2af680bc87",
+    "lines": 906
+  },
+  {
+    "id": "sonnet",
+    "path": "proposals/sonnet.txt",
+    "bytes": 52233,
+    "sha256": "457047213399cf46ed09e2036211796278e32e67a53c15b90257ae5fcddd9aeb",
+    "lines": 637
+  }
+]
